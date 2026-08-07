@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" role="img"
+     aria-label="Screenshot pending">
+  <rect width="2400" height="1600" fill="#f2f4f6"/>
+  <rect x="1" y="1" width="2398" height="1598" fill="none" stroke="#d6dbe0" stroke-width="2"/>
+  <!-- suggestion of an app chrome, so the tile reads as "app, not yet captured" -->
+  <rect x="160" y="160" width="2080" height="120" rx="10" fill="#e4e8ec"/>
+  <circle cx="240" cy="220" r="22" fill="#d6dbe0"/>
+  <rect x="300" y="204" width="360" height="32" rx="8" fill="#d6dbe0"/>
+  <rect x="160" y="340" width="620" height="1100" rx="10" fill="#e9edf0"/>
+  <rect x="840" y="340" width="1400" height="1100" rx="10" fill="#e9edf0"/>
+  <text x="1200" y="880" text-anchor="middle" font-family="'Open Sans',system-ui,sans-serif"
+        font-size="76" font-weight="600" fill="#8a949e">Screenshot pending</text>
+</svg>

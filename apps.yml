@@ -1,44 +1,148 @@
 # The gallery's app data -- the single source of truth, edited by hand.
 #
-# Quarto renders categories and tiles in the order they appear in this file,
-# so position is the only ordering mechanism. There is no `order` field and no
+# Quarto renders categories and tiles in the order they appear in this file, so
+# position is the only ordering mechanism. There is no `order` field and no
 # generation step.
 #
-# `thumbnail` must name a file in thumbnails/ and match the convention in
-# R/thumbnail-name.R: the URL minus protocol and any #fragment, with `&` and
-# percent-escapes stripped, `=` and `.` turned into `_`, the rest run through
-# fs::path_sanitize(), and `.png` appended. `R/check.R` verifies both.
+# Tile fields
+#   title        required
+#   org          required  -- the line under the title (owner, or parent project)
+#   description  required
+#   thumbnail    required  -- a file in thumbnails/, named <slug>.png
+#   status       required  -- public | internal | private | wip (renders as a chip)
+#   links        optional  -- list of {text, url}; each renders a button. Omitted
+#                             entirely for now, so no tile carries a dead link.
+#                             Add them as apps get somewhere to point:
+#                               links:
+#                                 - text: GitHub
+#                                   url: https://github.com/...
+#   tech         optional  -- the stack line under the description
+#   tags         optional  -- curated, not currently rendered
+#   alt          optional  -- image alt text; sensibly defaulted from the title
+#   fit          optional  -- cover (default, crops a screenshot to the tile) or
+#                             contain (shows a diagram whole)
 #
-# Categories below are a starting set for bioinformatics -- rename, reorder, or
-# drop any of them. A category with no tiles renders as a bare heading, so
-# delete the ones you aren't using yet.
-- category: Genomics & Variant Analysis
+# Apps without a screenshot yet use thumbnails/placeholder.svg. Replace with a
+# real capture and update `thumbnail`; nothing else needs to change.
+- category: Research Applications
   tiles:
-    # PLACEHOLDER -- delete once the first real app lands. It exists so the site
-    # renders and `R/check.R` passes on a fresh clone. Its thumbnail is the
-    # 2400x1600 example image, copied to the name the convention derives from
-    # the URL below.
-    - org: Your Organization
-      title: Example App
-      url: https://example.shinyapps.io/genome-browser/
+    - title: genescout
+      org: Samuel Bharti
+      status: public
       description: >-
-        Replace this tile with a real app. Each tile needs `org`, `title`, `url`,
-        `description`, and `thumbnail`; `tags` is optional and curated (not
-        currently rendered).
-      thumbnail: example_shinyapps_io_genome-browser_.png
-      tags: genomics, placeholder
+        An agentic evidence-review workbench. Takes a candidate gene, variant or
+        perturbation list plus a disease context and returns a plausibility-ranked,
+        cited shortlist with caveats and suggested next experiments. A citation gate
+        drops any ungrounded evidence. Research use only — never a clinical call.
+      thumbnail: genescout.png
+      tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
+      tags: agents, evidence review, gene prioritization
 
-- category: Transcriptomics & Single-Cell
-  tiles: []
+    - title: tahoe-explorer
+      org: Samuel Bharti
+      status: private
+      description: >-
+        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata —
+        100.6 million rows across 2.29 GB of parquet — and leave with a reproducible
+        R and Python pull recipe. Every summary is pushed down as a DuckDB GROUP BY,
+        so the raw cells never enter R memory.
+      thumbnail: placeholder.svg
+      tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
+      tags: single-cell, perturbation, duckdb
 
-- category: Proteomics & Metabolomics
-  tiles: []
+    - title: variant-reviewer
+      org: Samuel Bharti
+      status: private
+      description: >-
+        One gene, one variant, one page. Eighteen cards fan out asynchronously across
+        public bioinformatics APIs — MyGene, MyVariant, gnomAD, ClinVar, VEP, GTEx,
+        STRING, Open Targets, AlphaFold — with a 3D structure viewer and a typeahead
+        that prefetches ClinVar variants as you type.
+      thumbnail: variant-reviewer.png
+      tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
+      tags: variants, annotation, clinical genetics
 
-- category: Structural Biology
-  tiles: []
+    - title: multi-variant-reviewer
+      org: Samuel Bharti
+      status: wip
+      description: >-
+        Convergence analysis for a set of 5–300 rare variants in one patient. Asks, in
+        order: is a single locus sufficient, is there a small blended-phenotype
+        combination, or does the set show more phenotypic and network coherence than a
+        size-matched random gene set? Permutation nulls, not vibes.
+      thumbnail: placeholder.svg
+      tech: R Shiny · mirai · GRCh37→38 liftover · HPO ontology · Quarto report
+      tags: rare disease, phenotype, permutation testing
 
-- category: Microbiome & Metagenomics
-  tiles: []
+    - title: gene-list-builder
+      org: Samuel Bharti
+      status: private
+      description: >-
+        Resolve a disease name to an EFO/MONDO term, query seven gene-disease sources
+        in parallel, dedupe to one row per gene, then re-rank live as you tune the
+        source weights. Exports a CSV and a Markdown provenance report.
+      thumbnail: placeholder.svg
+      tech: R Shiny · Open Targets GraphQL · PanelApp · DGIdb · Pharos
+      tags: gene-disease, target discovery, provenance
 
-- category: Clinical & Translational
-  tiles: []
+    - title: knowledge-graph-viewer
+      org: Samuel Bharti
+      status: private
+      description: >-
+        Load a biomedical knowledge graph — bundled packs, PubTator output, a KGX
+        pair, or any edge list via a column mapper — and explore it as a typed,
+        directed, evidence-carrying network. Two swappable render backends behind one
+        contract: WebGL for scale, SVG as a fallback.
+      thumbnail: placeholder.svg
+      tech: R Shiny · plotomics (sigma.js/WebGL) · visNetwork · igraph · Monarch API
+      tags: knowledge graph, network, webgl
+
+# The four applications inside lifescience-shiny-gallery, which also ships twelve
+# reusable component showcases. All run out of the box on real public data and
+# accept your own through a published contract.
+- category: Life Science Shiny Gallery
+  tiles:
+    - title: DE Explorer
+      org: lifescience-shiny-gallery
+      status: internal
+      description: >-
+        Differential expression over uniformly reprocessed TCGA and airway RNA-seq.
+        Tune fold-change and significance thresholds, read the design and provenance
+        beside the figures, and drill from a PCA overview into per-gene detail.
+      thumbnail: de-explorer.png
+      tech: R Shiny · bslib · DESeq2 · recount3 · ellmer
+      tags: rna-seq, differential expression, tcga
+
+    - title: Signature Scoring
+      org: lifescience-shiny-gallery
+      status: internal
+      description: >-
+        From gene expression to pathway activity. Condenses each TCGA-BRCA sample's
+        expression into activity scores for the 50 MSigDB Hallmark pathways, contrasts
+        them between clinical subtypes, and opens any pathway to the genes driving it.
+        Four scoring methods behind one control.
+      thumbnail: signature-scoring.png
+      tech: R Shiny · ssGSEA · singscore · MSigDB Hallmark · TCGA-BRCA
+      tags: pathway activity, gene sets, msigdb
+
+    - title: Drug Perturbation
+      org: lifescience-shiny-gallery
+      status: internal
+      description: >-
+        Connectivity scoring against a reference perturbation panel. Edit a query
+        signature, pick weighted or cosine scoring, and rank compounds into mimics and
+        reversers — then break any hit down by cell line or dose.
+      thumbnail: drug-perturbation.png
+      tech: R Shiny · LINCS · connectivity scoring · MIT
+      tags: drug repurposing, connectivity, lincs
+
+    - title: Genome Explorer
+      org: lifescience-shiny-gallery
+      status: internal
+      description: >-
+        The one app shipped in the full matrix — R and Python × Shiny and shinyreact —
+        so the same genome browser can be read four ways. Useful as a side-by-side
+        reference for what each stack costs you.
+      thumbnail: placeholder.svg
+      tech: R Shiny · Python Shiny · shinyreact · igvShiny
+      tags: genome browser, igv, cross-language

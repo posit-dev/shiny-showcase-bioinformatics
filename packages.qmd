@@ -1,0 +1,28 @@
+---
+pagetitle: Supporting packages
+title: 'Supporting Packages'
+format:
+  html:
+    page-layout: full
+    title-block-banner: true
+    template-partials:
+      - title-block.html
+listing:
+  id: package-gallery
+  contents: packages.yml
+  template: showcase.ejs
+resources:
+  - shiny-solo.png
+---
+
+{{< var gallery.packages-description >}}
+
+Built by [{{< var gallery.author >}}](mailto:{{< var gallery.email >}}) — {{< var gallery.role >}}.
+
+[See the apps](index.qmd){.call-to-action}
+
+::: {#package-gallery}
+
+:::
+
+To report an issue with this page, please open an [Issue on GitHub]({{< var gallery.issue-url >}}).

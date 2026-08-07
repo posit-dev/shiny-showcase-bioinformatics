@@ -1,50 +1,47 @@
 ---
 name: update-thumbnails
-description: Capture or refresh Shiny app thumbnails for the gallery. Use when new apps have been added to apps.yml and need screenshots, or when an existing thumbnail needs re-taking. Opens each app in a browser the user can drive, screenshots at 2400x1600, and saves under the canonical name.
+description: Capture or refresh Shiny app thumbnails for the gallery. Use when an app in apps.yml or packages.yml is still on the placeholder and needs a real screenshot, or when an existing thumbnail needs re-taking. Opens each app in a browser the user can drive, screenshots at 2400x1600, and saves it under the app's name.
 ---
 
 # Update showcase thumbnails
 
-Thumbnails live in `thumbnails/` and are named canonically from each app's URL.
-`R/thumbnail-name.R` is the single source of truth for the convention
-(`thumbnail_name()` drops the protocol and any `#fragment`, strips `&` and
-percent-escapes, turns `=` and `.` into `_`, then hands the rest to
-`fs::path_sanitize()` for `/`, `?` and anything else unsafe, and appends `.png`;
-the query string is kept, so apps differing only by it get distinct names). `apps.yml` records the resulting filename in each
-tile's `thumbnail` field, and `R/check.R` verifies it exists and matches.
+Thumbnails live in `thumbnails/` and are named after the app: `genescout.png`,
+`variant-reviewer.png`. Each tile in `apps.yml` / `packages.yml` records the
+filename in its `thumbnail` field, and `R/check.R` verifies the file exists.
 
-A "new app" is any tile in `apps.yml` whose thumbnail is **absent** from
-`thumbnails/`.
+These apps are **first-party and mostly not deployed** — they run locally, at a
+URL like `http://127.0.0.1:3838` that says nothing about which app it is. So
+unlike an upstream gallery of third-party apps, the filename is *not* derived
+from the URL. (`R/thumbnail-name.R` still holds that URL-based convention; it
+applies only if a third-party app is ever added.)
+
+An app that **needs** a screenshot is any tile whose `thumbnail` is
+`placeholder.svg`. `R/check.R` lists them under "awaiting a real screenshot".
 
 Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscript`.
 
 ## Steps
 
-1. **List apps missing a thumbnail.** In R:
+1. **List the tiles still on the placeholder.** In R:
    ```r
    source("R/check.R")
    ```
-   `apps.yml` is the source of truth and is edited by hand — nothing regenerates
-   it. `check.R` errors with the title and filename of every tile whose
-   thumbnail isn't on disk, and warns about names that drift from the
-   convention. Needs a restored renv library (`renv::restore()` if packages are
-   missing).
+   `apps.yml` and `packages.yml` are the source of truth and are edited by hand —
+   nothing regenerates them. `check.R` errors on a tile whose thumbnail is missing
+   from disk entirely, and reports which tiles are still on `placeholder.svg`.
+   Needs a restored renv library (`renv::restore()` if packages are missing).
 
-   For a tile you're adding, derive the filename first so you know what to
-   capture:
-   ```r
-   source(here::here("R", "thumbnail-name.R"))
-   thumbnail_name("https://kdph.shinyapps.io/atlas/")
-   ```
+2. **Start the app you're capturing.** These are not deployed, so run it locally
+   first — from its own repository, in a separate R session — and note the port.
 
-3. **Capture each missing app.** For one URL at a time:
+3. **Capture it.** One app at a time:
    ```r
    source("R/capture.R")
-   url <- "https://kdph.shinyapps.io/atlas/"
+   url <- "http://127.0.0.1:3838"
    b <- open_app(url)          # opens a viewable window, 2400x1600 output
    ```
-   If the app opens looking small/zoomed-out, re-open with a `zoom` factor —
-   the output stays 2400x1600 but content renders larger and sharper:
+   If the app opens looking small/zoomed-out, re-open with a `zoom` factor — the
+   output stays 2400x1600 but content renders larger and sharper:
    ```r
    b$close(); b <- open_app(url, zoom = 2)
    ```
@@ -54,28 +51,34 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
      `b$Runtime$evaluate('document.querySelector("a[data-value=\\"Map\\"]").click()')`
    - Give slow Shiny apps time to finish loading (`Sys.sleep(6)` if needed).
 
-   When it looks right:
+   When it looks right — **pass `file` explicitly**, named after the app:
    ```r
-   capture_app(b, url)   # saves thumbnails/<derived name>.png
+   capture_app(b, url, file = "genescout.png")
    b$close()
    ```
    Ask the user to confirm the saved PNG looks good (interesting view, no spinners
    or modals) before moving on.
 
-4. **Re-check and preview.**
+4. **Point the tile at it.** Change that tile's `thumbnail` from `placeholder.svg`
+   to the new filename. Leave `fit` alone unless you captured a diagram rather
+   than a screenshot, in which case set `fit: contain`.
+
+5. **Re-check and preview.**
    ```r
    source("R/check.R")
    ```
    ```bash
    quarto preview
    ```
-   Check every card renders an image — no broken thumbnails.
-
-5. **Publish** via the Posit Publisher extension in Positron (see README).
+   Check every card on both tabs renders an image — no broken thumbnails.
 
 ## Notes
 
-- Record the filename in the tile's `thumbnail` field in `apps.yml`, and keep it
-  equal to `thumbnail_name(url)` — `check.R` warns when the two drift apart.
+- Cards crop to 3:2 from the top-left (`fit: cover`), so put the app's header and
+  its most legible content in the upper-left of the capture. Nothing needs to be
+  exactly 2400x1600 — CSS handles the box — but capturing at that size keeps the
+  crop sharp.
+- `check.R` warns about images in `thumbnails/` that no tile references, which is
+  how you catch a rename that only got applied on one side.
 - If an app needs a specific tab/scroll state, that's exactly why capture is manual:
   drive the live session, then `capture_app()`.

@@ -22,9 +22,10 @@ source(here("R", "thumbnail-name.R"))
 #' @param view Open the interactive window immediately (default TRUE).
 #'
 #' @examples
-#' b <- open_app("https://kdph.shinyapps.io/atlas/", zoom = 2)
+#' url <- "http://127.0.0.1:3838"
+#' b <- open_app(url, zoom = 2)
 #' # ...interact in the window or via b$Runtime$evaluate(...)...
-#' capture_app(b, "https://kdph.shinyapps.io/atlas/")
+#' capture_app(b, url, file = "genescout.png")
 #' b$close()
 open_app <- function(url, width = 2400, height = 1600, zoom = 1.5, view = TRUE) {
   b <- ChromoteSession$new()
@@ -45,8 +46,12 @@ open_app <- function(url, width = 2400, height = 1600, zoom = 1.5, view = TRUE) 
 #' Saves a PNG to thumbnails/ using the canonical name from `thumbnail_name()`.
 #'
 #' @param b A live ChromoteSession from `open_app()`.
-#' @param url The app URL (used to derive the filename).
-#' @param file Override the output filename. Defaults to `thumbnail_name(url)`.
+#' @param url The app URL. Only used to derive a filename when `file` is absent.
+#' @param file Output filename. **Pass this.** These apps are first-party and
+#'   mostly run at a localhost URL that says nothing about which app it is, so
+#'   thumbnails are named after the app — `"genescout.png"`, matching the
+#'   tile's `thumbnail` field. The `thumbnail_name(url)` fallback is only
+#'   sensible for a third-party app identified by its public URL.
 capture_app <- function(b, url, file = NULL) {
   if (is.null(file)) file <- thumbnail_name(url)
   out_path <- here("thumbnails", file)

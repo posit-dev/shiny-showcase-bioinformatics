@@ -1,34 +1,68 @@
 
 ```{=html}
+<%
+  // Status chip labels. Keys are the `status` values allowed in apps.yml /
+  // packages.yml; R/check.R validates against this same set.
+  const STATUS = {
+    public:   "Public",
+    internal: "Posit-internal",
+    private:  "Private",
+    wip:      "In progress"
+  };
+%>
 <% for (const item of items) { %>
 
   <h2><%- item.category %></h2>
-  
+
   <div class="list grid" style="column-gap: 20px;">
 
-    <% for (const tile of item.tiles) { %>
+    <% for (const tile of (item.tiles || [])) { %>
+      <%
+        const pending = tile.thumbnail === "placeholder.svg";
+        const alt = tile.alt
+          || (pending ? "Screenshot pending for " + tile.title
+                      : "Screenshot of " + tile.title);
+        // Screenshots are cropped to the tile (`cover`); diagrams and the
+        // placeholder are shown whole (`contain`), since cropping a diagram
+        // cuts its labels off mid-sentence.
+        const fit = tile.fit || (pending ? "contain" : "cover");
+        // `links` is optional and may be absent entirely -- a tile with nowhere
+        // to point renders no footer rather than a dead button.
+        const links = tile.links || [];
+      %>
       <div class="card border g-col-12 g-col-md-6 g-col-lg-4 mb-4">
-        <div class = "card-img-top border-bottom">
-          <a href="<%- tile.url %>" target="_blank">
-            <div class="rounded-0">
-                <img src="thumbnails/<%- tile.thumbnail %>" alt="Screenshot of <%- tile.title %> app" class="card-img-top gallery-entry__img rounded-0" />
-            </div>
-          </a>
+        <div class="card-img-top border-bottom">
+          <div class="rounded-0">
+            <img src="thumbnails/<%- tile.thumbnail %>" alt="<%- alt %>"
+                 class="card-img-top gallery-entry__img gallery-entry__img--<%- fit %> rounded-0" />
+          </div>
         </div>
-        <div class = "card-body">
+        <div class="card-body">
           <h3 class="mt-3 mb-2"><%= tile.title %></h3>
+          <div class="mb-2">
+            <span class="chip chip--<%- tile.status %>"><%- STATUS[tile.status] || tile.status %></span>
+          </div>
           <div class="text-uppercase font-monospace"><%= tile.org %></div>
           <div class="text-muted"><p>
 ```
 <%= tile.description %>
 ```{=html}
-            </p>
+          </p></div>
+          <% if (tile.tech) { %>
+            <div class="tech"><%= tile.tech %></div>
+          <% } %>
+        </div>
+
+        <% if (links.length) { %>
+          <div class="card-footer">
+            <div class="view-app">
+              <% for (const link of links) { %>
+                <a href="<%- link.url %>" target="_blank"
+                   class="btn btn-outline-primary btn-sm mb-1"><%= link.text %></a>
+              <% } %>
+            </div>
           </div>
-        </div>
-        
-        <div class="card-footer">
-          <div class="view-app"><a href="<%- tile.url %>" target="_blank" class="btn btn-outline-primary">View app</a></div>
-        </div>
+        <% } %>
       </div>
     <% } %>
   </div>

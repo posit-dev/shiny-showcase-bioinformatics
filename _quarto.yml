@@ -2,14 +2,21 @@ project:
   type: website
 
 website:
-  page-footer: 
+  title: "Shiny in Bioinformatics"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Apps
+      - href: packages.qmd
+        text: Packages
+  page-footer:
     center: |
       Compiled by
         [![](Posit-Logos-2024_horiz-full-color.svg){fig-alt="Posit" width=65px}](https://posit.co)
-      | 
+      |
       Built with [Quarto](http://quarto.org)
 
-format: 
+format:
   html:
     toc: false
     theme: [cosmo, brand, styles.scss]

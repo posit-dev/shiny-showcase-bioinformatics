@@ -1,0 +1,45 @@
+# Supporting packages -- same shape as apps.yml, same required fields.
+#
+# These are the cross-language packages the applications are built on. Tooling
+# that isn't a package (shinyreact, RShiny_template, Plotomics Live) is
+# deliberately not listed here -- add a category for it if that changes.
+- category: Packages
+  tiles:
+    - title: biobouncer
+      org: R · Python
+      status: public
+      description: >-
+        A gate for biological inputs. Validate gene symbols, ontology terms, variant
+        formats and database accessions through one small API — offline against
+        identifier patterns and bundled snapshots, or live against the source service.
+        R and Python are tested against a shared conformance corpus, so the two
+        implementations cannot quietly disagree on edge cases. It does not replace
+        biomaRt or mygene; it validates inputs before they reach them.
+      thumbnail: biobouncer.svg
+      # An overview diagram rather than a screenshot -- show it whole.
+      fit: contain
+      alt: Diagram of the biobouncer validation flow, from a messy input column through pattern, cache, remote and existence checks to one answer in R and Python
+      tech: "48 sources · 4 modes: pattern · cache · remote · existence · order-preserving per-element verdicts"
+      links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/biobouncer
+        - text: PyPI
+          url: https://pypi.org/project/biobouncer/
+        - text: DOI
+          url: https://doi.org/10.5281/zenodo.21346522
+      tags: validation, gene symbols, ontology, cross-language
+
+    - title: plotomics
+      org: TypeScript · R · Python
+      status: private
+      description: >-
+        Seventeen GPU-accelerated bioinformatics visualizations generated from one
+        TypeScript core, wrapped three ways: npm for React, htmlwidgets for R,
+        anywidget for Python. Large data never goes through JSON — the Python wrapper
+        packs columns into typed arrays, and in Shiny precomputed binary blobs are
+        fetched over static HTTP and handed straight to the GPU. The components are
+        headless imperative factories rather than React components, which is precisely
+        why the same core drops into Shiny, React and Jupyter unchanged.
+      thumbnail: plotomics.png
+      tech: volcano · embedding · heatmap · clustermap · hic · igv · gosling · network · treemap · oncoplot · profile · spatial · dotplot · violin · upset · km · lollipop
+      tags: visualization, gpu, webgl, htmlwidgets, anywidget

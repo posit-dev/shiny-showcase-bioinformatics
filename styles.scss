@@ -36,3 +36,48 @@ h3 {
   padding-bottom: 20px;
   border: 0;
 }
+
+// Card images arrive at whatever size the capture happened to be (4000x1818,
+// 3000x1150, an SVG placeholder). Pinning every box to 3:2 keeps the grid even
+// whatever the source dimensions.
+.gallery-entry__img {
+  aspect-ratio: 3 / 2;
+  width: 100%;
+}
+
+// Screenshots: crop from the top, so the app's header stays in frame.
+.gallery-entry__img--cover {
+  object-fit: cover;
+  object-position: top left;
+}
+
+// Diagrams and the placeholder: show whole, on a light ground. Cropping a
+// diagram cuts its labels off mid-sentence.
+.gallery-entry__img--contain {
+  object-fit: contain;
+  background-color: #f2f4f6;
+}
+
+// Access-status chips. Same vocabulary as `status` in apps.yml / packages.yml.
+.chip {
+  display: inline-block;
+  font-family: $font-family-monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  color: #fff;
+  vertical-align: 2px;
+}
+
+.chip--public   { background: #72994E; }
+.chip--internal { background: #447099; }
+.chip--private  { background: #404041; }
+.chip--wip      { background: #EE6331; }
+
+.tech {
+  font-family: $font-family-monospace;
+  font-size: 0.78rem;
+  color: #447099;
+  margin-top: 0.5rem;
+}

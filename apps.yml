@@ -1,0 +1,44 @@
+# The gallery's app data -- the single source of truth, edited by hand.
+#
+# Quarto renders categories and tiles in the order they appear in this file,
+# so position is the only ordering mechanism. There is no `order` field and no
+# generation step.
+#
+# `thumbnail` must name a file in thumbnails/ and match the convention in
+# R/thumbnail-name.R: the URL minus protocol and any #fragment, with `&` and
+# percent-escapes stripped, `=` and `.` turned into `_`, the rest run through
+# fs::path_sanitize(), and `.png` appended. `R/check.R` verifies both.
+#
+# Categories below are a starting set for bioinformatics -- rename, reorder, or
+# drop any of them. A category with no tiles renders as a bare heading, so
+# delete the ones you aren't using yet.
+- category: Genomics & Variant Analysis
+  tiles:
+    # PLACEHOLDER -- delete once the first real app lands. It exists so the site
+    # renders and `R/check.R` passes on a fresh clone. Its thumbnail is the
+    # 2400x1600 example image, copied to the name the convention derives from
+    # the URL below.
+    - org: Your Organization
+      title: Example App
+      url: https://example.shinyapps.io/genome-browser/
+      description: >-
+        Replace this tile with a real app. Each tile needs `org`, `title`, `url`,
+        `description`, and `thumbnail`; `tags` is optional and curated (not
+        currently rendered).
+      thumbnail: example_shinyapps_io_genome-browser_.png
+      tags: genomics, placeholder
+
+- category: Transcriptomics & Single-Cell
+  tiles: []
+
+- category: Proteomics & Metabolomics
+  tiles: []
+
+- category: Structural Biology
+  tiles: []
+
+- category: Microbiome & Metagenomics
+  tiles: []
+
+- category: Clinical & Translational
+  tiles: []

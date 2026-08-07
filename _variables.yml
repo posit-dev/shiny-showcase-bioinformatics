@@ -1,0 +1,10 @@
+# Site-level variables consumed by index.qmd and title-block.html via
+# Quarto's `{{< var >}}` shortcode. One vertical per site.
+
+gallery:
+  name: Bioinformatics
+  url: https://posit.co/solutions/pharma/
+  # TODO: point at this repo's issue tracker once a remote exists.
+  issue-url: https://github.com/posit-dev/shiny-showcase-bioinformatics/issues
+  description: |
+    Shiny and Quarto help R and Python users build powerful, interactive web apps and high-quality documents. This gallery showcases how bioinformaticians and computational biologists use these tools to make genomes, expression atlases, structures, and pipelines explorable — turning analysis code into interfaces that collaborators at the bench and the clinic can actually use.

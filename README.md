@@ -4,16 +4,21 @@ A Quarto website showcasing the computational-biology tools, apps and packages
 built by Samuel Bharti — a family of research-genomics Shiny applications on one
 shared template, plus the cross-language packages beneath them.
 
-Two tabs:
+One page, `index.qmd`, rendering two listings as consecutive sections:
 
-| Tab | Page | Data |
-|---|---|---|
-| **Apps** | `index.qmd` | `apps.yml` — 10 tiles in 2 categories |
-| **Packages** | `packages.qmd` | `packages.yml` — biobouncer, plotomics |
+| Section | Data |
+|---|---|
+| Research Applications, Life Science Shiny Gallery | `apps.yml` — 10 tiles in 2 categories |
+| Supporting Packages | `packages.yml` — biobouncer, plotomics |
+
+There is no navbar. The "Supporting Packages" button on the page links to
+`#supporting-packages`; the template derives that anchor from the category name,
+since Quarto doesn't anchor headings a listing template emits.
 
 Structure and tooling follow [posit-dev/shiny-gallery](https://github.com/posit-dev/shiny-gallery),
-with the card template extended for status chips, optional links and a `fit`
-control. Content is drawn from the private `comp-bio-apps` repository.
+with the card template extended for status chips, optional links, a `fit`
+control and per-category `intro` text. Content is drawn from the private
+`comp-bio-apps` repository.
 
 > [!WARNING]
 > **Not ready to publish.** The site is built to go public eventually, but two
@@ -38,6 +43,14 @@ shared `showcase.ejs` template.
 Quarto renders categories and tiles in the order they appear in the file, so
 position is the only ordering mechanism — move a block to move it on the page.
 There is no `order` field.
+
+### Category fields
+
+| Field | | Notes |
+|---|---|---|
+| `category` | required | The section heading. Its lowercase-hyphenated form is the in-page anchor |
+| `intro` | optional | Lead-in paragraph under the heading |
+| `tiles` | required | The cards, in display order |
 
 ### Tile fields
 
@@ -131,11 +144,10 @@ Not configured — see the warning above.
 ## Project structure
 
 ```
-apps.yml              # Apps tab data — source of truth, order = display order
-packages.yml          # Packages tab data, same schema
-index.qmd             # Apps tab
-packages.qmd          # Packages tab
-showcase.ejs          # Card layout template, shared by both tabs
+apps.yml              # App sections — source of truth, order = display order
+packages.yml          # Supporting Packages section, same schema
+index.qmd             # The page — renders both listings
+showcase.ejs          # Card layout template, shared by both listings
 thumbnails/           # Screenshots, diagrams, and placeholder.svg
 R/check.R             # check_apps(): validates both YAML files
 R/capture.R           # open_app()/capture_app() screenshot helpers
@@ -144,7 +156,7 @@ R/renv.lock           # renv lockfile (renv paths are set in .Rprofile)
 .agents/skills/       # update-thumbnails skill (symlinked into .claude/skills/)
 _brand.yml            # Posit brand colors and typography
 _variables.yml        # Site-level variables (name, author, descriptions, URLs)
-_quarto.yml           # Quarto project config, including the two-tab navbar
+_quarto.yml           # Quarto project config
 styles.scss           # Custom styles — chips, card image fitting, tech line
 title-block.html      # Custom title block partial
 ```

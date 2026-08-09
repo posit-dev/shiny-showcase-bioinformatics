@@ -3,12 +3,8 @@ project:
 
 website:
   title: "Shiny in Bioinformatics"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Apps
-      - href: packages.qmd
-        text: Packages
+  # No navbar: the site is a single page, with apps and supporting packages as
+  # sections of it.
   page-footer:
     center: |
       Compiled by

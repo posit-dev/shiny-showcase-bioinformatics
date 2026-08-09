@@ -11,8 +11,19 @@
   };
 %>
 <% for (const item of items) { %>
+  <%
+    // Quarto doesn't anchor headings a template emits, so derive an id from the
+    // category name. That's what in-page links like the "Supporting Packages"
+    // button target.
+    const anchor = item.category.toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  %>
 
-  <h2><%- item.category %></h2>
+  <h2 id="<%- anchor %>"><%- item.category %></h2>
+
+  <% if (item.intro) { %>
+    <p class="category-intro"><%= item.intro %></p>
+  <% } %>
 
   <div class="list grid" style="column-gap: 20px;">
 

@@ -1,9 +1,16 @@
-# Supporting packages -- same shape as apps.yml, same required fields.
+# Supporting packages -- same shape as apps.yml, same required fields. Rendered
+# as a section on index.qmd, after the apps.
 #
 # These are the cross-language packages the applications are built on. Tooling
 # that isn't a package (shinyreact, RShiny_template, Plotomics Live) is
 # deliberately not listed here -- add a category for it if that changes.
-- category: Packages
+#
+# `intro` is optional and renders as a lead-in paragraph under the heading.
+- category: Supporting Packages
+  intro: >-
+    The packages I've built and maintain underneath the applications. Both are
+    cross-language by design: one API, one answer, whether you work in R or in
+    Python.
   tiles:
     - title: biobouncer
       org: R · Python

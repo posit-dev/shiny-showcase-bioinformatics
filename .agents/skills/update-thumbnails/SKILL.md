@@ -70,7 +70,7 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
    ```bash
    quarto preview
    ```
-   Check every card on both tabs renders an image — no broken thumbnails.
+   Check every card in every section renders an image — no broken thumbnails.
 
 ## Notes
 

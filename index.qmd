@@ -10,9 +10,12 @@ format:
     template-partials:
       - title-block.html
 listing:
-  id: app-gallery
-  contents: apps.yml
-  template: showcase.ejs
+  - id: app-gallery
+    contents: apps.yml
+    template: showcase.ejs
+  - id: package-gallery
+    contents: packages.yml
+    template: showcase.ejs
 resources:
   - shiny-solo.png
 ---
@@ -21,21 +24,13 @@ resources:
 
 Built by [{{< var gallery.author >}}](mailto:{{< var gallery.email >}}) — {{< var gallery.role >}}.
 
-[Learn more about Shiny](https://shiny.posit.co/){.call-to-action} [See the packages](packages.qmd){.call-to-action}
-
-::: {.callout-note appearance="simple"}
-### Access
-
-**None of these applications is publicly deployed.** They are internal and research
-tools, so tiles carry a status chip rather than a link — nothing on this page is a
-dead link, and links appear as apps get somewhere to point.
-
-[Public]{.chip .chip--public} source and DOI · [Posit-internal]{.chip .chip--internal}
-available to Posit staff · [Private]{.chip .chip--private} walkthrough on request ·
-[In progress]{.chip .chip--wip} honest about maturity
-:::
+[Learn more about Shiny](https://shiny.posit.co/){.call-to-action} [Supporting Packages](#supporting-packages){.call-to-action}
 
 ::: {#app-gallery}
+
+:::
+
+::: {#package-gallery}
 
 :::
 

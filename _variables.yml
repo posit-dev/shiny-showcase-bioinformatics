@@ -1,5 +1,5 @@
-# Site-level variables consumed by index.qmd, packages.qmd and title-block.html
-# via Quarto's `{{< var >}}` shortcode.
+# Site-level variables consumed by index.qmd and title-block.html via Quarto's
+# `{{< var >}}` shortcode.
 
 gallery:
   name: Bioinformatics
@@ -11,5 +11,3 @@ gallery:
   issue-url: https://github.com/posit-dev/shiny-showcase-bioinformatics/issues
   description: |
     The tools, apps and packages I've built for computational biology — a family of research-genomics Shiny applications on one shared template, plus the cross-language packages beneath them. Shiny and Quarto let R and Python users turn analysis code into interfaces a bench scientist can actually use; this is what that looks like across variant interpretation, single-cell perturbation, pathway activity and knowledge graphs.
-  packages-description: |
-    The packages I've built and maintain underneath the applications. Both are cross-language by design: one API, one answer, whether you work in R or in Python.

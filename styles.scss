@@ -86,6 +86,12 @@ h3 {
   margin-top: 0.5rem;
 }
 
+// Optional lead-in under a section heading, set from a category's `intro`.
+.category-intro {
+  max-width: 60rem;
+  margin-bottom: 1.4rem;
+}
+
 // Quarto's note callout ships Bootstrap blue (#2780e3) for its rule and its
 // icon, which is the one thing left on the page not in the site's tone. The
 // icon is an inline SVG data URI, so recolouring it means restating the whole

@@ -70,14 +70,36 @@ h3 {
   vertical-align: 2px;
 }
 
-.chip--public   { background: #72994E; }
-.chip--internal { background: #447099; }
-.chip--private  { background: #404041; }
-.chip--wip      { background: #EE6331; }
+// The four statuses must stay distinguishable from each other, so these are
+// deliberately not shades of the plum primary — they are muted to the same
+// mid-lightness so they sit beside it rather than fight it. Each carries white
+// text at 4.9:1 or better, which small bold type needs.
+.chip--public   { background: #527A57; } // sage      4.9:1
+.chip--internal { background: #4A6D8C; } // steel     5.4:1
+.chip--private  { background: #4A4550; } // plum-gray 9.3:1
+.chip--wip      { background: #A85C33; } // terracotta 5.0:1
 
 .tech {
   font-family: $font-family-monospace;
   font-size: 0.78rem;
-  color: #447099;
+  color: #6C4157; // plum-dark, per _brand.yml — 8.3:1 on white
   margin-top: 0.5rem;
+}
+
+// Quarto's note callout ships Bootstrap blue (#2780e3) for its rule and its
+// icon, which is the one thing left on the page not in the site's tone. The
+// icon is an inline SVG data URI, so recolouring it means restating the whole
+// image.
+//
+// The leading `div` is load-bearing: Quarto writes these as
+// `div.callout-note.callout`, and dropping the element selector leaves this
+// rule a specificity point short, so it silently loses no matter where it sits
+// in the cascade.
+div.callout-note.callout {
+  border-left-color: $primary;
+}
+
+div.callout-note.callout-titled .callout-icon::before,
+div.callout-note:not(.callout-titled) .callout-icon::before {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236C4157' class='bi bi-info-circle' viewBox='0 0 16 16'><path d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/><path d='m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z'/></svg>");
 }

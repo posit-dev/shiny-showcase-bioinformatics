@@ -1,9 +1,13 @@
 color:
   palette:
-    posit-blue: "#447099"
-    posit-green: "#72994E"
-    posit-dark-green-1: "#57733D"
-  primary: posit-dark-green-1
+    plum: "#8E5572"
+    # Darker plum for links and the `.tech` line -- 8.3:1 on white, so it stays
+    # legible at the small sizes both are set in.
+    plum-dark: "#6C4157"
+    plum-light: "#F0E6EB"
+    # Bootstrap-standard alias, picked up automatically by brand.yml consumers.
+    pink: plum
+  primary: plum
 typography:
   fonts:
     - family: "Open Sans"
@@ -11,7 +15,7 @@ typography:
       weight: [300, 400, 600]
     - family: "Source Code Pro"
       source: google
-  base: 
+  base:
     family: "Open Sans"
     weight: 400
   monospace: "Source Code Pro"
@@ -19,4 +23,5 @@ typography:
     weight: 300
     line-height: 120%
   link:
+    color: plum-dark
     decoration: underline

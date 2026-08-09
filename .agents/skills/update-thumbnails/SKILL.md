@@ -9,7 +9,7 @@ Thumbnails live in `thumbnails/` and are named after the app: `genescout.png`,
 `variant-reviewer.png`. Each tile in `apps.yml` / `packages.yml` records the
 filename in its `thumbnail` field, and `R/check.R` verifies the file exists.
 
-These apps are **first-party and mostly not deployed** — they run locally, at a
+These apps are **first-party and mostly not deployed**: they run locally, at a
 URL like `http://127.0.0.1:3838` that says nothing about which app it is. So
 unlike an upstream gallery of third-party apps, the filename is *not* derived
 from the URL. (`R/thumbnail-name.R` still holds that URL-based convention; it
@@ -26,13 +26,13 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
    ```r
    source("R/check.R")
    ```
-   `apps.yml` and `packages.yml` are the source of truth and are edited by hand —
+   `apps.yml` and `packages.yml` are the source of truth and are edited by hand, so
    nothing regenerates them. `check.R` errors on a tile whose thumbnail is missing
    from disk entirely, and reports which tiles are still on `placeholder.svg`.
    Needs a restored renv library (`renv::restore()` if packages are missing).
 
 2. **Start the app you're capturing.** These are not deployed, so run it locally
-   first — from its own repository, in a separate R session — and note the port.
+   first (from its own repository, in a separate R session) and note the port.
 
 3. **Capture it.** One app at a time:
    ```r
@@ -40,7 +40,7 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
    url <- "http://127.0.0.1:3838"
    b <- open_app(url)          # opens a viewable window, 2400x1600 output
    ```
-   If the app opens looking small/zoomed-out, re-open with a `zoom` factor — the
+   If the app opens looking small/zoomed-out, re-open with a `zoom` factor. The
    output stays 2400x1600 but content renders larger and sharper:
    ```r
    b$close(); b <- open_app(url, zoom = 2)
@@ -51,7 +51,7 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
      `b$Runtime$evaluate('document.querySelector("a[data-value=\\"Map\\"]").click()')`
    - Give slow Shiny apps time to finish loading (`Sys.sleep(6)` if needed).
 
-   When it looks right — **pass `file` explicitly**, named after the app:
+   When it looks right, **pass `file` explicitly**, named after the app:
    ```r
    capture_app(b, url, file = "genescout.png")
    b$close()
@@ -70,13 +70,13 @@ Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscri
    ```bash
    quarto preview
    ```
-   Check every card in every section renders an image — no broken thumbnails.
+   Check every card in every section renders an image, with no broken thumbnails.
 
 ## Notes
 
 - Cards crop to 3:2 from the top-left (`fit: cover`), so put the app's header and
   its most legible content in the upper-left of the capture. Nothing needs to be
-  exactly 2400x1600 — CSS handles the box — but capturing at that size keeps the
+  exactly 2400x1600 (CSS handles the box), but capturing at that size keeps the
   crop sharp.
 - `check.R` warns about images in `thumbnails/` that no tile references, which is
   how you catch a rename that only got applied on one side.

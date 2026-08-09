@@ -3,8 +3,8 @@
 #   source("R/check.R")
 #
 # Both files are hand-edited and are the source of truth, so nothing regenerates
-# them — this only checks them. Errors on problems that would break a page (a
-# tile missing a field, an unknown status, a thumbnail that isn't on disk) and
+# them, this only checks them. Errors on problems that would break a page (a
+# tile missing a field, an unknown fit, a thumbnail that isn't on disk) and
 # warns on things that are merely suspect (a duplicate title, an image in
 # thumbnails/ that no tile references).
 #
@@ -18,9 +18,8 @@ library(here)
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-STATUSES <- c("public", "internal", "private", "wip")
-FITS <- c("cover", "contain")
-REQUIRED <- c("title", "org", "description", "thumbnail", "status")
+FITS <- c("cover", "contain", "hex")
+REQUIRED <- c("title", "org", "description", "thumbnail")
 PLACEHOLDER <- "placeholder.svg"
 
 check_file <- function(path) {
@@ -48,17 +47,6 @@ check_file <- function(path) {
     )
   }
 
-  statuses <- vapply(tiles, `[[`, "", "status")
-  bad <- !statuses %in% STATUSES
-  if (any(bad)) {
-    stop(
-      name, ": unknown `status` (expected one of ",
-      paste(STATUSES, collapse = ", "), "):\n",
-      paste0("  - ", labels[bad], " (", statuses[bad], ")", collapse = "\n"),
-      call. = FALSE
-    )
-  }
-
   fits <- vapply(tiles, function(t) t$fit %||% "cover", "")
   bad_fit <- !fits %in% FITS
   if (any(bad_fit)) {
@@ -73,7 +61,7 @@ check_file <- function(path) {
   absent <- !file.exists(here("thumbnails", thumbs))
   if (any(absent)) {
     stop(
-      name, ": thumbnails not found in thumbnails/ — capture them with ",
+      name, ": thumbnails not found in thumbnails/, capture them with ",
       "R/capture.R (or the update-thumbnails skill), or use ", PLACEHOLDER, ":\n",
       paste0("  - ", labels[absent], " (", thumbs[absent], ")", collapse = "\n"),
       call. = FALSE
@@ -85,7 +73,7 @@ check_file <- function(path) {
     for (link in (tiles[[i]]$links %||% list())) {
       if (!all(c("text", "url") %in% names(link))) {
         stop(
-          name, ": every entry under `links` needs both `text` and `url` — see ",
+          name, ": every entry under `links` needs both `text` and `url`, see ",
           labels[i],
           call. = FALSE
         )

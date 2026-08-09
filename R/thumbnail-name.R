@@ -8,14 +8,14 @@ library(fs)
 #' screenshots).
 #'
 #' The query string is part of the name, because some apps are distinguished
-#' only by it — the three Small Molecule Suite tiles share a path and differ
+#' only by it: the three Small Molecule Suite tiles share a path and differ
 #' only in `tab=`. So:
 #'
 #' * the protocol is dropped;
 #' * a `#fragment` is dropped, being client-side view state rather than app
 #'   identity;
 #' * `&` and percent-escapes (`%22` and friends) are stripped, and `=` and `.`
-#'   become `_` — all of them legal in a filename, so `path_sanitize()` leaves
+#'   become `_`, all of them legal in a filename, so `path_sanitize()` leaves
 #'   them be, but all of them noise in a name;
 #' * `fs::path_sanitize()` handles everything that is genuinely unsafe: `/` and
 #'   `?` become `_`, as do `"`, `:`, `|`, `*`, `<`, `>` and control characters,

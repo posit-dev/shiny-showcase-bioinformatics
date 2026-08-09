@@ -1,52 +1,104 @@
 # Supporting packages -- same shape as apps.yml, same required fields. Rendered
 # as a section on index.qmd, after the apps.
 #
-# These are the cross-language packages the applications are built on. Tooling
-# that isn't a package (shinyreact, RShiny_template, Plotomics Live) is
+# Tooling that isn't a package (shinyreact, RShiny_template, Plotomics Live) is
 # deliberately not listed here -- add a category for it if that changes.
 #
 # `intro` is optional and renders as a lead-in paragraph under the heading.
+#
+# Package tiles use `fit: hex`, which centres the package's hex logo on a tint
+# rather than cropping it like a screenshot. The logos are copied from each
+# package's own man/figures/logo.svg (or .png).
 - category: Supporting Packages
   intro: >-
-    The packages I've built and maintain underneath the applications. Both are
-    cross-language by design: one API, one answer, whether you work in R or in
-    Python.
+    The packages I've built and maintain underneath the applications. Each one
+    does a single job, and the applications compose them.
   tiles:
     - title: biobouncer
       org: R · Python
-      status: public
       description: >-
-        A gate for biological inputs. Validate gene symbols, ontology terms, variant
-        formats and database accessions through one small API — offline against
-        identifier patterns and bundled snapshots, or live against the source service.
-        R and Python are tested against a shared conformance corpus, so the two
-        implementations cannot quietly disagree on edge cases. It does not replace
-        biomaRt or mygene; it validates inputs before they reach them.
-      thumbnail: biobouncer.svg
-      # An overview diagram rather than a screenshot -- show it whole.
-      fit: contain
-      alt: Diagram of the biobouncer validation flow, from a messy input column through pattern, cache, remote and existence checks to one answer in R and Python
+        A gate for biological inputs. Validate gene symbols, ontology terms,
+        variant formats and database accessions through one small API, offline
+        against identifier patterns and bundled snapshots, or live against the
+        source service. R and Python are tested against a shared conformance
+        corpus, so the two implementations cannot quietly disagree on edge cases.
+        It does not replace biomaRt or mygene; it validates inputs before they
+        reach them.
+      thumbnail: biobouncer.png
+      fit: hex
+      alt: biobouncer hex logo
       tech: "48 sources · 4 modes: pattern · cache · remote · existence · order-preserving per-element verdicts"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/biobouncer
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/biobouncer
         - text: PyPI
           url: https://pypi.org/project/biobouncer/
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21346522
       tags: validation, gene symbols, ontology, cross-language
 
+    - title: biohttp
+      org: R
+      description: >-
+        Normalized HTTP transport for web service calls. A call returns a result
+        value instead of raising a condition, so a caller branches on data rather
+        than on an error handler, and transport failure, a non-success status code
+        and an unreadable body are three distinct outcomes. Per-host circuit
+        breaking, retry with a transient-failure predicate, optional throttling,
+        redacted request headers and a success-only cache are the defaults. Many
+        questions to one source can go as a single batch, where only the entries
+        the cache is missing reach the network.
+      thumbnail: biohttp.svg
+      fit: hex
+      alt: biohttp hex logo
+      tech: "circuit breaker · retry · throttle · success-only cache · batch"
+      links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/biohttp
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/biohttp
+        - text: Docs
+          url: https://www.samuelbharti.com/biohttp/
+      tags: http, transport, circuit breaker, caching
+
+    - title: bioclients
+      org: R
+      description: >-
+        One client per biological database, each split into a request half that
+        calls the service and a parser half that turns a response body into a
+        canonical structure. The parser is pure, so it is tested against a stored
+        response with no network at all. Transport, retries, caching and error
+        handling are left to biohttp. Per-service dependencies are optional, so a
+        caller who wants one service does not install the requirements of the
+        other twenty-eight.
+      thumbnail: bioclients.svg
+      fit: hex
+      alt: bioclients hex logo
+      tech: "29 services · Ensembl · UniProt · gnomAD · Open Targets · AlphaFold"
+      links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/bioclients
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/bioclients
+        - text: Docs
+          url: https://www.samuelbharti.com/bioclients/
+      tags: rest api, ensembl, uniprot, gnomad, open targets
+
+    # No hex logo exists for plotomics, so this tile keeps a representative
+    # figure. Swap in a hex and set `fit: hex` when there is one.
     - title: plotomics
       org: TypeScript · R · Python
-      status: private
       description: >-
         Seventeen GPU-accelerated bioinformatics visualizations generated from one
         TypeScript core, wrapped three ways: npm for React, htmlwidgets for R,
-        anywidget for Python. Large data never goes through JSON — the Python wrapper
-        packs columns into typed arrays, and in Shiny precomputed binary blobs are
-        fetched over static HTTP and handed straight to the GPU. The components are
-        headless imperative factories rather than React components, which is precisely
-        why the same core drops into Shiny, React and Jupyter unchanged.
+        anywidget for Python. Large data never goes through JSON. The Python
+        wrapper packs columns into typed arrays, and in Shiny precomputed binary
+        blobs are fetched over static HTTP and handed straight to the GPU. The
+        components are headless imperative factories rather than React components,
+        which is precisely why the same core drops into Shiny, React and Jupyter
+        unchanged.
       thumbnail: plotomics.png
       tech: volcano · embedding · heatmap · clustermap · hic · igv · gosling · network · treemap · oncoplot · profile · spatial · dotplot · violin · upset · km · lollipop
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

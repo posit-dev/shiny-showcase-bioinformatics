@@ -58,31 +58,20 @@ h3 {
   background-color: #f2f4f6;
 }
 
-// Access-status chips. Same vocabulary as `status` in apps.yml / packages.yml.
-.chip {
-  display: inline-block;
-  font-family: $font-family-monospace;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.1rem 0.45rem;
-  border-radius: 3px;
-  color: #fff;
-  vertical-align: 2px;
+// Package hex logos. A hex is portrait and the card image box is 3:2, so
+// `contain` alone leaves it stranded in a wide grey field. Padding it against
+// the plum tint from _brand.yml makes the whole box read as the package's
+// mark.
+.gallery-entry__img--hex {
+  object-fit: contain;
+  background-color: #F0E6EB;
+  padding: 1.1rem;
 }
-
-// The four statuses must stay distinguishable from each other, so these are
-// deliberately not shades of the plum primary — they are muted to the same
-// mid-lightness so they sit beside it rather than fight it. Each carries white
-// text at 4.9:1 or better, which small bold type needs.
-.chip--public   { background: #527A57; } // sage      4.9:1
-.chip--internal { background: #4A6D8C; } // steel     5.4:1
-.chip--private  { background: #4A4550; } // plum-gray 9.3:1
-.chip--wip      { background: #A85C33; } // terracotta 5.0:1
 
 .tech {
   font-family: $font-family-monospace;
   font-size: 0.78rem;
-  color: #6C4157; // plum-dark, per _brand.yml — 8.3:1 on white
+  color: #6C4157; // plum-dark, per _brand.yml, 8.3:1 on white
   margin-top: 0.5rem;
 }
 

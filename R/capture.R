@@ -49,7 +49,7 @@ open_app <- function(url, width = 2400, height = 1600, zoom = 1.5, view = TRUE) 
 #' @param url The app URL. Only used to derive a filename when `file` is absent.
 #' @param file Output filename. **Pass this.** These apps are first-party and
 #'   mostly run at a localhost URL that says nothing about which app it is, so
-#'   thumbnails are named after the app — `"genescout.png"`, matching the
+#'   thumbnails are named after the app: `"genescout.png"`, matching the
 #'   tile's `thumbnail` field. The `thumbnail_name(url)` fallback is only
 #'   sensible for a third-party app identified by its public URL.
 capture_app <- function(b, url, file = NULL) {
@@ -58,7 +58,7 @@ capture_app <- function(b, url, file = NULL) {
   # Capture exactly the emulated viewport, giving a fixed `width` x `height`
   # crop (at the device scale factor). Note: b$screenshot() defaults to
   # selector = "html" and captures the *whole page* element, which produces
-  # variable, often portrait, dimensions — not what we want for a thumbnail.
+  # variable, often portrait, dimensions, not what we want for a thumbnail.
   res <- b$Page$captureScreenshot(format = "png")
   writeBin(jsonlite::base64_dec(res$data), out_path)
   message("Saved: ", out_path)

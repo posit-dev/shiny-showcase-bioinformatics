@@ -1,15 +1,5 @@
 
 ```{=html}
-<%
-  // Status chip labels. Keys are the `status` values allowed in apps.yml /
-  // packages.yml; R/check.R validates against this same set.
-  const STATUS = {
-    public:   "Public",
-    internal: "Posit-internal",
-    private:  "Private",
-    wip:      "In progress"
-  };
-%>
 <% for (const item of items) { %>
   <%
     // Quarto doesn't anchor headings a template emits, so derive an id from the
@@ -35,7 +25,9 @@
                       : "Screenshot of " + tile.title);
         // Screenshots are cropped to the tile (`cover`); diagrams and the
         // placeholder are shown whole (`contain`), since cropping a diagram
-        // cuts its labels off mid-sentence.
+        // cuts its labels off mid-sentence; package hex logos get their own
+        // mode (`hex`), which centres them on a tint at a size that reads as
+        // branding rather than as a small picture in a big empty box.
         const fit = tile.fit || (pending ? "contain" : "cover");
         // `links` is optional and may be absent entirely -- a tile with nowhere
         // to point renders no footer rather than a dead button.
@@ -50,9 +42,6 @@
         </div>
         <div class="card-body">
           <h3 class="mt-3 mb-2"><%= tile.title %></h3>
-          <div class="mb-2">
-            <span class="chip chip--<%- tile.status %>"><%- STATUS[tile.status] || tile.status %></span>
-          </div>
           <div class="text-uppercase font-monospace"><%= tile.org %></div>
           <div class="text-muted"><p>
 ```

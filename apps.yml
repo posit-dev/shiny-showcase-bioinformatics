@@ -9,7 +9,6 @@
 #   org          required  -- the line under the title (owner, or parent project)
 #   description  required
 #   thumbnail    required  -- a file in thumbnails/, named <slug>.png
-#   status       required  -- public | internal | private | wip (renders as a chip)
 #   links        optional  -- list of {text, url}; each renders a button. Omitted
 #                             entirely for now, so no tile carries a dead link.
 #                             Add them as apps get somewhere to point:
@@ -19,8 +18,9 @@
 #   tech         optional  -- the stack line under the description
 #   tags         optional  -- curated, not currently rendered
 #   alt          optional  -- image alt text; sensibly defaulted from the title
-#   fit          optional  -- cover (default, crops a screenshot to the tile) or
-#                             contain (shows a diagram whole)
+#   fit          optional  -- cover (default, crops a screenshot to the tile),
+#                             contain (shows a diagram whole), or hex (centres a
+#                             package logo on a tint)
 #
 # Apps without a screenshot yet use thumbnails/placeholder.svg. Replace with a
 # real capture and update `thumbnail`; nothing else needs to change.
@@ -28,22 +28,20 @@
   tiles:
     - title: genescout
       org: Samuel Bharti
-      status: public
       description: >-
         An agentic evidence-review workbench. Takes a candidate gene, variant or
         perturbation list plus a disease context and returns a plausibility-ranked,
         cited shortlist with caveats and suggested next experiments. A citation gate
-        drops any ungrounded evidence. Research use only — never a clinical call.
+        drops any ungrounded evidence. Research use only, never a clinical call.
       thumbnail: genescout.png
       tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
       tags: agents, evidence review, gene prioritization
 
     - title: tahoe-explorer
       org: Samuel Bharti
-      status: private
       description: >-
-        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata —
-        100.6 million rows across 2.29 GB of parquet — and leave with a reproducible
+        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata
+        (100.6 million rows across 2.29 GB of parquet), and leave with a reproducible
         R and Python pull recipe. Every summary is pushed down as a DuckDB GROUP BY,
         so the raw cells never enter R memory.
       thumbnail: placeholder.svg
@@ -52,11 +50,10 @@
 
     - title: variant-reviewer
       org: Samuel Bharti
-      status: private
       description: >-
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
-        public bioinformatics APIs — MyGene, MyVariant, gnomAD, ClinVar, VEP, GTEx,
-        STRING, Open Targets, AlphaFold — with a 3D structure viewer and a typeahead
+        public bioinformatics APIs (MyGene, MyVariant, gnomAD, ClinVar, VEP, GTEx,
+        STRING, Open Targets, AlphaFold), with a 3D structure viewer and a typeahead
         that prefetches ClinVar variants as you type.
       thumbnail: variant-reviewer.png
       tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
@@ -64,7 +61,6 @@
 
     - title: multi-variant-reviewer
       org: Samuel Bharti
-      status: wip
       description: >-
         Convergence analysis for a set of 5–300 rare variants in one patient. Asks, in
         order: is a single locus sufficient, is there a small blended-phenotype
@@ -76,7 +72,6 @@
 
     - title: gene-list-builder
       org: Samuel Bharti
-      status: private
       description: >-
         Resolve a disease name to an EFO/MONDO term, query seven gene-disease sources
         in parallel, dedupe to one row per gene, then re-rank live as you tune the
@@ -87,10 +82,9 @@
 
     - title: knowledge-graph-viewer
       org: Samuel Bharti
-      status: private
       description: >-
-        Load a biomedical knowledge graph — bundled packs, PubTator output, a KGX
-        pair, or any edge list via a column mapper — and explore it as a typed,
+        Load a biomedical knowledge graph (bundled packs, PubTator output, a KGX
+        pair, or any edge list via a column mapper) and explore it as a typed,
         directed, evidence-carrying network. Two swappable render backends behind one
         contract: WebGL for scale, SVG as a fallback.
       thumbnail: placeholder.svg
@@ -104,7 +98,6 @@
   tiles:
     - title: DE Explorer
       org: lifescience-shiny-gallery
-      status: internal
       description: >-
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq.
         Tune fold-change and significance thresholds, read the design and provenance
@@ -115,7 +108,6 @@
 
     - title: Signature Scoring
       org: lifescience-shiny-gallery
-      status: internal
       description: >-
         From gene expression to pathway activity. Condenses each TCGA-BRCA sample's
         expression into activity scores for the 50 MSigDB Hallmark pathways, contrasts
@@ -127,20 +119,18 @@
 
     - title: Drug Perturbation
       org: lifescience-shiny-gallery
-      status: internal
       description: >-
         Connectivity scoring against a reference perturbation panel. Edit a query
         signature, pick weighted or cosine scoring, and rank compounds into mimics and
-        reversers — then break any hit down by cell line or dose.
+        reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
       tech: R Shiny · LINCS · connectivity scoring · MIT
       tags: drug repurposing, connectivity, lincs
 
     - title: Genome Explorer
       org: lifescience-shiny-gallery
-      status: internal
       description: >-
-        The one app shipped in the full matrix — R and Python × Shiny and shinyreact —
+        The one app shipped in the full matrix (R and Python × Shiny and shinyreact),
         so the same genome browser can be read four ways. Useful as a side-by-side
         reference for what each stack costs you.
       thumbnail: placeholder.svg

@@ -34,10 +34,9 @@
     - title: tahoe-explorer
       org: Samuel Bharti
       description: >-
-        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata
-        (100.6 million rows across 2.29 GB of parquet), and leave with a reproducible
-        R and Python pull recipe. Every summary is pushed down as a DuckDB GROUP BY,
-        so the raw cells never enter R memory.
+        Filter, summarize and subset Tahoe-100M perturbation metadata, 100.6 million
+        rows across 2.29 GB of parquet, and leave with a reproducible pull recipe.
+        Summaries push down to DuckDB, so the raw cells never enter R memory.
       thumbnail: placeholder.svg
       tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
       tags: single-cell, perturbation, duckdb
@@ -45,10 +44,9 @@
     - title: genescout
       org: Samuel Bharti
       description: >-
-        An agentic evidence-review workbench. Takes a candidate gene, variant or
-        perturbation list plus a disease context and returns a plausibility-ranked,
-        cited shortlist with caveats and suggested next experiments. A citation gate
-        drops any ungrounded evidence. Research use only, never a clinical call.
+        An agentic evidence-review workbench. Give it a candidate list and a disease
+        context, get back a plausibility-ranked, cited shortlist with caveats and next
+        experiments. A citation gate drops ungrounded evidence. Research use only.
       thumbnail: genescout.png
       tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
       tags: agents, evidence review, gene prioritization
@@ -56,12 +54,10 @@
     - title: Plotomics Live
       org: Samuel Bharti
       description: >-
-        Twenty-six pages of GPU-accelerated visualization, delivered through
-        shinyreact, the Shiny team's React bridge. 476 lines of R, one of which is
-        the UI. Each page reads a precomputed .f32 blob over static HTTP, so there
-        is no websocket and no parse step: the bytes go straight into a
-        Float32Array and on to the GPU. Every page is WebGL or ggplot2 over one
-        computation.
+        Twenty-six pages of GPU-accelerated visualization delivered through shinyreact,
+        in 476 lines of R, one of which is the UI. Each page reads a precomputed .f32
+        blob over static HTTP, so there is no parse step: the bytes go straight to the
+        GPU.
       thumbnail: plotomics-live.png
       alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
       tech: R Shiny · shinyreact · plotomics · WebGL · precomputed .f32 blobs
@@ -71,9 +67,8 @@
       org: Samuel Bharti
       description: >-
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
-        public bioinformatics APIs (MyGene, MyVariant, gnomAD, ClinVar, VEP, GTEx,
-        STRING, Open Targets, AlphaFold), with a 3D structure viewer and a typeahead
-        that prefetches ClinVar variants as you type.
+        public APIs (gnomAD, ClinVar, VEP, GTEx, AlphaFold), with a 3D structure
+        viewer and a typeahead that prefetches ClinVar variants as you type.
       thumbnail: variant-reviewer.png
       tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
       tags: variants, annotation, clinical genetics
@@ -86,9 +81,9 @@
     - title: DE Explorer
       org: lifescience-shiny-gallery
       description: >-
-        Differential expression over uniformly reprocessed TCGA and airway RNA-seq.
-        Tune fold-change and significance thresholds, read the design and provenance
-        beside the figures, and drill from a PCA overview into per-gene detail.
+        Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
+        thresholds, read the design and provenance beside the figures, and drill from
+        a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
       tech: R Shiny · bslib · DESeq2 · recount3 · ellmer
       tags: rna-seq, differential expression, tcga
@@ -96,10 +91,9 @@
     - title: Signature Scoring
       org: lifescience-shiny-gallery
       description: >-
-        From gene expression to pathway activity. Condenses each TCGA-BRCA sample's
-        expression into activity scores for the 50 MSigDB Hallmark pathways, contrasts
-        them between clinical subtypes, and opens any pathway to the genes driving it.
-        Four scoring methods behind one control.
+        From gene expression to pathway activity. Condenses each TCGA-BRCA sample into
+        scores for the 50 Hallmark pathways, contrasts clinical subtypes, and opens
+        any pathway to the genes driving it.
       thumbnail: signature-scoring.png
       tech: R Shiny · ssGSEA · singscore · MSigDB Hallmark · TCGA-BRCA
       tags: pathway activity, gene sets, msigdb
@@ -108,8 +102,8 @@
       org: lifescience-shiny-gallery
       description: >-
         Connectivity scoring against a reference perturbation panel. Edit a query
-        signature, pick weighted or cosine scoring, and rank compounds into mimics and
-        reversers, then break any hit down by cell line or dose.
+        signature, rank compounds into mimics and reversers, then break any hit down
+        by cell line or dose.
       thumbnail: drug-perturbation.png
       tech: R Shiny · LINCS · connectivity scoring · MIT
       tags: drug repurposing, connectivity, lincs

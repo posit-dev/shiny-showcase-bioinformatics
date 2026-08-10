@@ -17,17 +17,14 @@
     - title: biobouncer
       org: R · Python
       description: >-
-        A gate for biological inputs. Validate gene symbols, ontology terms,
-        variant formats and database accessions through one small API, offline
-        against identifier patterns and bundled snapshots, or live against the
-        source service. R and Python are tested against a shared conformance
-        corpus, so the two implementations cannot quietly disagree on edge cases.
-        It does not replace biomaRt or mygene; it validates inputs before they
-        reach them.
+        A gate for biological inputs. Validate gene symbols, ontology terms, variant
+        formats and accessions through one small API, offline against bundled
+        snapshots or live against the source. R and Python are tested against a
+        shared conformance corpus, so the two cannot quietly disagree.
       thumbnail: biobouncer.png
       fit: hex
       alt: biobouncer hex logo
-      tech: "48 sources · 4 modes: pattern · cache · remote · existence · order-preserving per-element verdicts"
+      tech: "48 sources · 4 modes: pattern · cache · remote · existence"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/biobouncer
@@ -42,14 +39,11 @@
     - title: biohttp
       org: R
       description: >-
-        Normalized HTTP transport for web service calls. A call returns a result
-        value instead of raising a condition, so a caller branches on data rather
-        than on an error handler, and transport failure, a non-success status code
-        and an unreadable body are three distinct outcomes. Per-host circuit
-        breaking, retry with a transient-failure predicate, optional throttling,
-        redacted request headers and a success-only cache are the defaults. Many
-        questions to one source can go as a single batch, where only the entries
-        the cache is missing reach the network.
+        Normalized HTTP transport for web service calls. A call returns a result value
+        instead of raising a condition, so you branch on data rather than on an error
+        handler, and transport failure, a bad status code and an unreadable body stay
+        three distinct outcomes. Circuit breaking, retry, throttling and a
+        success-only cache are the defaults.
       thumbnail: biohttp.svg
       fit: hex
       alt: biohttp hex logo
@@ -66,13 +60,10 @@
     - title: bioclients
       org: R
       description: >-
-        One client per biological database, each split into a request half that
-        calls the service and a parser half that turns a response body into a
-        canonical structure. The parser is pure, so it is tested against a stored
-        response with no network at all. Transport, retries, caching and error
-        handling are left to biohttp. Per-service dependencies are optional, so a
-        caller who wants one service does not install the requirements of the
-        other twenty-eight.
+        One client per biological database, each split into a request half and a pure
+        parser half, so the parser is tested against a stored response with no
+        network. Transport, retries and caching are left to biohttp. Per-service
+        dependencies are optional.
       thumbnail: bioclients.svg
       fit: hex
       alt: bioclients hex logo
@@ -91,14 +82,11 @@
     - title: plotomics
       org: TypeScript · R · Python
       description: >-
-        Seventeen GPU-accelerated bioinformatics visualizations generated from one
-        TypeScript core, wrapped three ways: npm for React, htmlwidgets for R,
-        anywidget for Python. Large data never goes through JSON. The Python
-        wrapper packs columns into typed arrays, and in Shiny precomputed binary
-        blobs are fetched over static HTTP and handed straight to the GPU. The
-        components are headless imperative factories rather than React components,
-        which is precisely why the same core drops into Shiny, React and Jupyter
-        unchanged.
+        Seventeen GPU-accelerated bioinformatics visualizations from one TypeScript
+        core, wrapped three ways: npm for React, htmlwidgets for R, anywidget for
+        Python. Large data never goes through JSON. The components are headless
+        imperative factories rather than React components, which is why the same core
+        drops into Shiny, React and Jupyter unchanged.
       thumbnail: plotomics.png
-      tech: volcano · embedding · heatmap · clustermap · hic · igv · gosling · network · treemap · oncoplot · profile · spatial · dotplot · violin · upset · km · lollipop
+      tech: 17 components · volcano · embedding · heatmap · igv · network · oncoplot · spatial · and ten more
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

@@ -15,7 +15,9 @@
 #                               links:
 #                                 - text: GitHub
 #                                   url: https://github.com/...
-#   tech         optional  -- the stack line under the description
+#   tech         optional  -- the stack line under the description; app tiles
+#                             here deliberately omit it (packages.yml still
+#                             uses it, since that's where the stack is the point)
 #   tags         optional  -- curated, not currently rendered
 #   alt          optional  -- image alt text; sensibly defaulted from the title
 #   fit          optional  -- cover (default, crops a screenshot to the tile),
@@ -29,10 +31,10 @@
 # (which also carries twelve reusable component showcases); that's recorded in
 # their `org` line rather than in a separate category.
 #
-# Four further apps (multi-variant-reviewer, gene-list-builder,
-# knowledge-graph-viewer, and lifescience-shiny-gallery's Genome Explorer) were
-# on this page and are deliberately not shown. Their tiles are in git history at
-# 3194430 if they should come back.
+# Three further apps (multi-variant-reviewer, knowledge-graph-viewer, and
+# lifescience-shiny-gallery's Genome Explorer) were on this page and are
+# deliberately not shown. Their tiles are in git history at 3194430 if they
+# should come back.
 - category: Applications
   tiles:
     - title: tahoe-explorer
@@ -41,7 +43,6 @@
         Filter and subset Tahoe-100M perturbation metadata, 100.6 million rows, and
         leave with a reproducible pull recipe. Summaries push down to DuckDB.
       thumbnail: placeholder.svg
-      tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
       tags: single-cell, perturbation, duckdb
 
     - title: genescout
@@ -50,7 +51,6 @@
         An agentic evidence-review workbench. Give it a candidate list and a disease
         context, get back a plausibility-ranked, cited shortlist. Research use only.
       thumbnail: genescout.png
-      tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
       tags: agents, evidence review, gene prioritization
 
     - title: Plotomics Live
@@ -61,7 +61,6 @@
         GPU.
       thumbnail: plotomics-live.png
       alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
-      tech: R Shiny · shinyreact · plotomics · WebGL · precomputed .f32 blobs
       tags: visualization, webgl, shinyreact, spatial
 
     - title: variant-reviewer
@@ -70,8 +69,16 @@
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
         public APIs, with a 3D structure viewer and a ClinVar typeahead.
       thumbnail: variant-reviewer.png
-      tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
       tags: variants, annotation, clinical genetics
+
+    - title: gene-list-builder
+      org: Samuel Bharti
+      description: >-
+        Resolve a disease name to an EFO/MONDO term, query seven gene-disease sources
+        in parallel, and dedupe to one row per gene. Re-ranks live as you tune the
+        source weights.
+      thumbnail: placeholder.svg
+      tags: gene-disease, target discovery, provenance
 
     - title: DE Explorer
       org: lifescience-shiny-gallery
@@ -79,7 +86,6 @@
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
         thresholds and drill from a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
-      tech: R Shiny · bslib · DESeq2 · recount3 · ellmer
       tags: rna-seq, differential expression, tcga
 
     - title: Signature Scoring
@@ -88,7 +94,6 @@
         Condenses each TCGA-BRCA sample into scores for the 50 Hallmark pathways,
         contrasts clinical subtypes, and opens any pathway to the genes driving it.
       thumbnail: signature-scoring.png
-      tech: R Shiny · ssGSEA · singscore · MSigDB Hallmark · TCGA-BRCA
       tags: pathway activity, gene sets, msigdb
 
     - title: Drug Perturbation
@@ -97,5 +102,4 @@
         Connectivity scoring against a reference perturbation panel. Rank compounds into
         mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
-      tech: R Shiny · LINCS · connectivity scoring · MIT
       tags: drug repurposing, connectivity, lincs

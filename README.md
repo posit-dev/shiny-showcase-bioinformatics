@@ -8,7 +8,7 @@ One page, `index.qmd`, rendering two listings as consecutive sections:
 
 | Section | Data |
 |---|---|
-| Applications | `apps.yml`, 7 tiles in 1 category |
+| Applications | `apps.yml`, 8 tiles in 1 category |
 | Supporting Packages | `packages.yml`, 4 packages |
 
 There is no navbar. The "Supporting Packages" button on the page links to
@@ -61,7 +61,7 @@ There is no `order` field.
 | `description` | required | Markdown is allowed |
 | `thumbnail` | required | A file in `thumbnails/`, named after the app |
 | `links` | optional | List of `{text, url}`; each renders a button |
-| `tech` | optional | The stack line under the description |
+| `tech` | optional | The stack line under the description. App tiles omit it; packages.yml still uses it |
 | `fit` | optional | `cover` (default, crops a screenshot), `contain` (shows a diagram whole), or `hex` (centres a package logo on a tint) |
 | `alt` | optional | Image alt text; defaults sensibly from the title |
 | `tags` | optional | Curated, not currently rendered |

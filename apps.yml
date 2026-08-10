@@ -24,8 +24,24 @@
 #
 # Apps without a screenshot yet use thumbnails/placeholder.svg. Replace with a
 # real capture and update `thumbnail`; nothing else needs to change.
+#
+# Four further apps (multi-variant-reviewer, gene-list-builder,
+# knowledge-graph-viewer, and lifescience-shiny-gallery's Genome Explorer) were
+# on this page and are deliberately not shown. Their tiles are in git history at
+# 3194430 if they should come back.
 - category: Research Applications
   tiles:
+    - title: tahoe-explorer
+      org: Samuel Bharti
+      description: >-
+        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata
+        (100.6 million rows across 2.29 GB of parquet), and leave with a reproducible
+        R and Python pull recipe. Every summary is pushed down as a DuckDB GROUP BY,
+        so the raw cells never enter R memory.
+      thumbnail: placeholder.svg
+      tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
+      tags: single-cell, perturbation, duckdb
+
     - title: genescout
       org: Samuel Bharti
       description: >-
@@ -37,16 +53,19 @@
       tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
       tags: agents, evidence review, gene prioritization
 
-    - title: tahoe-explorer
+    - title: Plotomics Live
       org: Samuel Bharti
       description: >-
-        Filter, summarize and subset Tahoe-100M single-cell perturbation metadata
-        (100.6 million rows across 2.29 GB of parquet), and leave with a reproducible
-        R and Python pull recipe. Every summary is pushed down as a DuckDB GROUP BY,
-        so the raw cells never enter R memory.
-      thumbnail: placeholder.svg
-      tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
-      tags: single-cell, perturbation, duckdb
+        Twenty-six pages of GPU-accelerated visualization, delivered through
+        shinyreact, the Shiny team's React bridge. 476 lines of R, one of which is
+        the UI. Each page reads a precomputed .f32 blob over static HTTP, so there
+        is no websocket and no parse step: the bytes go straight into a
+        Float32Array and on to the GPU. Every page is WebGL or ggplot2 over one
+        computation.
+      thumbnail: plotomics-live.png
+      alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
+      tech: R Shiny · shinyreact · plotomics · WebGL · precomputed .f32 blobs
+      tags: visualization, webgl, shinyreact, spatial
 
     - title: variant-reviewer
       org: Samuel Bharti
@@ -59,41 +78,9 @@
       tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
       tags: variants, annotation, clinical genetics
 
-    - title: multi-variant-reviewer
-      org: Samuel Bharti
-      description: >-
-        Convergence analysis for a set of 5–300 rare variants in one patient. Asks, in
-        order: is a single locus sufficient, is there a small blended-phenotype
-        combination, or does the set show more phenotypic and network coherence than a
-        size-matched random gene set? Permutation nulls, not vibes.
-      thumbnail: placeholder.svg
-      tech: R Shiny · mirai · GRCh37→38 liftover · HPO ontology · Quarto report
-      tags: rare disease, phenotype, permutation testing
-
-    - title: gene-list-builder
-      org: Samuel Bharti
-      description: >-
-        Resolve a disease name to an EFO/MONDO term, query seven gene-disease sources
-        in parallel, dedupe to one row per gene, then re-rank live as you tune the
-        source weights. Exports a CSV and a Markdown provenance report.
-      thumbnail: placeholder.svg
-      tech: R Shiny · Open Targets GraphQL · PanelApp · DGIdb · Pharos
-      tags: gene-disease, target discovery, provenance
-
-    - title: knowledge-graph-viewer
-      org: Samuel Bharti
-      description: >-
-        Load a biomedical knowledge graph (bundled packs, PubTator output, a KGX
-        pair, or any edge list via a column mapper) and explore it as a typed,
-        directed, evidence-carrying network. Two swappable render backends behind one
-        contract: WebGL for scale, SVG as a fallback.
-      thumbnail: placeholder.svg
-      tech: R Shiny · plotomics (sigma.js/WebGL) · visNetwork · igraph · Monarch API
-      tags: knowledge graph, network, webgl
-
-# The four applications inside lifescience-shiny-gallery, which also ships twelve
-# reusable component showcases. All run out of the box on real public data and
-# accept your own through a published contract.
+# Three of the applications inside lifescience-shiny-gallery, which also ships
+# twelve reusable component showcases. All run out of the box on real public data
+# and accept your own through a published contract.
 - category: Life Science Shiny Gallery
   tiles:
     - title: DE Explorer
@@ -126,13 +113,3 @@
       thumbnail: drug-perturbation.png
       tech: R Shiny · LINCS · connectivity scoring · MIT
       tags: drug repurposing, connectivity, lincs
-
-    - title: Genome Explorer
-      org: lifescience-shiny-gallery
-      description: >-
-        The one app shipped in the full matrix (R and Python × Shiny and shinyreact),
-        so the same genome browser can be read four ways. Useful as a side-by-side
-        reference for what each stack costs you.
-      thumbnail: placeholder.svg
-      tech: R Shiny · Python Shiny · shinyreact · igvShiny
-      tags: genome browser, igv, cross-language

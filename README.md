@@ -8,7 +8,7 @@ One page, `index.qmd`, rendering two listings as consecutive sections:
 
 | Section | Data |
 |---|---|
-| Research Applications, Life Science Shiny Gallery | `apps.yml`, 7 tiles in 2 categories |
+| Applications | `apps.yml`, 7 tiles in 1 category |
 | Supporting Packages | `packages.yml`, 4 packages |
 
 There is no navbar. The "Supporting Packages" button on the page links to

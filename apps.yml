@@ -25,18 +25,21 @@
 # Apps without a screenshot yet use thumbnails/placeholder.svg. Replace with a
 # real capture and update `thumbnail`; nothing else needs to change.
 #
+# One section, all apps. The last three ship inside lifescience-shiny-gallery
+# (which also carries twelve reusable component showcases); that's recorded in
+# their `org` line rather than in a separate category.
+#
 # Four further apps (multi-variant-reviewer, gene-list-builder,
 # knowledge-graph-viewer, and lifescience-shiny-gallery's Genome Explorer) were
 # on this page and are deliberately not shown. Their tiles are in git history at
 # 3194430 if they should come back.
-- category: Research Applications
+- category: Applications
   tiles:
     - title: tahoe-explorer
       org: Samuel Bharti
       description: >-
-        Filter, summarize and subset Tahoe-100M perturbation metadata, 100.6 million
-        rows across 2.29 GB of parquet, and leave with a reproducible pull recipe.
-        Summaries push down to DuckDB, so the raw cells never enter R memory.
+        Filter and subset Tahoe-100M perturbation metadata, 100.6 million rows, and
+        leave with a reproducible pull recipe. Summaries push down to DuckDB.
       thumbnail: placeholder.svg
       tech: R Shiny · DuckDB · echarts4r · ellmer · shinytest2
       tags: single-cell, perturbation, duckdb
@@ -45,8 +48,7 @@
       org: Samuel Bharti
       description: >-
         An agentic evidence-review workbench. Give it a candidate list and a disease
-        context, get back a plausibility-ranked, cited shortlist with caveats and next
-        experiments. A citation gate drops ungrounded evidence. Research use only.
+        context, get back a plausibility-ranked, cited shortlist. Research use only.
       thumbnail: genescout.png
       tech: R Shiny · bslib · ellmer · mirai · plumber API · Quarto report
       tags: agents, evidence review, gene prioritization
@@ -54,9 +56,8 @@
     - title: Plotomics Live
       org: Samuel Bharti
       description: >-
-        Twenty-six pages of GPU-accelerated visualization delivered through shinyreact,
-        in 476 lines of R, one of which is the UI. Each page reads a precomputed .f32
-        blob over static HTTP, so there is no parse step: the bytes go straight to the
+        Twenty-six pages of GPU-accelerated visualization through shinyreact, in 476
+        lines of R, one of which is the UI. Precomputed .f32 blobs go straight to the
         GPU.
       thumbnail: plotomics-live.png
       alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
@@ -67,23 +68,16 @@
       org: Samuel Bharti
       description: >-
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
-        public APIs (gnomAD, ClinVar, VEP, GTEx, AlphaFold), with a 3D structure
-        viewer and a typeahead that prefetches ClinVar variants as you type.
+        public APIs, with a 3D structure viewer and a ClinVar typeahead.
       thumbnail: variant-reviewer.png
       tech: R Shiny · reactable · r3dmol · ellmer · biobouncer
       tags: variants, annotation, clinical genetics
 
-# Three of the applications inside lifescience-shiny-gallery, which also ships
-# twelve reusable component showcases. All run out of the box on real public data
-# and accept your own through a published contract.
-- category: Life Science Shiny Gallery
-  tiles:
     - title: DE Explorer
       org: lifescience-shiny-gallery
       description: >-
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
-        thresholds, read the design and provenance beside the figures, and drill from
-        a PCA overview into per-gene detail.
+        thresholds and drill from a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
       tech: R Shiny · bslib · DESeq2 · recount3 · ellmer
       tags: rna-seq, differential expression, tcga
@@ -91,9 +85,8 @@
     - title: Signature Scoring
       org: lifescience-shiny-gallery
       description: >-
-        From gene expression to pathway activity. Condenses each TCGA-BRCA sample into
-        scores for the 50 Hallmark pathways, contrasts clinical subtypes, and opens
-        any pathway to the genes driving it.
+        Condenses each TCGA-BRCA sample into scores for the 50 Hallmark pathways,
+        contrasts clinical subtypes, and opens any pathway to the genes driving it.
       thumbnail: signature-scoring.png
       tech: R Shiny · ssGSEA · singscore · MSigDB Hallmark · TCGA-BRCA
       tags: pathway activity, gene sets, msigdb
@@ -101,9 +94,8 @@
     - title: Drug Perturbation
       org: lifescience-shiny-gallery
       description: >-
-        Connectivity scoring against a reference perturbation panel. Edit a query
-        signature, rank compounds into mimics and reversers, then break any hit down
-        by cell line or dose.
+        Connectivity scoring against a reference perturbation panel. Rank compounds into
+        mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
       tech: R Shiny · LINCS · connectivity scoring · MIT
       tags: drug repurposing, connectivity, lincs

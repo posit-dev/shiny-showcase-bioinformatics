@@ -18,9 +18,8 @@
       org: R · Python
       description: >-
         A gate for biological inputs. Validate gene symbols, ontology terms, variant
-        formats and accessions through one small API, offline against bundled
-        snapshots or live against the source. R and Python are tested against a
-        shared conformance corpus, so the two cannot quietly disagree.
+        formats and accessions through one API, offline or live. R and Python share a
+        conformance corpus, so the two cannot disagree.
       thumbnail: biobouncer.png
       fit: hex
       alt: biobouncer hex logo
@@ -39,11 +38,9 @@
     - title: biohttp
       org: R
       description: >-
-        Normalized HTTP transport for web service calls. A call returns a result value
-        instead of raising a condition, so you branch on data rather than on an error
-        handler, and transport failure, a bad status code and an unreadable body stay
-        three distinct outcomes. Circuit breaking, retry, throttling and a
-        success-only cache are the defaults.
+        Normalized HTTP transport. Calls return a result value rather than raising, so
+        transport failure, a bad status code and an unreadable body stay distinct
+        outcomes. Circuit breaking, retry and caching are defaults.
       thumbnail: biohttp.svg
       fit: hex
       alt: biohttp hex logo
@@ -61,9 +58,8 @@
       org: R
       description: >-
         One client per biological database, each split into a request half and a pure
-        parser half, so the parser is tested against a stored response with no
-        network. Transport, retries and caching are left to biohttp. Per-service
-        dependencies are optional.
+        parser half that needs no network to test. Transport and caching are left to
+        biohttp.
       thumbnail: bioclients.svg
       fit: hex
       alt: bioclients hex logo
@@ -82,11 +78,10 @@
     - title: plotomics
       org: TypeScript · R · Python
       description: >-
-        Seventeen GPU-accelerated bioinformatics visualizations from one TypeScript
-        core, wrapped three ways: npm for React, htmlwidgets for R, anywidget for
-        Python. Large data never goes through JSON. The components are headless
-        imperative factories rather than React components, which is why the same core
-        drops into Shiny, React and Jupyter unchanged.
+        Seventeen GPU-accelerated visualizations from one TypeScript core, wrapped three
+        ways: npm for React, htmlwidgets for R, anywidget for Python. Headless
+        factories rather than React components, so the core drops into all three
+        unchanged.
       thumbnail: plotomics.png
       tech: 17 components · volcano · embedding · heatmap · igv · network · oncoplot · spatial · and ten more
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

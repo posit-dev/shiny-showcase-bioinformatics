@@ -4,7 +4,6 @@
 gallery:
   name: Bioinformatics
   author: Samuel Bharti
-  role: Bioinformatician, Shiny team @ Posit
   email: samuel.bharti@posit.co
   url: https://posit.co/solutions/pharma/
   # TODO: point at this repo's issue tracker once a remote exists.

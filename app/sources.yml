@@ -1,0 +1,38 @@
+# Apps vendored into app/ for direct deployment from this repo (Connect,
+# watching app/<name> on main).
+#
+# Maintained by .github/workflows/vendor-apps.yml: on a schedule or manual
+# dispatch, it checks each `repo`'s latest GitHub Release, and where that's
+# newer than the pinned `ref`, opens a PR that updates the files under
+# app/<name>/ and bumps `ref` here. Nothing else should edit this file, and the
+# bot preserves these comments across its own rewrites (it uses ruamel.yaml's
+# round-trip mode, not a plain load-and-dump).
+#
+# `include` is an allowlist of paths (relative to the source repo's root) to
+# vendor, not "everything in the release tarball". Source repos carry dev
+# tooling, internal notes, evals and tests that have no place in a deployed
+# artifact; an allowlist means a repo nobody has manually reviewed can't leak
+# one of those in through an automated sync. `manifest.json` must always be
+# one of them: it's produced by the source repo, not generated here, and it's
+# what Connect actually deploys from.
+#
+# A repo with no GitHub Release yet makes the bot fail loudly rather than
+# guess at "latest" from unsorted tags.
+apps:
+  - name: genescout
+    repo: samuelbharti/genescout
+    ref: ""
+    include:
+      - app.R
+      - global.R
+      - ui.R
+      - server.R
+      - manifest.json
+      - config.yml
+      - _brand.yml
+      - R
+      - modules
+      - api
+      - userInterface
+      - report
+      - www

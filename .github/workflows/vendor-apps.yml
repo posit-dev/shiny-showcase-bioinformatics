@@ -1,0 +1,63 @@
+name: Vendor apps
+
+# Pulls each app in app/sources.yml up to its source repo's latest GitHub
+# Release, and opens a PR when that moves the pin. Manual dispatch exists so
+# this can be run on demand (e.g. right after tagging a release) instead of
+# only on the schedule.
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "17 6 * * *" # daily; offset from the hour to dodge the top-of-hour rush
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests "ruamel.yaml>=0.18"
+
+      - name: Vendor apps from their latest release
+        id: vendor
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo 'log<<VENDOR_LOG_EOF'
+            python .github/scripts/vendor_apps.py
+            echo VENDOR_LOG_EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check whether anything actually changed
+        id: diff
+        run: |
+          if git status --porcelain -- app/ | grep -q .; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open a PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "Vendor app updates"
+          title: "Vendor app updates"
+          body: |
+            Automated sync from `.github/workflows/vendor-apps.yml`.
+
+            ```
+            ${{ steps.vendor.outputs.log }}
+            ```
+          branch: vendor-apps-bot
+          delete-branch: true
+          add-paths: |
+            app/

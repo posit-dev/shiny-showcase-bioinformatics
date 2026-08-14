@@ -1,6 +1,6 @@
 name: Vendor apps
 
-# This workflow copies each application in app/sources.yml from the latest
+# This workflow copies each application in apps/sources.yml from the latest
 # release of its repository. It then pushes the result to a branch. A person
 # opens the pull request, as the text below explains.
 #
@@ -53,7 +53,7 @@ jobs:
       - name: Push the branch if anything changed
         id: push
         run: |
-          if ! git status --porcelain -- app/ | grep -q .; then
+          if ! git status --porcelain -- apps/ | grep -q .; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Nothing to do: every app already matches its latest release."
             exit 0
@@ -62,7 +62,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add app/
+          git add apps/
           git commit -m "Vendor app updates"
           git push --force origin "$BRANCH"
         env:

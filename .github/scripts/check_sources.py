@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test app/sources.yml before the vendor workflow uses it.
+"""Test apps/sources.yml before the vendor workflow uses it.
 
 vendor_apps.py finds an incorrect entry only when it operates. This script
 finds the same problems in the pull request that writes the entry.
@@ -44,7 +44,7 @@ from ruamel.yaml import YAML
 from check_secrets import FORBIDDEN, is_permitted
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SOURCES_PATH = REPO_ROOT / "app" / "sources.yml"
+SOURCES_PATH = REPO_ROOT / "apps" / "sources.yml"
 GH_API = "https://api.github.com"
 
 KNOWN_KEYS = {"name", "repo", "ref", "include", "allow_missing_manifest_files"}
@@ -129,7 +129,7 @@ def check_shape(entry, index, names, repos):
     if not isinstance(name, str) or not NAME_PATTERN.match(name):
         errors.append(
             f"{label}: `name` must be lowercase letters, numbers and hyphens. "
-            "This value becomes the directory app/<name>/."
+            "This value becomes the directory apps/<name>/."
         )
     if name in names:
         errors.append(f"{label}: two entries have the name {name}.")
@@ -253,7 +253,7 @@ def main():
     data = YAML().load(SOURCES_PATH)
 
     if not isinstance(data, dict) or not isinstance(data.get("apps"), list):
-        print("ERROR    app/sources.yml must contain a list with the key `apps`.")
+        print("ERROR    apps/sources.yml must contain a list with the key `apps`.")
         sys.exit(1)
 
     errors, warnings = [], []

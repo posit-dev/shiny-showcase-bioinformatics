@@ -29,7 +29,7 @@ control, and `intro` text for each category.
 >    Posit-internal, because that repository is not public, although its license
 >    is MIT. The README of `comp-bio-apps` says that this material needs a
 >    sanitization pass first.
-> 2. `app/` holds a copy of the source code of those applications, and not only
+> 2. `apps/` holds a copy of the source code of those applications, and not only
 >    the screenshots.
 >
 > The repository is private, and nothing publishes the site automatically.
@@ -41,11 +41,15 @@ The repository holds two different things. Do not confuse them.
 | Directory | Content | Purpose |
 |---|---|---|
 | `apps.yml`, `packages.yml`, `thumbnails/` | Text and images | The gallery website |
-| `app/` | Application source code | Deployment to Connect Cloud |
+| `apps/` | Application source code | Deployment to Connect Cloud |
 
-A tile in `apps.yml` is a description of an application. A directory in `app/`
+A tile in `apps.yml` is a description of an application. A directory in `apps/`
 is the application. The two are independent: a tile can exist with no code, and
 code can exist with no tile.
+
+The two names are similar, so read them with care. `apps.yml` is one file at
+the root, and it holds the text of the gallery. `apps/` is a directory, and it
+holds R code.
 
 ## The gallery
 
@@ -166,9 +170,9 @@ renv::restore()
 quarto preview
 ```
 
-## Application source code in `app/`
+## Application source code in `apps/`
 
-Connect Cloud deploys an application from its directory in `app/`. Each
+Connect Cloud deploys an application from its directory in `apps/`. Each
 directory is complete and independent: its own modules, its own data, its own
 `_brand.yml`, and its own `manifest.json`.
 
@@ -176,7 +180,7 @@ Connect Cloud needs `manifest.json` for R content. An application with no
 manifest cannot deploy. To write one:
 
 ```r
-rsconnect::writeManifest(appDir = "app/<name>")
+rsconnect::writeManifest(appDir = "apps/<name>")
 ```
 
 If an application uses a Bioconductor package, put the Bioconductor
@@ -188,31 +192,37 @@ Connect.
 The `include` list of an application must contain every file that its
 `manifest.json` names. Connect Cloud reads the manifest and then reads those
 files. A file that the manifest names, but that `include` does not copy, is
-absent from `app/<name>/`.
+absent from `apps/<name>/`.
 
 Therefore the source repository must write a manifest of the application alone,
 and not of the complete repository. Put the tests, the notes and the development
 tools in a `.rscignore` file before you write the manifest.
 
-`app/` is not part of the website. `_quarto.yml` excludes it, because some
+`apps/` is not part of the website. `_quarto.yml` excludes it, because some
 applications hold their own `.qmd` files.
 
-### Two ways an application arrives in `app/`
+### Two kinds of application live in `apps/`
 
-| Source | Method | Applications |
+| Kind | Applications | Where a change starts |
 |---|---|---|
-| A repository with GitHub Releases | The workflow copies it | `genescout`, `tahoe-explorer`, `variant-reviewer` |
-| `lifescience-shiny-gallery` | A person copies it by hand | the other four |
+| Vendored | `genescout`, `tahoe-explorer`, `variant-reviewer` | The source repository. The workflow copies the release into this repository |
+| Local | `de-explorer`, `signature-scoring`, `drug-perturbation`, `genome-explorer` | Here. This repository is their home |
 
-`app/sources.yml` lists the applications that the workflow controls. It records
-the source repository, the release tag, and the files to copy. Read the comments
-in that file before you add an entry.
+`apps/sources.yml` lists the vendored applications. It records the source
+repository, the release tag, and the files to copy. Read the comments in that
+file before you add an entry.
 
-The four `lifescience-shiny-gallery` applications are absent from that list.
-That repository publishes no releases. Its `R/_shared` and `R/_modules`
-directories are build output, and git ignores them, so a release archive would
-give applications that fail at startup. Copy those four by hand from a
-synchronized working tree.
+**Do not change a vendored application here.** The next run of the workflow
+copies the release again, and the copy removes your change. Change the source
+repository, publish a release, then start the workflow.
+
+**Change a local application here.** These four are different, and they must
+stay absent from `sources.yml`. No other repository sends a change to them, and
+the workflow must never write to them. They came from
+`posit-dev/lifescience-shiny-gallery` one time, and a person copied them by
+hand. That repository publishes no release, and its `R/_shared` and `R/_modules`
+directories are build output that git ignores, so a release archive would give
+applications that fail at startup.
 
 ### How to update a vendored application
 
@@ -242,7 +252,7 @@ that does not operate gives a false result.
 
 | Job | Program | What it finds |
 |---|---|---|
-| Manifests | `check_manifests.py` | A file that `manifest.json` names, but that `app/<name>/` does not contain. Also a package that the code loads and the manifest does not name |
+| Manifests | `check_manifests.py` | A file that `manifest.json` names, but that `apps/<name>/` does not contain. Also a package that the code loads and the manifest does not name |
 | sources.yml | `check_sources.py` | An incorrect entry, and an `include` list that does not copy every file of the manifest. This test reads the release, so it finds the problem before the vendor workflow operates |
 | Secrets | `check_secrets.py` and gitleaks | A file with the name of a secret file, such as `.Renviron`. gitleaks then reads the content of each file, and also the history of git |
 
@@ -261,7 +271,7 @@ GH_TOKEN=$(gh auth token) python .github/scripts/check_sources.py
 
 `check_sources.py` reads the release of the source repository, and it answers
 this question: does `include` name every file of the manifest?
-`check_manifests.py` reads the directory in `app/`, and it answers a different
+`check_manifests.py` reads the directory in `apps/`, and it answers a different
 question: is every file of the manifest on disk?
 
 The first test finds the problem in the pull request that writes the entry. The
@@ -275,8 +285,8 @@ packages.yml          # Supporting Packages section. Same fields
 index.qmd             # The page. It shows both listings
 showcase.ejs          # Card template. Both listings use it
 thumbnails/           # Screenshots, package hex logos, and placeholder.svg
-app/                  # Application source code for Connect Cloud
-app/sources.yml       # Which applications the vendor workflow controls
+apps/                 # Application source code for Connect Cloud
+apps/sources.yml      # Which applications the vendor workflow copies
 R/check.R             # check_apps(): reads both YAML files and reports problems
 R/capture.R           # open_app() and capture_app(): screenshot helpers
 R/thumbnail-name.R    # The URL name convention of the upstream gallery. Unused

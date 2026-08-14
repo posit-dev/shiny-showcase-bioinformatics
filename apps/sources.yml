@@ -1,5 +1,5 @@
-# The applications that the vendor workflow copies into app/. Connect Cloud
-# deploys each one from app/<name> on the main branch.
+# The applications that the vendor workflow copies into apps/. Connect Cloud
+# deploys each one from apps/<name> on the main branch.
 #
 # .github/workflows/vendor-apps.yml controls this file. After you publish a
 # release in an application repository, start the workflow by hand:
@@ -8,7 +8,7 @@
 #
 # The workflow examines every `repo` below. If a repository has a release that
 # is newer than its `ref`, the workflow does three operations. It copies the
-# files into app/<name>/. It writes the new tag into `ref`. Then it pushes the
+# files into apps/<name>/. It writes the new tag into `ref`. Then it pushes the
 # `vendor-apps-bot` branch.
 #
 # A person then opens the pull request with `gh pr create`. This step is manual,
@@ -47,11 +47,18 @@
 # To add later, when it is ready:
 #   gene-list-builder  The repository is private, and it publishes no release.
 #
-# The four lifescience applications in app/ are absent from this list, and a
-# person copies them by hand. posit-dev/lifescience-shiny-gallery publishes no
-# releases. Its R/_shared and R/_modules directories are build output, and git
-# ignores them there, so a release archive would give applications that fail at
-# startup. Copy those four from a synchronized working tree of that repository.
+# Four applications are absent from this list, and they must stay absent:
+#
+#   de-explorer  signature-scoring  drug-perturbation  genome-explorer
+#
+# This repository is the home of those four. A person changes them here, and
+# no other repository sends a change. The workflow must never write to them,
+# because a copy from a release would remove the work.
+#
+# They came from posit-dev/lifescience-shiny-gallery one time, and a person
+# copied them by hand. That repository publishes no release. Its R/_shared and
+# R/_modules directories are also build output, and git ignores them there, so
+# a release archive would give applications that fail at startup.
 apps:
   - name: genescout
     repo: samuelbharti/genescout

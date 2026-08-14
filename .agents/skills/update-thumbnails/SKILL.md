@@ -1,84 +1,106 @@
 ---
 name: update-thumbnails
-description: Capture or refresh Shiny app thumbnails for the gallery. Use when an app in apps.yml or packages.yml is still on the placeholder and needs a real screenshot, or when an existing thumbnail needs re-taking. Opens each app in a browser the user can drive, screenshots at 2400x1600, and saves it under the app's name.
+description: Capture or replace the thumbnail of a Shiny app for the gallery. Use when a tile in apps.yml or packages.yml still shows the placeholder image, or when an existing thumbnail is out of date. Opens each app in a browser that the user controls. Captures the screen at 2400x1600. Saves the file with the name of the app.
 ---
 
-# Update showcase thumbnails
+# Update the gallery thumbnails
 
-Thumbnails live in `thumbnails/` and are named after the app: `genescout.png`,
-`variant-reviewer.png`. Each tile in `apps.yml` / `packages.yml` records the
-filename in its `thumbnail` field, and `R/check.R` verifies the file exists.
+The thumbnails are in `thumbnails/`. Each file has the name of its application,
+for example `genescout.png` or `variant-reviewer.png`. Each tile in `apps.yml`
+and `packages.yml` records the file name in its `thumbnail` field. `R/check.R`
+makes sure that the file is on disk.
 
-These apps are **first-party and mostly not deployed**: they run locally, at a
-URL like `http://127.0.0.1:3838` that says nothing about which app it is. So
-unlike an upstream gallery of third-party apps, the filename is *not* derived
-from the URL. (`R/thumbnail-name.R` still holds that URL-based convention; it
-applies only if a third-party app is ever added.)
+These applications are first-party, and most of them are not deployed. They
+operate at a local address such as `http://127.0.0.1:3838`, which identifies
+nothing. Therefore the file name does not come from the URL. `R/thumbnail-name.R`
+holds the URL convention of the upstream gallery, which applies only if a
+third-party application is added.
 
-An app that **needs** a screenshot is any tile whose `thumbnail` is
-`placeholder.svg`. `R/check.R` lists them under "awaiting a real screenshot".
+A tile needs a screenshot if its `thumbnail` field is `placeholder.svg`.
+`R/check.R` lists these tiles after the words "awaiting a real screenshot".
 
-Run R **interactively** (in the Positron/RStudio console). Do **not** use `Rscript`.
+Operate R in the console of Positron or RStudio. Do not use `Rscript`. The
+capture step opens a browser window that you control by hand.
 
 ## Steps
 
-1. **List the tiles still on the placeholder.** In R:
+1. **Find the tiles that still show the placeholder.** In R:
+
    ```r
    source("R/check.R")
    ```
-   `apps.yml` and `packages.yml` are the source of truth and are edited by hand, so
-   nothing regenerates them. `check.R` errors on a tile whose thumbnail is missing
-   from disk entirely, and reports which tiles are still on `placeholder.svg`.
-   Needs a restored renv library (`renv::restore()` if packages are missing).
 
-2. **Start the app you're capturing.** These are not deployed, so run it locally
-   first (from its own repository, in a separate R session) and note the port.
+   A person edits `apps.yml` and `packages.yml` by hand, and no script writes
+   them. `check.R` gives an error if a thumbnail is absent from disk. It also
+   reports the tiles that still use `placeholder.svg`. If the packages are
+   absent, restore the renv library with `renv::restore()`.
 
-3. **Capture it.** One app at a time:
+2. **Start the application.** These applications are not deployed. Operate the
+   application locally, from its own repository, in a different R session. Write
+   down the port number.
+
+3. **Capture the screen.** Do one application at a time:
+
    ```r
    source("R/capture.R")
    url <- "http://127.0.0.1:3838"
-   b <- open_app(url)          # opens a viewable window, 2400x1600 output
+   b <- open_app(url)          # opens a window you can see, 2400x1600 output
    ```
-   If the app opens looking small/zoomed-out, re-open with a `zoom` factor. The
-   output stays 2400x1600 but content renders larger and sharper:
+
+   If the content looks too small, open the application again with a `zoom`
+   value. The output stays at 2400x1600, but the content becomes larger and
+   sharper:
+
    ```r
    b$close(); b <- open_app(url, zoom = 2)
    ```
-   Now get the app into the view you want before capturing:
-   - Interact directly in the window (dismiss dialogs, click tabs, scroll), **or**
-   - Drive it from R, e.g.
-     `b$Runtime$evaluate('document.querySelector("a[data-value=\\"Map\\"]").click()')`
-   - Give slow Shiny apps time to finish loading (`Sys.sleep(6)` if needed).
 
-   When it looks right, **pass `file` explicitly**, named after the app:
+   Put the application into the view that you want. There are two methods:
+   - Use the window directly. Close dialogs, select tabs, and scroll.
+   - Control the window from R, for example
+     `b$Runtime$evaluate('document.querySelector("a[data-value=\\"Map\\"]").click()')`
+
+   If the application is slow, wait for it to finish. `Sys.sleep(6)` is
+   sufficient for most applications.
+
+   When the view is correct, give the `file` argument. Use the name of the
+   application:
+
    ```r
    capture_app(b, url, file = "genescout.png")
    b$close()
    ```
-   Ask the user to confirm the saved PNG looks good (interesting view, no spinners
-   or modals) before moving on.
 
-4. **Point the tile at it.** Change that tile's `thumbnail` from `placeholder.svg`
-   to the new filename. Leave `fit` alone unless you captured a diagram rather
-   than a screenshot, in which case set `fit: contain`.
+   Ask the user to look at the PNG file before you continue. The image must show
+   an interesting view, with no spinner and no dialog.
 
-5. **Re-check and preview.**
+4. **Point the tile to the new file.** In `apps.yml` or `packages.yml`, change
+   the `thumbnail` field from `placeholder.svg` to the new file name. Do not
+   change `fit`, unless you captured a diagram instead of a screenshot. For a
+   diagram, set `fit: contain`.
+
+5. **Check the data and see the site.**
+
    ```r
    source("R/check.R")
    ```
+
    ```bash
    quarto preview
    ```
-   Check every card in every section renders an image, with no broken thumbnails.
+
+   Make sure that every card in every section shows an image.
 
 ## Notes
 
-- Cards crop to 3:2 from the top-left (`fit: cover`), so put the app's header and
-  its most legible content in the upper-left of the capture. Nothing needs to be
-  exactly 2400x1600 (CSS handles the box), but capturing at that size keeps the
-  crop sharp.
-- `check.R` warns about images in `thumbnails/` that no tile references, which is
-  how you catch a rename that only got applied on one side.
-- If an app needs a specific tab/scroll state, that's exactly why capture is manual:
-  drive the live session, then `capture_app()`.
+A card crops the image to 3:2 from the top left corner, because the default
+`fit` is `cover`. Put the header of the application, and its most legible
+content, in the top left of the capture. The image does not need to be exactly
+2400x1600, because CSS controls the size of the box. A capture at that size
+keeps the crop sharp.
+
+`check.R` gives a warning for an image in `thumbnails/` that no tile uses. This
+warning finds a rename that you applied to only one of the two places.
+
+Capture is a manual step because an application often needs a specific tab or
+scroll position. Control the live session, then call `capture_app()`.

@@ -1,40 +1,47 @@
-# The gallery's app data -- the single source of truth, edited by hand.
+# The application data of the gallery. A person edits this file by hand, and no
+# script writes it.
 #
-# Quarto renders categories and tiles in the order they appear in this file, so
-# position is the only ordering mechanism. There is no `order` field and no
-# generation step.
+# Quarto shows the categories and the tiles in the same sequence as this file.
+# Position in the file is the only control of sequence. There is no `order`
+# field. To move a card on the page, move its block in this file.
 #
 # Tile fields
 #   title        required
-#   org          required  -- the line under the title (owner, or parent project)
+#   org          required  The line below the title. The owner, or the parent
+#                          project.
 #   description  required
-#   thumbnail    required  -- a file in thumbnails/, named <slug>.png
-#   links        optional  -- list of {text, url}; each renders a button. Omitted
-#                             entirely for now, so no tile carries a dead link.
-#                             Add them as apps get somewhere to point:
-#                               links:
-#                                 - text: GitHub
-#                                   url: https://github.com/...
-#   tech         optional  -- the stack line under the description; app tiles
-#                             here deliberately omit it (packages.yml still
-#                             uses it, since that's where the stack is the point)
-#   tags         optional  -- curated, not currently rendered
-#   alt          optional  -- image alt text; sensibly defaulted from the title
-#   fit          optional  -- cover (default, crops a screenshot to the tile),
-#                             contain (shows a diagram whole), or hex (centres a
-#                             package logo on a tint)
+#   thumbnail    required  A file in thumbnails/, with the name <slug>.png
+#   links        optional  A list of {text, url}. Each one makes a button. No
+#                          application tile uses this field now, because no
+#                          application has a public address. Add the links when
+#                          an application gets one:
+#                            links:
+#                              - text: GitHub
+#                                url: https://github.com/...
+#   tech         optional  The stack line below the description. The tiles in
+#                          this file do not use it. The tiles in packages.yml do,
+#                          because the stack of a package is important.
+#   tags         optional  Kept for reference. The template does not show them.
+#   alt          optional  Alternative text for the image. It defaults from the
+#                          title.
+#   fit          optional  One of three values:
+#                            cover    the default. It crops a screenshot to the
+#                                     shape of the tile.
+#                            contain  It shows a diagram complete.
+#                            hex      It puts a package logo in the center of a
+#                                     tint.
 #
-# Apps without a screenshot yet use thumbnails/placeholder.svg. Replace with a
-# real capture and update `thumbnail`; nothing else needs to change.
+# A tile with no screenshot uses thumbnails/placeholder.svg. To replace it,
+# capture a screenshot and write the new file name into `thumbnail`. Nothing
+# else changes.
 #
-# One section, all apps. The last three ship inside lifescience-shiny-gallery
-# (which also carries twelve reusable component showcases); that's recorded in
-# their `org` line rather than in a separate category.
+# All the applications are in one section. The last three are part of
+# lifescience-shiny-gallery, which also contains twelve component examples. The
+# `org` field of those three records this, and they have no separate category.
 #
-# Three further apps (multi-variant-reviewer, knowledge-graph-viewer, and
-# lifescience-shiny-gallery's Genome Explorer) were on this page and are
-# deliberately not shown. Their tiles are in git history at 3194430 if they
-# should come back.
+# Three other applications are absent from this page: multi-variant-reviewer,
+# knowledge-graph-viewer, and Genome Explorer from lifescience-shiny-gallery.
+# Their tiles are in the git history, at commit 3194430.
 - category: Applications
   tiles:
     - title: tahoe-explorer

@@ -1,14 +1,15 @@
-# Supporting packages -- same shape as apps.yml, same required fields. Rendered
-# as a section on index.qmd, after the apps.
+# The supporting packages. This file has the same fields as apps.yml. Quarto
+# shows it as a section of index.qmd, below the applications.
 #
-# Tooling that isn't a package (shinyreact, RShiny_template, Plotomics Live) is
-# deliberately not listed here -- add a category for it if that changes.
+# Tools that are not packages are absent from this file. Examples are
+# shinyreact, RShiny_template, and Plotomics Live. If that changes, add a
+# category for them.
 #
-# `intro` is optional and renders as a lead-in paragraph under the heading.
+# `intro` is optional. Quarto shows it as a paragraph below the heading.
 #
-# Package tiles use `fit: hex`, which centres the package's hex logo on a tint
-# rather than cropping it like a screenshot. The logos are copied from each
-# package's own man/figures/logo.svg (or .png).
+# Each package tile uses `fit: hex`. This value puts the hex logo of the package
+# in the center of a tint. It does not crop the image, as it crops a screenshot.
+# Each logo is a copy of man/figures/logo.svg (or .png) from that package.
 - category: Supporting Packages
   intro: >-
     The packages I've built and maintain underneath the applications. Each one

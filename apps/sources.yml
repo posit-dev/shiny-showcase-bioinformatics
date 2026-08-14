@@ -44,9 +44,6 @@
 # Each application is independent. If one entry fails, the workflow reports the
 # error, copies every other application, and then stops with a failure.
 #
-# To add later, when it is ready:
-#   gene-list-builder  The repository is private, and it publishes no release.
-#
 # Four applications are absent from this list, and they must stay absent:
 #
 #   de-explorer  signature-scoring  drug-perturbation  genome-explorer
@@ -84,12 +81,11 @@ apps:
       - renv.lock
       - DESCRIPTION
       - .Rprofile
-    # Waiver. manifest.json of genescout describes the complete repository, and
-    # not the application. It names 141 files that are tests, notes and
-    # workflows, and a deployment must not contain them. genescout must put
-    # those paths in .rscignore, write the manifest again, and publish a new
-    # release. Remove this line then. Connect Cloud cannot deploy genescout
-    # until that happens.
+      - LICENSE
+    # Waiver, and it is temporary. genescout v0.1.1 corrects the manifest: it
+    # names 91 files, and not the 231 files of the complete repository. But
+    # apps/genescout/ still holds the copy of v0.1.0. Remove this line in the
+    # same pull request that vendors v0.1.1.
     allow_missing_manifest_files: true
 
   - name: tahoe-explorer
@@ -136,3 +132,23 @@ apps:
       - README.md
       - CITATION.cff
       - CITATION.md
+
+  # The manifest of this application does not name renv.lock, so the list below
+  # does not copy it. Connect Cloud reads the manifest, and the manifest holds
+  # every package already.
+  - name: gene-list-builder
+    repo: samuelbharti/gene-list-builder
+    ref: ""
+    include:
+      - global.R
+      - ui.R
+      - server.R
+      - manifest.json
+      - _brand.yml
+      - R
+      - modules
+      - userInterface
+      - www
+      - data
+      - LICENSE
+      - README.md

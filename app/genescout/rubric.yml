@@ -1,0 +1,116 @@
+# GeneScout technical-ranking rubric.
+#
+# Per-signal weights ("source definitions") and normalization midpoints for the
+# deterministic composite score. Edit here to retune ranking - no code change
+# needed. The human rationale lives in prompts/scoring-rubric.md.
+#
+#   weights   - relative importance of each source's signal in the weighted mean.
+#   midpoints - the raw value that normalizes to 0.5 (saturating transforms), i.e.
+#               "how many is a lot" for counts.
+#   coverage_bonus - if true, multiply the composite by (0.5 + 0.5 * fraction of
+#               sources with a real value), rewarding genes supported broadly.
+
+default:
+  weights:
+    ot_assoc: 1.0 # Open Targets max disease-association score (0-1)
+    pmc_hits: 0.5 # Europe PMC gene mention count (string match, recall)
+    pubtator: 0.5 # PubTator3 entity-tagged article count (precision, evidence)
+    clinvar_path: 1.0 # ClinVar pathogenic / likely-pathogenic variant count
+    dgidb: 0.5 # DGIdb drug-gene interaction count (druggability, evidence)
+    gnomad_loeuf: 0.75 # gnomAD LOEUF constraint (annotation, lower is better)
+    gnomad_af: 0.0 # gnomAD common-LoF frequency: caveat-only, so weight 0 (opt-in)
+    pharos_tdl: 0.5 # Pharos target development level (annotation)
+    reactome: 0.5 # Reactome disease-pathway membership (annotation)
+    panelapp: 1.0 # Genomics England PanelApp confidence (discovery mode only)
+    diseases: 0.75 # DISEASES / Jensen Lab association (discovery mode only)
+    hpo: 0.75 # HPO gene-disease associations (evidence, opt-in connector)
+    hpa: 0.5 # HPA disease/cancer classification (annotation, opt-in connector)
+    cbioportal: 0.5 # cBioPortal pan-cancer somatic mutation frequency (opt-in)
+    civic: 0.5 # CIViC curated clinical evidence-item count (opt-in)
+    clingen: 0.75 # ClinGen gene-disease validity strength (opt-in)
+    uniprot_disease: 0.75 # UniProt/Swiss-Prot curated disease involvement (opt-in)
+    go: 0.5 # Gene Ontology biological-process function match (annotation, opt-in)
+    pdbe: 0.4 # PDBe experimental 3D structure count (annotation, opt-in)
+    impc: 0.4 # IMPC mouse-knockout significant phenotype count (annotation, opt-in)
+    # Cross-source corroboration (evidence, multi-source runs only): how many of
+    # the user's OWN sources a gene appears in. Weight 2.0 is above ot_assoc so a
+    # gene in >= 3 sources out-ranks a single strong external association; the
+    # saturating normalizer still caps breadth-only genes below the High grade, so
+    # a top grade needs external evidence too ("Balanced" calibration).
+    cross_source: 2.0
+    # GTEx tissue-expression relevance (annotation, only when tissues of interest
+    # are given). Value is already 0-1 (peak expression in a tissue of interest /
+    # peak across all tissues), so no midpoint is needed.
+    gtex_tissue: 0.5
+    # STRING within-list connectivity (annotation, multi-gene lists only): how many
+    # OTHER candidates a gene interacts with at high confidence. Cohort-relative, so
+    # it only ever nudges a connected gene up - never penalizes an isolate.
+    string: 0.5
+  midpoints:
+    pmc_hits: 50
+    pubtator: 300 # ~300 entity-tagged articles normalizes to 0.5 (log-saturating)
+    clinvar_path: 5
+    dgidb: 5 # ~5 interactions normalizes to 0.5
+    gnomad_loeuf: 0.35 # LOEUF 0.35 -> 0.5; strongly constrained (<0.35) scores higher
+    gnomad_af: 0.001 # rarity midpoint: max pLoF AF 0.001 -> 0.5 (used only if weighted)
+    reactome: 2 # ~2 relevant disease pathways normalizes to 0.5
+    diseases: 2 # DISEASES confidence ~2 (of 0-5) normalizes to 0.5
+    hpo: 3 # ~3 (context-matching) HPO diseases normalizes to 0.5
+    hpa: 2 # ~2 HPA disease/cancer classifications normalizes to 0.5
+    cbioportal: 0.05 # ~5% pan-cancer mutation frequency normalizes to 0.5
+    civic: 15 # ~15 curated evidence items normalizes to 0.5 (log-saturating)
+    clingen: 2 # validity strength ~2 (Moderate, of 0-4) normalizes to 0.5
+    uniprot_disease: 2 # ~2 curated (context-matching) diseases normalizes to 0.5
+    go: 3 # ~3 (context-matching) GO biological-process terms normalizes to 0.5
+    pdbe: 2 # ~2 experimental structures normalizes to 0.5
+    impc: 4 # ~4 distinct significant knockout phenotypes normalizes to 0.5 (log)
+    cross_source: 1 # 2 sources -> 0.5, 3 -> 0.667, saturating (count - 1)
+    string: 3 # ~3 within-list interaction partners normalizes to 0.5
+  coverage_bonus: false
+  # Caveats / veto: the deterministic anti-familiar-gene-bias override (R/caveats.R;
+  # spec in prompts/scoring-rubric.md). Retune here - no code change.
+  caveats:
+    enabled: true
+    # FLAGS = FrequentLy mutAted GeneS (Shyr et al. 2014, BMC Med Genomics 7:64):
+    # genes recurrently reported as sequencing artifacts across unrelated cohorts,
+    # so a hit is weak evidence of disease relevance. Vetoed (forced to the bottom
+    # with a stated reason). A disease context's flags_genes extends this list.
+    flags_genes:
+      [
+        TTN,
+        MUC16,
+        OBSCN,
+        SYNE1,
+        MUC4,
+        FLG,
+        AHNAK2,
+        RYR2,
+        RYR3,
+        DNAH5,
+        DNAH11,
+        PKHD1,
+        PLEC,
+        NEB,
+        CUBN,
+        MUC5B,
+        USH2A,
+        DST,
+        FAT3,
+        HMCN1,
+      ]
+    single_source:
+      penalty: 0.75 # composite *= this when supported by one weak source
+      max_norm: 0.5 # "weak" = the single present evidence source normalizes below this
+    # Unrelated-tissue-only: a gene GTEx measures as expressed, but essentially not
+    # in the study's tissue(s) of interest (relevance below max_relevance), is
+    # down-weighted. Needs the GTEx signal (tissues of interest supplied).
+    unrelated_tissue:
+      penalty: 0.85 # composite *= this when expressed only in unrelated tissues
+      max_relevance: 0.1 # "unrelated" = GTEx tissue relevance below this (0-1)
+    # Common-variant: a gene carrying a COMMON loss-of-function variant in gnomAD
+    # (max pLoF allele frequency above min_af) is tolerated in the general
+    # population, so it is a weaker driver candidate and is down-weighted. Needs the
+    # opt-in gnomAD common-LoF-frequency signal (gnomad_af).
+    common_variant:
+      penalty: 0.8 # composite *= this when a common pLoF variant is present
+      min_af: 0.001 # "common" = max pLoF allele frequency above this (0.1%)

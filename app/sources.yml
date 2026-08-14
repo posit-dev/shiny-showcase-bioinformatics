@@ -50,7 +50,7 @@
 apps:
   - name: genescout
     repo: samuelbharti/genescout
-    ref: ""
+    ref: "v0.1.0"
     include:
       - app.R
       - global.R
@@ -75,7 +75,7 @@ apps:
 
   - name: tahoe-explorer
     repo: samuelbharti/tahoe-explorer
-    ref: ""
+    ref: "v0.1.1"
     include:
       - global.R
       - ui.R

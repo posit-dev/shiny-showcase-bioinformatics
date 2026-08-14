@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Scout, the GeneScout mascot: a friendly magnifying glass whose body is a DNA double helix">
+  <title>Scout — the GeneScout mascot</title>
+  <!-- ground shadow -->
+  <ellipse cx="60" cy="120" rx="23" ry="4" fill="#5f1f2b" opacity="0.12"/>
+  <!-- feet -->
+  <ellipse cx="50" cy="116" rx="7" ry="4.2" fill="#5f1f2b"/>
+  <ellipse cx="70" cy="116" rx="7" ry="4.2" fill="#5f1f2b"/>
+  <!-- body: a DNA double helix (also the magnifier's handle) -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M52 113 C70 105 44 93 60 84" stroke="#7c2b39" stroke-width="8"/>
+    <path d="M68 113 C50 105 76 93 60 84" stroke="#9a6b2e" stroke-width="8"/>
+  </g>
+  <g stroke="#5f1f2b" stroke-width="3" stroke-linecap="round" opacity="0.5">
+    <line x1="54" y1="107.5" x2="66" y2="107.5"/>
+    <line x1="54" y1="92" x2="66" y2="92"/>
+  </g>
+  <!-- head: the magnifier lens, with a friendly face -->
+  <circle cx="60" cy="52" r="26" fill="#faf5f0"/>
+  <circle cx="60" cy="52" r="26" fill="none" stroke="#9a6b2e" stroke-width="7"/>
+  <circle cx="51" cy="49" r="4" fill="#2c211d"/>
+  <circle cx="67" cy="49" r="4" fill="#2c211d"/>
+  <path d="M50 60 Q60 68 70 60" fill="none" stroke="#2c211d" stroke-width="3.4" stroke-linecap="round"/>
+  <!-- lens shine -->
+  <path d="M44 42 Q48 34 58 32" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <!-- explorer hat -->
+  <ellipse cx="60" cy="30" rx="29" ry="6.5" fill="#7c2b39"/>
+  <path d="M48 30 v-7 a12 11 0 0 1 24 0 v7 z" fill="#8f3444"/>
+  <rect x="48" y="25.5" width="24" height="5" rx="2.5" fill="#5f1f2b"/>
+</svg>

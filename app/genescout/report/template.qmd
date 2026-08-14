@@ -1,0 +1,28 @@
+---
+title: "GeneScout evidence review"
+format:
+  html:
+    toc: true
+    embed-resources: true
+params:
+  result: null
+---
+
+<!--
+Scaffold for the auditable HTML report. render_report() (R/report.R) will render
+this with a review `result`, producing: a ranked summary table, per-candidate
+evidence cards (evidence + citations, caveats, suggested next experiment), and
+the research-use-only disclaimer. Not yet wired - see PLAN.md.
+-->
+
+::: {.callout-warning}
+**Research use only.** GeneScout is a hypothesis-prioritization aid for researchers.
+It is not a clinical decision-support tool and does not provide diagnosis,
+treatment guidance, or ACMG/AMP variant classification.
+:::
+
+```{r}
+#| label: placeholder
+#| echo: false
+# TODO: render params$result - ranked table + per-candidate cards.
+```

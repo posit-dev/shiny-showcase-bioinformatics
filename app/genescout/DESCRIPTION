@@ -1,0 +1,38 @@
+Package: genescout
+Title: Agentic Evidence-Review Workbench for Gene Prioritization
+Version: 0.1.0
+Authors@R:
+    person("Samuel", "Bharti", email = "sbharti@uab.edu", role = c("aut", "cre"))
+Description: GeneScout is an agentic, R-native evidence-review workbench for
+    research genomics. It investigates one or more candidate gene lists against a
+    disease context and returns a disease-informed, plausibility-ranked shortlist
+    with the supporting evidence, the uncertainties, and recommended next
+    experiments. Built on ellmer for provider-agnostic LLM orchestration and httr2
+    for public bio-database access. Research use only.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.3)
+Imports:
+    brand.yml,
+    bslib,
+    cachem,
+    dplyr,
+    DT,
+    ellmer,
+    htmltools,
+    httr2,
+    jsonlite,
+    promises,
+    purrr,
+    rlang,
+    shiny,
+    shinychat,
+    tibble,
+    yaml
+Suggests:
+    mirai,
+    plumber,
+    quarto,
+    testthat (>= 3.0.0),
+    thematic

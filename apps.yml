@@ -137,3 +137,12 @@
         mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
       tags: drug repurposing, connectivity, lincs
+
+    - title: Genome Explorer
+      org: lifescience-shiny-gallery
+      description: >-
+        Recurrent TCGA breast driver mutations placed on hg19 through igv.js. Raise the
+        recurrence filter, then click a variant to zoom the browser to it.
+      thumbnail: genome-explorer.png
+      alt: The PIK3CA locus in an igv.js browser, above a table of recurrent variants
+      tags: igv, somatic variants, tcga

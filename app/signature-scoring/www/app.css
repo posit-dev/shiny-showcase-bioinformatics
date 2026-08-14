@@ -1,0 +1,579 @@
+/* Signature Scoring Explorer - "activity bench"
+   A bespoke, bslib-free design system (frontend-design).
+   Type: Fraunces (optical editorial serif) for the display voice, Libre
+   Franklin for UI/body, JetBrains Mono for data/labels.
+   Palette anchored to the gallery's SS green, with a clinical ink + a warm
+   "low" accent that echoes the expression heatmap. */
+
+:root {
+  --ink: #16241f;
+  --ink-2: #2c3b34;
+  --paper: #eef2f0;
+  --surface: #ffffff;
+  --line: #d7ded9;
+  --line-2: #e7ece9;
+  --green: #72994e;
+  --green-deep: #3f5a2a;
+  --clay: #c4562f;
+  --muted: #6e7b72;
+  --muted-2: #92a09a;
+
+  --sans: "Libre Franklin", system-ui, -apple-system, sans-serif;
+  --disp: "Fraunces", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(22, 36, 31, 0.04), 0 8px 24px rgba(22, 36, 31, 0.05);
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Force the type system onto every widget that ships its own font-family
+   (Shiny inputs, selectize, DataTables, ionRangeSlider, the chat), so the app
+   reads as one typeface throughout. Mono/serif elements set their family
+   explicitly elsewhere and are unaffected. */
+body, input, button, select, textarea, optgroup, label,
+.form-control, .selectize-input, .selectize-input input,
+.selectize-dropdown, .selectize-dropdown-content,
+.shiny-input-container, .radio, .checkbox, .help-block,
+table.dataTable, .dataTables_wrapper, .dataTables_wrapper input,
+.dataTables_info, .dataTables_paginate, .dt-button,
+.irs, .irs-min, .irs-max, .irs-single, .irs-from, .irs-to, .irs-grid-text,
+#chat-chat, shiny-chat-container, .shiny-chat-message,
+.shiny-chat-user-message, .shiny-chat-input {
+  font-family: var(--sans);
+}
+
+/* bootstrapPage ships a .container-fluid wrapper; let the app go full-bleed. */
+.container-fluid { padding: 0 !important; max-width: none !important; }
+
+a { color: var(--green-deep); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.mono { font-family: var(--mono); }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+.eyebrow .num { color: var(--green); }
+.eyebrow.on-ink { color: var(--muted-2); }
+.eyebrow.on-ink .num { color: var(--green); }
+
+/* ---- Top bar --------------------------------------------------------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(1.2) blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.brand .tick { color: var(--green); }
+.brand small {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.topnav { display: flex; align-items: center; gap: 0.35rem; }
+.topnav .spacer { flex: 1; }
+.navlink {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.4rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.navlink:hover { color: var(--ink); background: var(--line-2); text-decoration: none; }
+.navlink.active { color: var(--green-deep); background: rgba(114, 153, 78, 0.12); }
+.navlink .fa, .navlink svg { margin-right: 0.4rem; opacity: 0.8; }
+
+/* ---- Page scaffold --------------------------------------------------- */
+.page { padding: 1.25rem 1.5rem 3rem; }
+.contrast-wrap { margin-bottom: 1.1rem; }
+
+/* ---- Intro primer band ----------------------------------------------- */
+.intro {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.3rem 1.5rem 1.4rem;
+  margin-bottom: 1.1rem;
+}
+.intro .eyebrow { margin-bottom: 0.8rem; }
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 1.8rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .intro-grid { grid-template-columns: 1fr; } }
+.intro-head {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.55rem;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 0.6rem;
+  max-width: 20ch;
+}
+.intro-lede p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 64ch;
+}
+.intro-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border-left: 2px solid var(--line-2);
+  padding-left: 1.2rem;
+}
+.intro-steps .step { display: flex; gap: 0.7rem; align-items: flex-start; }
+.step .s-n {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: #fff;
+  background: var(--green);
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.step strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.step div span { font-size: 0.82rem; color: var(--muted); line-height: 1.35; }
+
+/* Signature element: the contrast rendered as a diverging axis. The band's
+   own background diverges too - a whisper of clay on the reference side,
+   green on the compared side - so it echoes the axis and lifts off the paper
+   instead of reading as a flat white strip. */
+.contrast {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(196, 86, 47, 0.11) 0%,
+      rgba(196, 86, 47, 0) 33%,
+      rgba(114, 153, 78, 0) 67%,
+      rgba(114, 153, 78, 0.14) 100%
+    ),
+    var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.95rem 1.5rem 1.05rem;
+  box-shadow: 0 1px 2px rgba(22, 36, 31, 0.05), 0 10px 26px rgba(22, 36, 31, 0.07);
+}
+.contrast .eyebrow { margin-bottom: 0.6rem; }
+.contrast-axis {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2.2fr minmax(120px, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+.c-side { display: flex; flex-direction: column; }
+.c-side.cmp { text-align: right; align-items: flex-end; }
+.c-name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.c-side.ref .c-name { color: var(--clay); }
+.c-side.cmp .c-name { color: var(--green-deep); }
+/* Colour-coded anchor dot before each group name (ties the ends of the axis
+   to the two groups). */
+.c-name::before {
+  content: "";
+  display: inline-block;
+  width: 0.52em;
+  height: 0.52em;
+  border-radius: 50%;
+  margin-right: 0.5em;
+  vertical-align: 0.08em;
+}
+.c-side.ref .c-name::before { background: var(--clay); }
+.c-side.cmp .c-name::before { background: var(--green-deep); }
+.c-n { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.c-track { position: relative; height: 26px; display: flex; align-items: center; }
+.c-track .rail {
+  position: absolute; left: 0; right: 0; top: 50%; height: 4px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #c4562f 0%, #b7bdb3 50%, #72994e 100%);
+  border-radius: 4px;
+}
+.c-track .zero {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 12px; height: 12px; border-radius: 50%; background: var(--surface);
+  border: 3px solid var(--ink);
+}
+.c-track .cap {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 0.8rem; color: var(--muted);
+}
+.c-track .cap.l { left: -2px; }
+.c-track .cap.r { right: -2px; }
+.contrast-meta {
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ---- Layout: instrument rail + content ------------------------------- */
+.layout {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+.rail {
+  position: sticky;
+  top: 4.2rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.rail-head {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line-2);
+  background: linear-gradient(180deg, rgba(114,153,78,0.06), transparent);
+}
+.rail-body { padding: 0.9rem 1rem 1.1rem; }
+.rail-group { margin-bottom: 1.1rem; }
+.rail-group:last-child { margin-bottom: 0; }
+.rail .helptext {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin-top: 0.4rem;
+}
+
+.stack { display: flex; flex-direction: column; gap: 1.1rem; min-width: 0; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+  .rail { position: static; }
+  .row-2 { grid-template-columns: 1fr; }
+}
+
+/* ---- Panels (designed sections, not stock cards) --------------------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel.hero { border-color: #c7d4c0; }
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid var(--line-2);
+}
+.panel-title {
+  font-family: var(--disp);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.panel-body { padding: 1rem 1.1rem 1.15rem; }
+.panel-body.tight { padding: 0.6rem 0.8rem; }
+
+/* "How to read this" native disclosure */
+details.help { margin: 0 0 0.7rem; font-size: 0.82rem; color: var(--muted); }
+details.help > summary {
+  cursor: pointer; color: var(--green-deep); font-weight: 500; list-style: none;
+}
+details.help > summary::-webkit-details-marker { display: none; }
+details.help > summary::before { content: "\203A  "; }
+details.help[open] > summary::before { content: "\2039  "; }
+details.help .body { padding-top: 0.4rem; line-height: 1.5; }
+
+/* ---- Segmented control (custom views) -------------------------------- */
+.seg-group { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.seg {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.36rem 0.8rem;
+  background: var(--surface);
+  cursor: pointer;
+}
+.seg:hover { border-color: var(--green); color: var(--green-deep); }
+.seg.active {
+  color: #fff;
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+}
+
+/* Inactive views stay in the DOM at full width but visually hidden, so their
+   Shiny plot outputs still render (display:none would suspend them). Use
+   opacity (not visibility) so slider/widget CSS can't override the hiding and
+   bleed through; pointer-events:none lets clicks pass to the active view. */
+.views { position: relative; }
+.view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.view.active { position: relative; opacity: 1; pointer-events: auto; }
+
+/* ---- Base input styling (this app carries no Bootstrap CSS) ----------- */
+.form-group, .shiny-input-container { margin-bottom: 0.85rem; }
+.shiny-input-container { width: 100% !important; }
+.control-label { display: block; }
+.form-control, .selectize-input, input[type="text"], input[type="password"],
+input[type="number"], select, textarea {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.radio, .checkbox { margin: 0.15rem 0; }
+.radio label, .checkbox label { display: flex; align-items: center; gap: 0.45rem; margin: 0; }
+.radio input, .checkbox input { margin: 0; }
+.shiny-options-group { display: flex; flex-direction: column; gap: 0.1rem; }
+.btn {
+  font-family: var(--sans);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--green); }
+
+/* ---- Buttons & inputs ------------------------------------------------ */
+.btn-line {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+.btn-line:hover { border-color: var(--green); color: var(--green-deep); }
+.btn-fill {
+  background: var(--green-deep); color: #fff; border: 1px solid var(--green-deep);
+}
+.btn-fill:hover { background: #35501f; }
+
+.control-label, label { font-weight: 600; font-size: 0.82rem; color: var(--ink-2); margin-bottom: 0.25rem; }
+.form-control, .selectize-input {
+  border-radius: 8px !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+  font-size: 0.9rem;
+}
+.selectize-input.focus, .form-control:focus {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 0 2px rgba(114, 153, 78, 0.18) !important;
+}
+.irs-bar, .irs-handle > i:first-child { background: var(--green) !important; border-color: var(--green) !important; }
+.irs-from, .irs-to, .irs-single { background: var(--green-deep) !important; }
+.radio label, .checkbox label { font-weight: 400; font-size: 0.88rem; }
+
+/* ---- DataTables ------------------------------------------------------ */
+table.dataTable thead th {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--line) !important;
+}
+table.dataTable tbody td { font-size: 0.86rem; }
+table.dataTable tbody tr.selected td { box-shadow: inset 3px 0 0 var(--green) !important; background: rgba(114,153,78,0.08) !important; color: var(--ink) !important; }
+.dataTables_wrapper .dt-buttons .dt-button {
+  font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase;
+  border-radius: 7px; border: 1px solid var(--line); background: var(--surface);
+}
+
+/* ---- Drawers (assistant + upload) ------------------------------------ */
+.scrim {
+  position: fixed; inset: 0; background: rgba(22, 36, 31, 0.32);
+  opacity: 0; pointer-events: none; transition: opacity 0.22s ease; z-index: 60;
+}
+.scrim.show { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: 460px; max-width: 92vw;
+  background: var(--surface); border-left: 1px solid var(--line);
+  box-shadow: -12px 0 40px rgba(22, 36, 31, 0.14);
+  transform: translateX(100%); transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 70; display: flex; flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 1rem 1.2rem 0.8rem; border-bottom: 1px solid var(--line-2);
+}
+.drawer-head h2 { font-family: var(--disp); font-size: 1.05rem; font-weight: 600; margin: 0; }
+.drawer-head .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.drawer-close {
+  border: none; background: transparent; font-size: 1.3rem; line-height: 1;
+  color: var(--muted); cursor: pointer; padding: 0 0.2rem;
+}
+.drawer-close:hover { color: var(--ink); }
+.drawer-body { flex: 1; min-height: 0; overflow: auto; padding: 1rem 1.2rem 1.2rem; }
+.drawer-body.chat { padding: 0; display: flex; flex-direction: column; }
+
+/* BYOK config, inline in the assistant drawer */
+details.byok { border-bottom: 1px solid var(--line-2); }
+details.byok > summary {
+  cursor: pointer; list-style: none; padding: 0.7rem 1.2rem;
+  font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--ink-2); display: flex; align-items: center; gap: 0.5rem;
+}
+details.byok > summary::-webkit-details-marker { display: none; }
+details.byok .byok-body { padding: 0.4rem 1.2rem 0.9rem; }
+.badge-pill {
+  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.05em;
+  text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 999px;
+}
+.badge-ok { background: rgba(114,153,78,0.16); color: var(--green-deep); }
+.badge-info { background: #e6eef4; color: #2c5a80; }
+.badge-off { background: #eceeed; color: var(--muted); }
+
+/* shinychat fit + hide tool cards handled inline per-app */
+#chat-chat { --shiny-chat-greeting-max-width: 100%; min-width: 0; max-width: 100%; flex: 1; min-height: 0; }
+
+/* ---- About ----------------------------------------------------------- */
+.about {
+  max-width: 820px; margin: 1.5rem auto 3rem; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 2rem 2.4rem;
+}
+.about h2 { font-family: var(--disp); font-weight: 700; letter-spacing: -0.01em; }
+.about h3, .about h4 { font-family: var(--disp); font-weight: 600; margin-top: 1.6rem; }
+.about code { font-family: var(--mono); font-size: 0.85em; background: var(--line-2); padding: 0.1em 0.35em; border-radius: 5px; }
+.about a { text-decoration: underline; }
+
+.footer {
+  text-align: center; padding: 1.4rem; color: var(--muted);
+  font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em;
+  text-transform: uppercase; border-top: 1px solid var(--line);
+}
+
+/* ---- Dataset context panel ------------------------------------------- */
+.ds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 2rem; }
+@media (max-width: 760px) { .ds-grid { grid-template-columns: 1fr; } }
+.ds-line { margin: 0 0 0.4rem; display: flex; gap: 0.6rem; font-size: 0.86rem; line-height: 1.45; }
+.ds-k {
+  font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); min-width: 78px;
+  padding-top: 2px; flex: 0 0 auto;
+}
+.ds-v { color: var(--ink-2); }
+.ds-actions { display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; margin-top: 1rem; }
+.ds-more {
+  font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.04em; cursor: pointer;
+}
+
+/* ---- Drawer copy ----------------------------------------------------- */
+.drawer-copy { font-size: 0.86rem; color: var(--ink-2); }
+.drawer-copy ul { padding-left: 1.1rem; margin: 0.5rem 0; }
+.drawer-copy li { margin-bottom: 0.35rem; }
+.drawer-copy code, .byok-body code {
+  font-family: var(--mono); font-size: 0.82em; background: var(--line-2);
+  padding: 0.1em 0.35em; border-radius: 5px;
+}
+.drawer-copy .muted, .muted { color: var(--muted); }
+
+/* ---- Button overrides (beat Bootstrap-3 .btn specificity) ------------ */
+.btn.btn-line, button.btn-line {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.05em;
+  text-transform: uppercase; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 8px; padding: 0.4rem 0.8rem;
+}
+.btn.btn-line:hover, button.btn-line:hover { border-color: var(--green); color: var(--green-deep); }
+.btn.btn-fill, button.btn-fill { background: var(--green-deep); color: #fff; border-color: var(--green-deep); }
+.btn.btn-fill:hover, button.btn-fill:hover { background: #35501f; color: #fff; }
+
+/* ---- Connection badge (byok server emits Bootstrap-5 utility classes;
+   restyle them here since this app carries no Bootstrap 5). ------------- */
+.badge {
+  display: inline-block; font-family: var(--mono); font-size: 0.6rem;
+  font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.28em 0.62em; border-radius: 999px;
+}
+.rounded-pill { border-radius: 999px; }
+.text-bg-success { background: var(--green); color: #fff; }
+.bg-info-subtle, .text-info-emphasis { background: #e6eef4; color: #2c5a80; }
+.text-bg-secondary { background: #e7ebe9; color: var(--muted); }

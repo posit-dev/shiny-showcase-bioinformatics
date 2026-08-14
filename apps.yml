@@ -49,7 +49,8 @@
       description: >-
         Filter and subset Tahoe-100M perturbation metadata, 100.6 million rows, and
         leave with a reproducible pull recipe. Summaries push down to DuckDB.
-      thumbnail: placeholder.svg
+      thumbnail: tahoe-explorer.png
+      alt: The Tahoe-100M metadata explorer, with cell-line and driver-gene summaries
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/tahoe-explorer
@@ -104,7 +105,8 @@
         Resolve a disease name to an EFO/MONDO term, query seven gene-disease sources
         in parallel, and dedupe to one row per gene. Re-ranks live as you tune the
         source weights.
-      thumbnail: placeholder.svg
+      thumbnail: gene-list-builder.png
+      alt: A ranked gene list for breast cancer, with a score for each source
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/gene-list-builder

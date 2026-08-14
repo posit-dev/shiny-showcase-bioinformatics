@@ -74,8 +74,6 @@
           url: https://www.samuelbharti.com/bioclients/
       tags: rest api, ensembl, uniprot, gnomad, open targets
 
-    # No hex logo exists for plotomics, so this tile keeps a representative
-    # figure. Swap in a hex and set `fit: hex` when there is one.
     - title: plotomics
       org: TypeScript · R · Python
       description: >-
@@ -83,6 +81,8 @@
         ways: npm for React, htmlwidgets for R, anywidget for Python. Headless
         factories rather than React components, so the core drops into all three
         unchanged.
-      thumbnail: plotomics.png
+      thumbnail: plotomics.svg
+      fit: hex
+      alt: plotomics hex logo
       tech: 17 components · volcano · embedding · heatmap · igv · network · oncoplot · spatial · and ten more
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

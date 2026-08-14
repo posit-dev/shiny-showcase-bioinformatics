@@ -3,3 +3,7 @@
 _site/
 __pycache__/
 
+# Runtime output of a vendored application. Operating an application locally
+# writes these files, and they must not become part of the repository. Each
+# application also excludes them from its deployment, in data/.rscignore.
+apps/*/data/cache/

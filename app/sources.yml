@@ -57,13 +57,6 @@ apps:
   - name: genescout
     repo: samuelbharti/genescout
     ref: ""
-    # Waiver. manifest.json of genescout describes the complete repository, and
-    # not the application. It names 141 files that are tests, notes and
-    # workflows, and a deployment must not contain them. genescout must put
-    # those paths in .rscignore, write the manifest again, and publish a new
-    # release. Remove this line then. Connect Cloud cannot deploy genescout
-    # until that happens.
-    allow_missing_manifest_files: true
     include:
       - app.R
       - global.R
@@ -85,6 +78,13 @@ apps:
       - renv.lock
       - DESCRIPTION
       - .Rprofile
+    # Waiver. manifest.json of genescout describes the complete repository, and
+    # not the application. It names 141 files that are tests, notes and
+    # workflows, and a deployment must not contain them. genescout must put
+    # those paths in .rscignore, write the manifest again, and publish a new
+    # release. Remove this line then. Connect Cloud cannot deploy genescout
+    # until that happens.
+    allow_missing_manifest_files: true
 
   - name: tahoe-explorer
     repo: samuelbharti/tahoe-explorer

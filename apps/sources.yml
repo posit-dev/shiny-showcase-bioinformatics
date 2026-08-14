@@ -44,9 +44,6 @@
 # Each application is independent. If one entry fails, the workflow reports the
 # error, copies every other application, and then stops with a failure.
 #
-# To add later, when it is ready:
-#   gene-list-builder  The repository is private, and it publishes no release.
-#
 # Four applications are absent from this list, and they must stay absent:
 #
 #   de-explorer  signature-scoring  drug-perturbation  genome-explorer
@@ -136,3 +133,23 @@ apps:
       - README.md
       - CITATION.cff
       - CITATION.md
+
+  # The manifest of this application does not name renv.lock, so the list below
+  # does not copy it. Connect Cloud reads the manifest, and the manifest holds
+  # every package already.
+  - name: gene-list-builder
+    repo: samuelbharti/gene-list-builder
+    ref: ""
+    include:
+      - global.R
+      - ui.R
+      - server.R
+      - manifest.json
+      - _brand.yml
+      - R
+      - modules
+      - userInterface
+      - www
+      - data
+      - LICENSE
+      - README.md

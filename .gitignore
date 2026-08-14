@@ -7,3 +7,12 @@ __pycache__/
 # writes these files, and they must not become part of the repository. Each
 # application also excludes them from its deployment, in data/.rscignore.
 apps/*/data/cache/
+
+# Posit Publisher writes this directory next to an application. It records the
+# server URL, the content GUID and the dashboard URL of a deployment. This
+# repository must never publish that information, so git ignores the directory
+# at every level.
+.posit/
+
+# macOS writes this file into any directory that the Finder opens.
+.DS_Store

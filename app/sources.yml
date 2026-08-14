@@ -38,9 +38,8 @@
 # Each application is independent. If one entry fails, the workflow reports the
 # error, copies every other application, and then stops with a failure.
 #
-# To add later, when each one is ready:
-#   variant-reviewer   manifest.json exists, but there is no release.
-#   gene-list-builder  It needs both.
+# To add later, when it is ready:
+#   gene-list-builder  The repository is private, and it publishes no release.
 #
 # The four lifescience applications in app/ are absent from this list, and a
 # person copies them by hand. posit-dev/lifescience-shiny-gallery publishes no
@@ -89,3 +88,31 @@ apps:
       - inst
       - data
       - www
+
+  # The manifest of this application names its LICENSE, README.md and CITATION
+  # files. Therefore the list below contains them, although a deployment does
+  # not need them.
+  - name: variant-reviewer
+    repo: samuelbharti/variant-reviewer
+    ref: ""
+    include:
+      - app.R
+      - app_ui.R
+      - app_server.R
+      - global.R
+      - manifest.json
+      - renv.lock
+      - _brand.yml
+      - .Rprofile
+      - .Rbuildignore
+      - .gitattributes
+      - demo_cache.rds
+      - R
+      - modules
+      - userInterface
+      - data
+      - www
+      - LICENSE
+      - README.md
+      - CITATION.cff
+      - CITATION.md

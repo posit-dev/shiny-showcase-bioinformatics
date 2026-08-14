@@ -24,7 +24,7 @@ control, and `intro` text for each category.
 > [!CAUTION]
 > Do not make this repository public yet. Correct these two problems first.
 >
-> 1. The site shows screenshots of private applications. `variant-reviewer` is
+> 1. The site shows screenshots of private applications. `gene-list-builder` is
 >    private. The four `lifescience-shiny-gallery` applications are
 >    Posit-internal, because that repository is not public, although its license
 >    is MIT. The README of `comp-bio-apps` says that this material needs a
@@ -201,7 +201,7 @@ applications hold their own `.qmd` files.
 
 | Source | Method | Applications |
 |---|---|---|
-| A repository with GitHub Releases | The workflow copies it | `genescout`, `tahoe-explorer` |
+| A repository with GitHub Releases | The workflow copies it | `genescout`, `tahoe-explorer`, `variant-reviewer` |
 | `lifescience-shiny-gallery` | A person copies it by hand | the other four |
 
 `app/sources.yml` lists the applications that the workflow controls. It records

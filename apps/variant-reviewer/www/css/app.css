@@ -1,0 +1,172 @@
+/* Home page: the results column (left) scrolls with the page while the chat
+   column (right) stays pinned in view.
+
+   layout_columns() wraps each child in its own grid item, and that wrapper is a
+   bslib fill container -- a COLUMN flexbox. So this element is a flex item whose
+   cross axis is horizontal, which makes align-self control width, not height. An
+   align-self of start therefore shrink-wrapped the column to its content, and
+   the width jumped whenever the chat's content changed (the greeting's
+   suggestion cards, then a reply with a long id). Stretching pins it to the grid
+   track instead; height already follows the content, since the flex container's
+   main axis is vertical and nothing here grows. min-width:0 and the wrap keep a
+   long unbroken token from forcing an overflow. */
+.vr-chat-col {
+  position: sticky;
+  top: 1rem;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* On wide screens give the assistant a fixed track rather than a 3/12 share, so
+   it keeps a usable width no matter the viewport and the results column takes
+   whatever is left. Overriding the template means the g-col-* spans no longer
+   apply, hence the grid-column reset. Below lg, col_widths still applies. */
+@media (min-width: 992px) {
+  .bslib-grid.vr-home-grid {
+    --vr-chat-width: 520px;
+    grid-template-columns: minmax(0, 1fr) var(--vr-chat-width);
+  }
+
+  .bslib-grid.vr-home-grid > * {
+    grid-column: auto;
+  }
+}
+
+/* Example prompts as a plain bullet list rather than shinychat's card grid.
+   That grid sizes its tracks from a minimum card width, which in a column this
+   narrow ends up wider than the column itself -- the horizontal scrollbar. A
+   normal list has no minimum, so it just wraps. The items stay clickable; only
+   the presentation changes. */
+.vr-chat-col {
+  --shiny-chat-suggestion-card-min-width: 0px;
+}
+
+.vr-chat-col .shiny-chat-suggestion-list {
+  display: block;
+  list-style: disc outside;
+  padding-left: 1.15rem;
+  margin-block: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* shinychat sets display:contents so its grid can lay the items out directly;
+   restoring list-item is what brings the bullets back. */
+.vr-chat-col .shiny-chat-suggestion-list > li {
+  display: list-item;
+  margin-bottom: 0.3rem;
+}
+
+.vr-chat-col .shiny-chat-suggestion-list .shiny-chat-suggestion-list-item {
+  display: inline;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--bs-link-color);
+  text-decoration: none;
+  animation: none;
+  transform: none;
+}
+
+/* Underline on hover only, so a list of four prompts doesn't read as a wall of
+   underlined text. */
+.vr-chat-col
+  .shiny-chat-suggestion-list
+  .shiny-chat-suggestion-list-item:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vr-chat-col
+  .shiny-chat-suggestion-list
+  .shiny-chat-suggestion-list-item:hover {
+  background-color: transparent;
+  box-shadow: none;
+  transform: none;
+  color: var(--bs-link-hover-color);
+}
+
+/* Drop the card affordances: trailing arrow, tick, index number. */
+.vr-chat-col
+  .shiny-chat-suggestion-list
+  .shiny-chat-suggestion-list-item::after,
+.vr-chat-col
+  .shiny-chat-suggestion-list
+  .shiny-chat-suggestion-list-item::before {
+  content: none;
+}
+
+/* Belt and braces: nothing inside the chat may force the column to scroll. */
+.vr-chat-col shiny-chat-container,
+.vr-chat-col shiny-chat-messages {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Search progress popup (bottom right). Shiny's Progress writes straight to the
+   websocket rather than waiting for the flush cycle, so this is the one thing
+   that can report status while the synchronous fetches are still running. Sized
+   so the source name has room and styled to match the cards. */
+#shiny-notification-panel {
+  width: 21rem;
+  max-width: calc(100vw - 2rem);
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.shiny-notification {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius, 0.375rem);
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+  opacity: 1;
+}
+
+.shiny-notification .progress {
+  height: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* The source currently being fetched, shown under the count. */
+.shiny-notification .progress-detail {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.85em;
+}
+
+/* Chat "Model & key" drawer: make every control fill the drawer width so the
+   selects/inputs aren't narrower than the panel. */
+.offcanvas-body .shiny-input-container,
+.offcanvas-body .form-group,
+.offcanvas-body .selectize-control {
+  width: 100% !important;
+}
+
+/* Tint card headers with a soft wash of the brand primary so they stand out
+   from the card body while staying on-theme. color-mix keeps it derived from
+   the theme; the hex above it is a fallback for older browsers. */
+.card-header {
+  font-weight: 600;
+  background-color: #edf2ec;
+  background-color: color-mix(in srgb, var(--bs-primary) 9%, white);
+  border-bottom-color: #dbe4d9;
+  border-bottom-color: color-mix(in srgb, var(--bs-primary) 22%, var(--bs-border-color));
+}
+
+/* Card-header refresh icon (see vr_card_header() in R/source_links.R): muted
+   at rest so it doesn't compete with the bold title next to it, primary-
+   colored on hover/focus so it still reads as clickable. */
+.vr-card-refresh {
+  color: var(--bs-secondary-color);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.vr-card-refresh:hover,
+.vr-card-refresh:focus-visible {
+  color: var(--bs-primary);
+}

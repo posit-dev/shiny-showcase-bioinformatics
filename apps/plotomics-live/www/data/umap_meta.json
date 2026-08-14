@@ -1,0 +1,25 @@
+{
+  "dataset": "Human Cell Landscape (Han et al. 2020)",
+  "source": "https://cells.ucsc.edu/?ds=human-cellular-landscape",
+  "n": 584207,
+  "bounds": {
+    "minX": -11.419281,
+    "maxX": 16.516817,
+    "minY": -12.914063,
+    "maxY": 14.204423
+  },
+  "fields": {
+    "cell_type": {
+      "label": "Cell type",
+      "file": "umap_celltype.i16",
+      "levels": ["Fibroblast", "Macrophage", "Fetal mesenchymal progenitor", "T cell", "Fasciculata cell", "B cell (Plasmocyte)", "Smooth muscle cell", "Fetal stromal cell", "Monocyte", "Epithelial cell", "Fetal epithelial progenitor", "Endothelial cell", "Fetal neuron", "Stromal cell", "Enterocyte progenitor", "Endothelial cell (APC)", "Neutrophil", "Fetal enterocyte", "Erythroid progenitor cell (RP high)", "Hepatocyte/Endodermal cell", "Fetal fibroblast", "Erythroid cell", "Dendritic cell", "CB CD34+", "Loop of Henle", "Enterocyte", "Oligodendrocyte", "AT2 cell", "Thyroid follicular cell", "Goblet cell", "B cell", "Basal cell", "Stratified epithelial cell", "Neutrophil (RPS high)", "Antigen presenting cell (RPS high)", "Fetal chondrocyte", "M2 Macrophage", "Proliferating T cell", "Pancreas exocrine cell", "Intercalated cell", "Epithelial cell (intermediated)", "Sinusoidal endothelial cell", "Primordial germ cell", "Gastric chief cell", "Fetal skeletal muscle cell", "Endothelial cell (endothelial to mesenchymal transition)", "Astrocyte", "Fetal acinar cell", "Ventricle cardiomyocyte", "Mesothelial cell", "Ureteric bud cell", "Proximal tubule progenitor", "Gastric endocrine cell", "Mast cell", "hESC", "Fetal endocrine cell", "Immature sertoli cell (Pre-Sertoli cell)", "Myeloid cell", "Fetal Neuron", "Intermediated cell", "Chondrocyte", "Kidney intercalated cell", "Adrenal gland inflammatory cell"],
+      "colors": ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000", "#8C564B", "#17BECF", "#BCBD22", "#7F7F7F", "#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#DBDB8D", "#9EDAE5", "#393B79", "#637939", "#8C6D31", "#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000", "#8C564B", "#17BECF", "#BCBD22", "#7F7F7F", "#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#DBDB8D", "#9EDAE5", "#393B79", "#637939", "#8C6D31", "#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000", "#8C564B", "#17BECF", "#BCBD22", "#7F7F7F", "#AEC7E8", "#FFBB78", "#98DF8A"]
+    },
+    "organ": {
+      "label": "Organ",
+      "file": "umap_organ.i16",
+      "levels": ["Kidney", "AdrenalGland", "Lung", "Pancreas", "Liver", "Muscle", "Intestine", "Stomach", "Pleura", "PeripheralBlood", "CordBloodCD34P", "Spleen", "Brain", "MaleGonad", "TransverseColon", "Omentum", "Thyroid", "Esophagus", "Heart", "Trachea", "ChorionicVillus", "Gallbladder", "Artery", "Placenta", "TemporalLobe", "Bladder", "BoneMarrow", "Cervix", "Uterus", "Cerebellum", "FemaleGonad", "Skin", "Fallopiantube", "CordBlood", "Rib", "NeonatalAdrenalGland", "JeJunum", "Calvaria", "SpinalCord", "Rectum", "Thymus", "Epityphlon", "Duodenum", "Ileum", "SigmoidColon", "Prostate", "Ureter", "Eyes", "HESC", "AscendingColon", "Adipose"],
+      "colors": ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000", "#8C564B", "#17BECF", "#BCBD22", "#7F7F7F", "#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#DBDB8D", "#9EDAE5", "#393B79", "#637939", "#8C6D31", "#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000", "#8C564B", "#17BECF", "#BCBD22", "#7F7F7F", "#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#DBDB8D", "#9EDAE5", "#393B79", "#637939", "#8C6D31", "#0072B2", "#D55E00", "#009E73"]
+    }
+  }
+}

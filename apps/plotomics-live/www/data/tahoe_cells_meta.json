@@ -1,0 +1,34 @@
+{
+  "dataset": "Tahoe-100M (Arc Institute)",
+  "n": 380078,
+  "axes": {
+    "qc": {
+      "label": "QC: UMIs × genes",
+      "x": "tahoe_ltscp.f32",
+      "y": "tahoe_lgene.f32",
+      "xLabel": "log10 UMIs / cell",
+      "yLabel": "log10 genes / cell"
+    },
+    "cellcycle": {
+      "label": "Cell cycle: S × G2M",
+      "x": "tahoe_s.f32",
+      "y": "tahoe_g2m.f32",
+      "xLabel": "S phase score",
+      "yLabel": "G2M phase score"
+    }
+  },
+  "fields": {
+    "phase": {
+      "label": "Cell-cycle phase",
+      "file": "tahoe_phase.i16",
+      "levels": ["G1", "G2M", "S"],
+      "colors": ["#0E7175", "#ED773C", "#708C69"]
+    },
+    "cell_line": {
+      "label": "Cell line",
+      "file": "tahoe_cellline.i16",
+      "levels": ["SW480", "NCI-H460", "PANC-1", "HOP62", "LoVo", "A498", "A549", "HEC-1-A", "Hs 766T", "MIA PaCa-2", "CFPAC-1", "J82", "A-172", "NCI-H2347", "SHP-77", "AsPC-1", "LOX-IMVI", "KATO III", "RKO", "HT-29", "NCI-H1573", "C32", "NCI-H2030", "SW1417", "LS 180", "NCI-H1792", "NCI-H23", "HS-578T", "SW 900", "Panc 03.27", "hTERT-HPNE", "RPMI-7951", "SNU-423", "SK-MEL-2", "HCT15", "C-33 A", "COLO 205", "A-427", "HepG2/C3A", "BT-474", "SNU-1", "H4", "SW48", "AN3 CA", "CHP-212", "SW 1271", "SW 1088", "NCI-H661", "NCI-H2122", "NCI-H596"],
+      "colors": ["#0E7175", "#ED773C", "#708C69", "#C63F3E", "#808BC5", "#E4A25B", "#245E55", "#9E3F71", "#56B4E9", "#EAC119", "#5B5F8D", "#9BB29E", "#013D5A", "#DA6B51", "#66A182", "#EAA7C7", "#89973D", "#9298BA", "#B96A8D", "#5DB7C4", "#E88170", "#82A0C2", "#C8C8A9", "#98C1D9", "#0E7175", "#ED773C", "#708C69", "#C63F3E", "#808BC5", "#E4A25B", "#245E55", "#9E3F71", "#56B4E9", "#EAC119", "#5B5F8D", "#9BB29E", "#013D5A", "#DA6B51", "#66A182", "#EAA7C7", "#89973D", "#9298BA", "#B96A8D", "#5DB7C4", "#E88170", "#82A0C2", "#C8C8A9", "#98C1D9", "#0E7175", "#ED773C"]
+    }
+  }
+}

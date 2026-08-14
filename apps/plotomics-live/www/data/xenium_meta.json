@@ -1,0 +1,49 @@
+{
+  "dataset": "Xenium human breast cancer, Rep 1 (10x Genomics)",
+  "source": "https://www.10xgenomics.com/datasets/ffpe-human-breast-with-custom-add-on-panel-1-standard",
+  "license": "CC BY 4.0",
+  "panel": "Xenium Human Breast v1, 313 genes",
+  "n": 1000000,
+  "nTotal": 42638083,
+  "nPassing": 34442716,
+  "nGenes": 313,
+  "qvMin": 20,
+  "coords": {
+    "x": {
+      "file": "xenium_x.i16",
+      "scale": 0.11476283724,
+      "offset": 1.2694612
+    },
+    "y": {
+      "file": "xenium_y.i16",
+      "scale": 0.083428269368,
+      "offset": 5.199367
+    }
+  },
+  "bounds": {
+    "minX": 1.2694612,
+    "maxX": 7522.252,
+    "minY": 5.199367,
+    "maxY": 5472.671
+  },
+  "fields": {
+    "class": {
+      "label": "Marker class",
+      "file": "xenium_class.i16",
+      "levels": ["Tumour epithelial", "Myoepithelial / muscle", "Fibroblast / stroma", "Immune", "Endothelial / vascular", "Adipocyte", "Other"],
+      "colors": ["#C63F3E", "#ED773C", "#708C69", "#0E7175", "#808BC5", "#E4A25B", "#C9C1B1"]
+    },
+    "gene": {
+      "label": "Gene (top 12)",
+      "file": "xenium_gene.i16",
+      "levels": ["ERBB2", "LUM", "KRT7", "POSTN", "CCND1", "SCD", "GATA3", "EPCAM", "FOXA1", "ANKRD30A", "TACSTD2", "POLR2J3", "Other"],
+      "colors": ["#0E7175", "#ED773C", "#708C69", "#C63F3E", "#808BC5", "#E4A25B", "#245E55", "#9E3F71", "#56B4E9", "#EAC119", "#5B5F8D", "#9BB29E", "#C9C1B1"]
+    },
+    "nucleus": {
+      "label": "Subcellular",
+      "file": "xenium_nucleus.i16",
+      "levels": ["Nuclear", "Cytoplasmic"],
+      "colors": ["#0E7175", "#C9C1B1"]
+    }
+  }
+}

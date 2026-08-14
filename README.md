@@ -8,7 +8,7 @@ The website is one page, `index.qmd`. It shows two sections:
 
 | Section | Data file |
 |---|---|
-| Applications | `apps.yml`, 8 tiles in 1 category |
+| Applications | `apps.yml`, 9 tiles in 1 category |
 | Supporting Packages | `packages.yml`, 4 packages |
 
 The site has no navbar. The "Supporting Packages" button links to

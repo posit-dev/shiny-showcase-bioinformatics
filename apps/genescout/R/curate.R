@@ -389,7 +389,13 @@ curate_gene_list <- function(
       curated_with_attrs(
         fallback_curation(result, top_n),
         ai_used = FALSE,
-        error = conditionMessage(e)
+        # Redact HERE, not at the call site: this message is stashed on the result
+        # and later rendered into the report banner and a toast, so the outer
+        # handler that would otherwise redact it never sees this path.
+        error = genescout_redact_secret(
+          conditionMessage(e),
+          config$api_key %||% ""
+        )
       )
     }
   )

@@ -98,10 +98,49 @@ genescout_breaker_record <- function(host, ok, now = as.numeric(Sys.time())) {
   invisible(genescout_breaker[[host]])
 }
 
+# Hosts currently tripped. The enrichment layer reads this to report which sources
+# were unreachable during a run, so an outage is not silently reported as no data.
+genescout_breaker_tripped_hosts <- function(now = as.numeric(Sys.time())) {
+  hosts <- ls(genescout_breaker)
+  hosts[vapply(hosts, genescout_breaker_open, logical(1), now = now)]
+}
+
 # Clear all breaker state (used by tests to isolate; a fresh process starts clean).
 genescout_breaker_reset <- function() {
   rm(list = ls(genescout_breaker), envir = genescout_breaker)
   invisible(NULL)
+}
+
+# --- Per-host throttle -------------------------------------------------------
+# Politeness rate limiting, keyed by host. Some sources publish a hard limit and
+# block an IP that exceeds it: NCBI E-utilities allows 3 requests/second without an
+# API key and 10 with one. The enrichment fan-out makes one call per (gene x source),
+# so a large run exceeds that immediately without a throttle.
+#
+# httr2's throttle is per PROCESS, but the parallel path runs several daemons that
+# each hold their own. `genescout.http.concurrency` carries how many processes are
+# hitting a host at once (set per daemon in R/parallel.R, 1 in a serial run), and the
+# published limit is divided by it so the AGGREGATE rate stays within the limit.
+GENESCOUT_DEFAULT_HOST_RATE <- 10 # requests/second, aggregate, for unlisted hosts
+
+# The aggregate requests/second this host permits.
+genescout_host_rate_limit <- function(host) {
+  if (identical(host, "eutils.ncbi.nlm.nih.gov")) {
+    # https://www.ncbi.nlm.nih.gov/books/NBK25497/
+    return(if (nzchar(Sys.getenv("NCBI_API_KEY"))) 10 else 3)
+  }
+  GENESCOUT_DEFAULT_HOST_RATE
+}
+
+# The share of that limit a single process may use.
+genescout_host_rate <- function(host) {
+  concurrency <- max(
+    1L,
+    as.integer(
+      getOption("genescout.http.concurrency", 1L)
+    )
+  )
+  genescout_host_rate_limit(host) / concurrency
 }
 
 # GET a REST endpoint. `source` is a friendly label used in error messages.
@@ -110,6 +149,12 @@ genescout_breaker_reset <- function() {
 # (redacted from printed requests / errors) and are DELIBERATELY excluded from the
 # cache key - the same gene returns the same data regardless of the caller's token,
 # and the secret must never enter the hashed key.
+#
+# `secret_query` is the same guarantee for the sources that take their key as a
+# QUERY PARAMETER rather than a header (NCBI E-utilities is the one that matters).
+# Header auth is preferred because it keeps the secret out of the URL entirely, but
+# where the API gives no choice these values are appended to the request and
+# excluded from the cache key just like `headers`. Never put a secret in `query`.
 http_get_json <- function(
   base_url,
   path = NULL,
@@ -117,11 +162,20 @@ http_get_json <- function(
   source = "API",
   timeout = 15,
   max_tries = 3,
-  headers = NULL
+  headers = NULL,
+  secret_query = NULL
 ) {
   if (length(query) > 0) {
     query <- query[!vapply(query, is_blank, logical(1))]
   }
+  if (length(secret_query) > 0) {
+    secret_query <- secret_query[
+      !vapply(secret_query, is_blank, logical(1))
+    ]
+  }
+  # `secret_query` is deliberately absent from the key: the same gene returns the
+  # same data with or without a caller's key, so keying on it would both leak the
+  # secret into the hash and needlessly halve the hit rate.
   key <- genescout_cache_key("GET", base_url, path, query)
 
   genescout_cached(key, function() {
@@ -131,6 +185,9 @@ http_get_json <- function(
     }
     if (length(query) > 0) {
       req <- do.call(httr2::req_url_query, c(list(req), query))
+    }
+    if (length(secret_query) > 0) {
+      req <- do.call(httr2::req_url_query, c(list(req), secret_query))
     }
     req <- genescout_req_defaults(req, timeout, max_tries, headers)
     genescout_perform(req, source)
@@ -277,6 +334,20 @@ genescout_req_defaults <- function(req, timeout, max_tries, headers = NULL) {
   # Don't let httr2 raise on HTTP errors; we normalize them ourselves.
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
   req <- httr2::req_user_agent(req, genescout_user_agent())
+  # Pace requests per host. httr2 takes exactly one of `rate` or `capacity`; we set
+  # `capacity` to ~1 second's worth of budget and derive `fill_time_s` from it, which
+  # yields the same requests/second while keeping the burst small. Passing `rate`
+  # alone would size the bucket at a full minute of budget and let a run spend it all
+  # at once, breaching an instantaneous per-second limit.
+  host <- genescout_url_host(req$url)
+  rate <- genescout_host_rate(host)
+  capacity <- max(1, ceiling(rate))
+  req <- httr2::req_throttle(
+    req,
+    capacity = capacity,
+    fill_time_s = capacity / rate,
+    realm = host
+  )
   if (!is.null(headers) && length(headers) > 0) {
     req <- do.call(
       httr2::req_headers,

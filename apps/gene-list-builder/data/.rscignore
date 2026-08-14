@@ -1,0 +1,12 @@
+# Keeps the cached API responses out of the deployment bundle.
+#
+# This file has to live HERE, not in the root .rscignore. rsconnect reads
+# .rscignore from each directory as it scans it (rsconnect:::ignoreBundleFiles
+# does readLines(file.path(dir, ".rscignore"))), so the root file only ever
+# applies to root-level entries. Neither "data/cache" nor a bare "cache" in the
+# root file matches anything, and rsconnect gives no warning that the line did
+# nothing.
+#
+# data/ itself is kept (via .gitkeep) so the directory exists at runtime;
+# glb_cache_dir() recreates cache/ on first use.
+cache

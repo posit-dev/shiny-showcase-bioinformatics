@@ -293,19 +293,37 @@ apply_input_validator <- function(decisions, validator) {
   if (is.null(checked) || !is.data.frame(checked)) {
     return(decisions)
   }
-  for (k in seq_along(idx)) {
-    if (k > nrow(checked)) {
-      break
+  # Match the validator's rows to ours BY SYMBOL, never by position. An ID-mapping
+  # API is free to de-duplicate, filter, or reorder its output; a positional match
+  # would then apply gene k's canonicalization to symbol k and rename the wrong gene
+  # with authoritative-looking reason text. R/eval_checks.R exists because a
+  # wrong-gene resolution slipped through once; this is the same bug class on a path
+  # the identity guard does not cover (it runs before confirm).
+  key_col <- intersect(c("input", "query", "id", "symbol"), names(checked))[1]
+  if (is.na(key_col)) {
+    return(decisions)
+  }
+  canon_of <- stats::setNames(
+    toupper(trimws(as.character(
+      checked$normalized %||% checked$suggestion %||% rep("", nrow(checked))
+    ))),
+    toupper(trimws(as.character(checked[[key_col]])))
+  )
+  # A duplicated input maps to itself more than once; keep the first mapping.
+  canon_of <- canon_of[!duplicated(names(canon_of))]
+  for (k in idx) {
+    cur <- toupper(decisions$symbol[k])
+    # match(), not [[: a validator that FILTERED this symbol out has no entry, and
+    # [[ on a missing name errors rather than returning NA.
+    hit <- match(cur, names(canon_of))
+    if (is.na(hit)) {
+      next
     }
-    row <- checked[k, , drop = FALSE]
-    canon <- toupper(trimws(as.character(
-      row$normalized %||% row$suggestion %||% ""
-    )))
-    cur <- toupper(decisions$symbol[idx[k]])
-    if (nzchar(canon) && canon != cur) {
-      decisions$symbol[idx[k]] <- canon
-      decisions$action[idx[k]] <- "correct"
-      decisions$reason[idx[k]] <- paste0("normalized ", cur, " -> ", canon)
+    canon <- canon_of[[hit]]
+    if (!is.na(canon) && nzchar(canon) && canon != cur) {
+      decisions$symbol[k] <- canon
+      decisions$action[k] <- "correct"
+      decisions$reason[k] <- paste0("normalized ", cur, " -> ", canon)
     }
   }
   decisions
@@ -429,7 +447,12 @@ curate_input <- function(
       input_proposal_with_attrs(
         fallback_input(cs),
         ai_used = FALSE,
-        error = conditionMessage(e)
+        # Redact HERE: this is stashed on the proposal and surfaced by the proposal
+        # renderer and the plumber API, neither of which redacts.
+        error = genescout_redact_secret(
+          conditionMessage(e),
+          config$api_key %||% ""
+        )
       )
     }
   )

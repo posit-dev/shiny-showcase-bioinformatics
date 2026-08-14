@@ -313,7 +313,13 @@ review_server <- function(
           ),
           error = function(e) {
             showNotification(
-              paste("Input agent failed:", conditionMessage(e)),
+              paste(
+                "Input agent failed:",
+                genescout_redact_secret(
+                  conditionMessage(e),
+                  eff_config()$api_key %||% ""
+                )
+              ),
               type = "error"
             )
             NULL

@@ -29,6 +29,12 @@
 # The list must also contain every file that the manifest names. Examples are
 # renv.lock and DESCRIPTION. Connect Cloud reads the manifest, and then it reads
 # those files. Read the manifest of the application before you write the list.
+# .github/scripts/check_sources.py makes this test on every pull request.
+#
+# `allow_missing_manifest_files` is optional, and its default is false. This
+# value makes the test above a warning for one entry. Use it only when the
+# source repository writes a manifest of the complete repository, and not of the
+# application alone. Correct the source repository, then remove this value.
 #
 # You can add an application before its first release. The workflow reports it
 # as WAIT and continues. The application starts to synchronize by itself after
@@ -71,6 +77,13 @@ apps:
       - renv.lock
       - DESCRIPTION
       - .Rprofile
+    # Waiver. manifest.json of genescout describes the complete repository, and
+    # not the application. It names 141 files that are tests, notes and
+    # workflows, and a deployment must not contain them. genescout must put
+    # those paths in .rscignore, write the manifest again, and publish a new
+    # release. Remove this line then. Connect Cloud cannot deploy genescout
+    # until that happens.
+    allow_missing_manifest_files: true
 
   - name: tahoe-explorer
     repo: samuelbharti/tahoe-explorer

@@ -1,0 +1,80 @@
+name: Checks
+
+# These tests operate on every pull request, and also on main after a merge.
+# They have no path filter. A filter makes a test invisible when the pull
+# request does not touch the paths, and a required test that never operates
+# gives a false result.
+#
+# Each job is independent, so one failure still shows the result of the others.
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    name: Manifests match the applications
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install "ruamel.yaml>=0.18"
+
+      - run: python .github/scripts/check_manifests.py
+
+  sources:
+    name: sources.yml matches the releases
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests "ruamel.yaml>=0.18"
+
+      # This job reads the source repositories through the GitHub API. The
+      # token of the workflow can read a public repository.
+      - run: python .github/scripts/check_sources.py
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  secrets:
+    name: No secrets
+    runs-on: ubuntu-latest
+    steps:
+      # gitleaks reads the history, so this job needs every commit.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test the name of each file
+        run: python .github/scripts/check_secrets.py
+
+      # The gitleaks Action needs a license for an organization. The program
+      # itself is free, so this step reads the release directly.
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      # `--redact` keeps the value out of the log. The log of a public
+      # repository is readable by everybody.
+      - name: Read the content of each file
+        run: gitleaks dir . --no-banner --redact --verbose
+
+      - name: Read the history of git
+        run: gitleaks git . --no-banner --redact --verbose

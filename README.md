@@ -83,15 +83,13 @@ card on the page, move its block in the file.
 | `alt` | optional | Alternative text for the image. It defaults from the title |
 | `tags` | optional | Kept for reference. The template does not show them |
 
-### Why the application tiles have no links
+### Which tiles have links
 
-The packages are public. Their tiles link to GitHub, R-universe, PyPI and DOIs.
+A tile gets a link when the link goes to a public address. A tile with no
+links shows no footer.
 
-No application is deployed in public. A "View app" button on an application card
-would be a dead link. Therefore `links` is absent when there is nothing to link
-to, and a tile with no links shows no footer.
-
-When an application gets a public address, add its links:
+Five applications have a public repository and a DOI, so their tiles link to
+both:
 
 ```yaml
 links:
@@ -100,6 +98,16 @@ links:
   - text: DOI
     url: https://doi.org/10.5281/zenodo.21352389
 ```
+
+Three applications have no links: DE Explorer, Signature Scoring and Drug
+Perturbation. They came from `posit-dev/lifescience-shiny-gallery`, which is
+not public.
+
+No application has a "View app" link, because no application is deployed in
+public yet. Add that link to a tile after its deployment gets an address.
+
+Make sure that each link gives status 200 before you add it. A dead link on a
+card is worse than no link.
 
 ## How to update the gallery
 

@@ -185,6 +185,15 @@ repositories in `options(repos)` before you write the manifest. Use
 but records only CRAN, installs correctly on your machine and then fails on
 Connect.
 
+The `include` list of an application must contain every file that its
+`manifest.json` names. Connect Cloud reads the manifest and then reads those
+files. A file that the manifest names, but that `include` does not copy, is
+absent from `app/<name>/`.
+
+Therefore the source repository must write a manifest of the application alone,
+and not of the complete repository. Put the tests, the notes and the development
+tools in a `.rscignore` file before you write the manifest.
+
 `app/` is not part of the website. `_quarto.yml` excludes it, because some
 applications hold their own `.qmd` files.
 
@@ -192,7 +201,7 @@ applications hold their own `.qmd` files.
 
 | Source | Method | Applications |
 |---|---|---|
-| A repository with GitHub Releases | The workflow copies it | `genescout` |
+| A repository with GitHub Releases | The workflow copies it | `genescout`, `tahoe-explorer` |
 | `lifescience-shiny-gallery` | A person copies it by hand | the other four |
 
 `app/sources.yml` lists the applications that the workflow controls. It records

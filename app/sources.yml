@@ -26,6 +26,10 @@
 # here. `manifest.json` must always be in the list. The source repository makes
 # that file, this repository does not, and Connect Cloud deploys from it.
 #
+# The list must also contain every file that the manifest names. Examples are
+# renv.lock and DESCRIPTION. Connect Cloud reads the manifest, and then it reads
+# those files. Read the manifest of the application before you write the list.
+#
 # You can add an application before its first release. The workflow reports it
 # as WAIT and continues. The application starts to synchronize by itself after
 # a release appears. The workflow never guesses the latest version from a list
@@ -35,10 +39,6 @@
 # error, copies every other application, and then stops with a failure.
 #
 # To add later, when each one is ready:
-#   tahoe-explorer     Release v0.1.0 exists, but it contains no manifest.json.
-#                      Connect Cloud cannot deploy it. A new release is
-#                      necessary, because the workflow reads releases and not
-#                      branches.
 #   variant-reviewer   manifest.json exists, but there is no release.
 #   gene-list-builder  It needs both.
 #
@@ -64,4 +64,28 @@ apps:
       - api
       - userInterface
       - report
+      - www
+      - prompts
+      - context
+      - data
+      - rubric.yml
+      - renv.lock
+      - DESCRIPTION
+      - .Rprofile
+
+  - name: tahoe-explorer
+    repo: samuelbharti/tahoe-explorer
+    ref: ""
+    include:
+      - global.R
+      - ui.R
+      - server.R
+      - manifest.json
+      - renv.lock
+      - _brand.yml
+      - R
+      - modules
+      - userInterface
+      - inst
+      - data
       - www

@@ -1,12 +1,17 @@
 # Apps vendored into app/ for direct deployment from this repo (Connect,
 # watching app/<name> on main).
 #
-# Maintained by .github/workflows/vendor-apps.yml: on a schedule or manual
-# dispatch, it checks each `repo`'s latest GitHub Release, and where that's
-# newer than the pinned `ref`, opens a PR that updates the files under
-# app/<name>/ and bumps `ref` here. Nothing else should edit this file, and the
-# bot preserves these comments across its own rewrites (it uses ruamel.yaml's
-# round-trip mode, not a plain load-and-dump).
+# Maintained by .github/workflows/vendor-apps.yml. Run it by hand after
+# publishing a release in any app repo:
+#
+#   gh workflow run vendor-apps.yml -R posit-dev/shiny-showcase-bioinformatics
+#
+# It checks every `repo` below for a newer Release than the pinned `ref`,
+# updates the files under app/<name>/, bumps `ref` here, and pushes the
+# `vendor-apps-bot` branch. Opening the PR is a manual `gh pr create`; the
+# posit-dev org forbids GitHub Actions from creating pull requests. Nothing
+# else should edit this file, and the bot preserves these comments across its
+# own rewrites (it uses ruamel.yaml's round-trip mode, not load-and-dump).
 #
 # `include` is an allowlist of paths (relative to the source repo's root) to
 # vendor, not "everything in the release tarball". Source repos carry dev
@@ -16,8 +21,16 @@
 # one of them: it's produced by the source repo, not generated here, and it's
 # what Connect actually deploys from.
 #
-# A repo with no GitHub Release yet makes the bot fail loudly rather than
-# guess at "latest" from unsorted tags.
+# An app may be listed before its first release. The bot reports it as WAIT and
+# moves on, then starts syncing it by itself once a Release appears. It never
+# guesses "latest" from unsorted tags. Each app is also isolated: one failing
+# entry is reported and the run still vendors every other app.
+#
+# Still to add, once they are ready upstream:
+#   tahoe-explorer     released v0.1.0, but has no manifest.json, so Connect
+#                      Cloud cannot deploy it yet
+#   variant-reviewer   has manifest.json, but no Release cut yet
+#   gene-list-builder  needs both
 apps:
   - name: genescout
     repo: samuelbharti/genescout

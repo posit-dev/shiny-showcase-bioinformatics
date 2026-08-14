@@ -1,0 +1,11 @@
+{
+  "dataset": "10x Visium, Human Breast Cancer (Block A Section 1)",
+  "source": "https://www.10xgenomics.com/datasets/human-breast-cancer-block-a-section-1-1-standard",
+  "license": "CC BY 4.0",
+  "nSpots": 3798,
+  "nGenes": 72,
+  "image": "spatial/visium_he.png",
+  "imgWidth": 600,
+  "imgHeight": 600,
+  "spotDiameter": 4.39
+}

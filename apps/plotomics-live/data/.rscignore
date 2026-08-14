@@ -1,0 +1,13 @@
+# Keeps cached fetches out of the deployment bundle.
+#
+# This file has to live HERE, not in the root .rscignore. rsconnect reads
+# .rscignore from each directory as it scans it, so the root file only ever
+# applies to root-level entries: neither "data/raw" nor a bare "raw" in the
+# root file matches anything, and rsconnect gives no warning that the line
+# did nothing.
+#
+# raw/ holds the AlphaFold PAE JSON cache (see .data_path("raw") in
+# R/data.R) plus any raw download a data/prep/ script leaves behind. The app
+# recreates the directory on first use, so nothing here is needed at deploy
+# time, and shipping a stale local cache would be pointless bloat at best.
+raw

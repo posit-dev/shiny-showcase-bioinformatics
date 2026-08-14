@@ -1,0 +1,24 @@
+"gene","uniprot","length","pfam","name","start","end"
+"CDH1","P12830",882,"PF08758","Cadherin prodomain like",27,116
+"CDH1","P12830",882,"PF00028","Cadherin domain",160,253
+"CDH1","P12830",882,"PF00028","Cadherin domain",268,366
+"CDH1","P12830",882,"PF00028","Cadherin domain",380,478
+"CDH1","P12830",882,"PF00028","Cadherin domain",493,581
+"CDH1","P12830",882,"PF00028","Cadherin domain",601,686
+"CDH1","P12830",882,"PF01049","Cadherin, Y-type LIR-motif",818,877
+"GATA3","P23771",443,"PF00320","GATA zinc finger",263,296
+"GATA3","P23771",443,"PF00320","GATA zinc finger",317,349
+"MAP3K1","Q13233",1512,"PF04434","SWIM zinc finger",338,364
+"MAP3K1","Q13233",1512,"PF28295","Mitogen-activated protein kinase kinase kinase 1, TOG domain",552,812
+"MAP3K1","Q13233",1512,"PF00069","Protein kinase domain",1245,1508
+"PIK3CA","P42336",1068,"PF02192","PI3-kinase family, p85-binding domain",32,107
+"PIK3CA","P42336",1068,"PF00794","PI3-kinase family, ras-binding domain",174,291
+"PIK3CA","P42336",1068,"PF00792","Phosphoinositide 3-kinase C2",351,483
+"PIK3CA","P42336",1068,"PF00613","Phosphoinositide 3-kinase family, accessory domain (PIK domain)",520,703
+"PIK3CA","P42336",1068,"PF00454","Phosphatidylinositol 3- and 4-kinase",798,1015
+"PTEN","P60484",403,"PF22785","Polymorphic toxin system, DSP-PTPase phosphatase",67,143
+"PTEN","P60484",403,"PF10409","C2 domain of PTEN tumour-suppressor protein",189,348
+"TP53","P04637",393,"PF08563","P53 transactivation motif",6,30
+"TP53","P04637",393,"PF18521","Transactivation domain 2",35,59
+"TP53","P04637",393,"PF00870","P53 DNA-binding domain",100,288
+"TP53","P04637",393,"PF07710","P53 tetramerisation motif",319,357

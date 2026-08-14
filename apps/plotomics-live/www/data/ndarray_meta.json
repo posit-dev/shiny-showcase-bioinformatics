@@ -1,0 +1,6 @@
+{
+  "dataset": "Synthetic hyperspectral cube",
+  "ny": 100,
+  "nx": 100,
+  "nch": 24
+}

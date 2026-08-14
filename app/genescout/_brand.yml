@@ -1,0 +1,55 @@
+# Brand configuration: GeneScout's colors, fonts, and logo in one place.
+# Consumed automatically by bslib via `bs_theme(brand = TRUE)` (see ui.R). This is
+# the single source of truth for the Bootstrap layer, so every page - the Review
+# workbench, the Docs pages, alerts, badges, and cards - follows the same warm,
+# organic, maroon identity. The custom `.gs-*` components mirror these values as
+# CSS tokens in www/css/genescout.css.
+# Spec: https://posit-dev.github.io/brand-yml/
+
+meta:
+  name: GeneScout
+
+color:
+  palette:
+    maroon: "#7c2b39"    # brand — oxblood / wine
+    oxblood: "#5f1f2b"   # deeper maroon (hover, headings)
+    ochre: "#9a6b2e"     # secondary — warm brass / amber
+    sage: "#4d6b60"      # tertiary — muted botanical green
+    paper: "#f7f1ec"     # warm paper ground
+    ink: "#2c211d"       # warm near-black brown
+  primary: maroon
+  secondary: ochre
+  tertiary: sage
+  foreground: ink
+  background: paper
+  # Semantic colors so the Docs badges/alerts (bg-success, bg-danger, …) match the
+  # grade vocabulary used in the ranked table.
+  success: "#3f6b4e"
+  info: "#4d6b60"
+  warning: "#9a6b2e"
+  danger: "#b0392a"
+
+typography:
+  # A distinctive, warm pairing (not the generic Inter/Grotesk look): an organic
+  # serif for display, a humanist technical sans for body, and a matching mono so
+  # gene symbols and accessions read as data at a glance.
+  fonts:
+    - family: Fraunces
+      source: google
+      weight: [400, 500, 600, 700]
+    - family: IBM Plex Sans
+      source: google
+      weight: [400, 500, 600, 700]
+    - family: IBM Plex Mono
+      source: google
+      weight: [400, 500, 600]
+  base:
+    family: IBM Plex Sans
+    size: 17px
+    line-height: 1.6
+  headings:
+    family: Fraunces
+    weight: 600
+    line-height: 1.2
+  monospace:
+    family: IBM Plex Mono

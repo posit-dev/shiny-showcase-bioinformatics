@@ -1,0 +1,46 @@
+# NF1-associated cancer context - the reference example.
+# Priors consumed by scoring (R/scoring.R) to weight candidate plausibility.
+# This encodes research biology, not a diagnosis.
+
+id: nf1
+label: NF1-associated cancer (MPNST)
+description: >
+  Neurofibromatosis type 1 (NF1) and NF1-associated malignant peripheral nerve
+  sheath tumor (MPNST) biology. Used to weight candidate plausibility for
+  research prioritization only.
+
+pathways:
+  - RAS/MAPK
+  - PRC2 (Polycomb repressive complex 2)
+  - CDKN2A/RB
+  - TP53
+
+known_drivers:
+  - NF1
+  - SUZ12
+  - EED
+  - CDKN2A
+  - TP53
+
+tissues_of_interest:
+  - peripheral nerve
+  - Schwann cell
+  - neurofibroma
+  - MPNST
+
+# Terms OR-ed into the Europe PMC literature query: gene AND (terms).
+search_terms:
+  - MPNST
+  - malignant peripheral nerve sheath tumor
+  - neurofibromatosis type 1
+  - NF1
+
+# Genes commonly flagged as recurrent sequencing artifacts (FLAGS). Down-weight
+# by default; the caveats stage uses this list.
+flags_genes:
+  - TTN
+  - MUC16
+  - OBSCN
+
+# TODO: refine pathway/driver weights and attach references when the scoring
+# rubric is implemented (see prompts/scoring-rubric.md).

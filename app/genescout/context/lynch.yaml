@@ -1,0 +1,52 @@
+# Lynch syndrome (hereditary colorectal cancer) context - a second reference to
+# show the same engine generalizes across diseases. Priors consumed by scoring
+# (R/scoring.R) and the context-matching connectors. Research biology, not a
+# diagnosis.
+
+id: lynch
+label: Lynch syndrome (hereditary colorectal cancer)
+description: >
+  Lynch syndrome (hereditary nonpolyposis colorectal cancer) and its DNA
+  mismatch-repair-deficient colorectal / endometrial cancer biology. Used to
+  weight candidate plausibility for research prioritization only.
+
+# Distinct from NF1's RAS/MAPK axis - the mismatch-repair / DNA-damage-response
+# biology of microsatellite-unstable tumors.
+pathways:
+  - DNA mismatch repair
+  - microsatellite instability
+  - DNA damage response
+  - WNT signaling
+  - TGF-beta signaling
+
+known_drivers:
+  - MLH1
+  - MSH2
+  - MSH6
+  - PMS2
+  - EPCAM
+  - APC
+  - KRAS
+  - BRAF
+  - TP53
+
+tissues_of_interest:
+  - colon
+  - colorectum
+  - rectum
+  - endometrium
+
+# Terms OR-ed into the Europe PMC literature query: gene AND (terms).
+search_terms:
+  - Lynch syndrome
+  - hereditary nonpolyposis colorectal cancer
+  - mismatch repair
+  - microsatellite instability
+  - colorectal cancer
+
+# Genes commonly flagged as recurrent sequencing artifacts (FLAGS). Down-weight
+# by default; the caveats stage uses this list (extends the rubric's base list).
+flags_genes:
+  - TTN
+  - MUC16
+  - OBSCN

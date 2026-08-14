@@ -1,0 +1,87 @@
+# GeneScout model configuration.
+#
+# Each pipeline role maps to a provider + model. R/agents.R (build_chat) selects
+# the ellmer constructor from `provider`, so switching providers or models is a
+# config change, not a code change. Engine logic reads these via R/config.R and
+# never hardcodes a provider or model string.
+#
+# The pipeline is model-agnostic: any supported provider works, chosen here.
+# Credentials come from the environment (see .Renviron.example), never from here:
+#   anthropic      -> ANTHROPIC_API_KEY
+#   google_gemini  -> GEMINI_API_KEY (or GOOGLE_API_KEY)   <- the API-key path
+#   openai         -> OPENAI_API_KEY
+#   google_vertex  -> VERTEX_PROJECT_ID + VERTEX_LOCATION (or GOOGLE_CLOUD_PROJECT/
+#                     GOOGLE_CLOUD_LOCATION) + Application Default Credentials
+#                     (`gcloud auth application-default login`, or a service-account
+#                     JSON via GOOGLE_APPLICATION_CREDENTIALS); NOT an API key
+#
+# ellmer serves Gemini through Google (never Claude). google_vertex runs Gemini on
+# Google Cloud Vertex AI (OAuth + project/region, bills to your Cloud project);
+# google_gemini is the Gemini Developer API key path (no project). For Claude set
+# provider: anthropic; for GPT, openai.
+
+default:
+  provider: google_vertex
+  models:
+    # Orchestration and the caveats/veto stage. gemini-2.5-flash is fast and curates
+    # well; on Vertex (paid) you can raise these two to gemini-2.5-pro for
+    # higher-quality synthesis (pro is 429'd on the Gemini free tier, fine on Vertex).
+    orchestrator: gemini-2.5-flash
+    caveats: gemini-2.5-flash
+    # The retrieval specialists: a faster model for speed + cost.
+    specialist: gemini-2.5-flash
+    # The optional input-curation agent (front-of-pipeline QA): a fast, cheap
+    # model, since cleaning tokens is a light interpretive task.
+    input_curator: gemini-2.5-flash
+  # OPTIONAL source selection: the default set of connector keys this deploy runs
+  # when a review names none. Omit to use each source's built-in default_on. Keys
+  # come from genescout_source_catalog(); an explicit envelope/UI/CLI selection still
+  # overrides this. Example (a lean cancer-research default):
+  #   sources: [ot_assoc, clinvar_path, pmc_hits, pubtator, cbioportal, civic]
+
+# To use the Gemini Developer API (a plain API key, no Cloud project) instead:
+#   provider: google_gemini      # set GEMINI_API_KEY in .Renviron; same model ids
+#
+# To use Anthropic (Claude) instead, replace the block above with:
+#   provider: anthropic
+#   models:
+#     orchestrator: claude-opus-4-8
+#     caveats: claude-opus-4-8
+#     specialist: claude-sonnet-5
+#     input_curator: claude-haiku-4-5
+#
+# To use OpenAI (GPT) instead:
+#   provider: openai
+#   models:
+#     orchestrator: gpt-5
+#     caveats: gpt-5
+#     specialist: gpt-5-mini
+#     input_curator: gpt-5-mini
+
+# --- Bring your own key (BYOK) -------------------------------------------------
+# Per-provider role -> model maps used when a user pastes their own API key in the
+# app (Review tab). The pasted key never touches this file or the environment; it
+# is held in the session and passed straight to the ellmer constructor. Selecting a
+# provider here picks a sensible tiered model set (capable models for the
+# orchestrator/caveats/veto, faster ones for the retrieval specialists and curator,
+# plus a `chat` model for the assistant). An optional single-model override entered
+# in the UI supersedes all roles. Model strings live here (config), never in code.
+byok:
+  anthropic:
+    orchestrator: claude-opus-4-8
+    caveats: claude-opus-4-8
+    specialist: claude-sonnet-5
+    input_curator: claude-haiku-4-5
+    chat: claude-sonnet-5
+  google_gemini:
+    orchestrator: gemini-2.5-pro
+    caveats: gemini-2.5-pro
+    specialist: gemini-2.5-flash
+    input_curator: gemini-2.5-flash
+    chat: gemini-2.5-flash
+  openai:
+    orchestrator: gpt-5
+    caveats: gpt-5
+    specialist: gpt-5-mini
+    input_curator: gpt-5-mini
+    chat: gpt-5-mini

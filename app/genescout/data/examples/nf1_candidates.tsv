@@ -1,0 +1,7 @@
+candidate	type	gene	variant	note
+NF1	gene	NF1		Canonical NF1 tumor suppressor (positive control)
+SUZ12	gene	SUZ12		PRC2 component, recurrent in MPNST
+EED	gene	EED		PRC2 component, recurrent in MPNST
+CDKN2A	gene	CDKN2A		Cell-cycle regulator, frequently lost in MPNST
+TP53	gene	TP53		Tumor suppressor, MPNST progression
+TTN	gene	TTN		Very large gene, likely passenger (negative control)

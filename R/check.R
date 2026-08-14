@@ -1,17 +1,18 @@
-# Validates apps.yml and packages.yml. Run before previewing or publishing:
+# This script examines apps.yml and packages.yml. Operate it before you look at
+# the site, and before you publish:
 #
 #   source("R/check.R")
 #
-# Both files are hand-edited and are the source of truth, so nothing regenerates
-# them, this only checks them. Errors on problems that would break a page (a
-# tile missing a field, an unknown fit, a thumbnail that isn't on disk) and
-# warns on things that are merely suspect (a duplicate title, an image in
-# thumbnails/ that no tile references).
+# A person edits both files by hand, and no script writes them. This script only
+# reads them. It gives an error for a problem that breaks a page. Examples are a
+# tile with a missing field, an unknown `fit` value, and a thumbnail that is
+# absent from disk. It gives a warning for a problem that does not break a page.
+# Examples are a duplicate title, and an image in thumbnails/ that no tile uses.
 #
-# Note on thumbnail names: these apps are first-party and mostly have no public
-# URL, so thumbnails are named after the app (`<slug>.png`) rather than derived
-# from a URL. `R/thumbnail-name.R` still holds the URL-based convention, which
-# applies only if a third-party app is ever added.
+# Each thumbnail has the name of its application, for example `<slug>.png`. The
+# name does not come from a URL, because these applications are first-party and
+# most of them have no public address. `R/thumbnail-name.R` holds the URL
+# convention, which applies only if you add a third-party application.
 
 library(yaml)
 library(here)
@@ -28,12 +29,12 @@ check_file <- function(path) {
 
   tiles <- unlist(lapply(gallery, `[[`, "tiles"), recursive = FALSE)
   if (length(tiles) == 0) {
-    warning(name, " has no tiles.", call. = FALSE)
+    warning(name, " contains no tiles.", call. = FALSE)
     return(character(0))
   }
   labels <- vapply(tiles, function(t) t$title %||% "<untitled>", "")
 
-  # Errors: these render a broken page.
+  # These conditions give an error, because they break the page.
   incomplete <- vapply(tiles, function(t) !all(REQUIRED %in% names(t)), logical(1))
   if (any(incomplete)) {
     missing <- vapply(
@@ -41,7 +42,7 @@ check_file <- function(path) {
       function(t) paste(setdiff(REQUIRED, names(t)), collapse = ", "), ""
     )
     stop(
-      name, ": tiles missing required fields:\n",
+      name, ": these tiles have no value for a required field:\n",
       paste0("  - ", labels[incomplete], " (missing: ", missing, ")", collapse = "\n"),
       call. = FALSE
     )
@@ -51,7 +52,7 @@ check_file <- function(path) {
   bad_fit <- !fits %in% FITS
   if (any(bad_fit)) {
     stop(
-      name, ": unknown `fit` (expected one of ", paste(FITS, collapse = ", "), "):\n",
+      name, ": unknown `fit` value. Use one of ", paste(FITS, collapse = ", "), ":\n",
       paste0("  - ", labels[bad_fit], " (", fits[bad_fit], ")", collapse = "\n"),
       call. = FALSE
     )
@@ -61,19 +62,19 @@ check_file <- function(path) {
   absent <- !file.exists(here("thumbnails", thumbs))
   if (any(absent)) {
     stop(
-      name, ": thumbnails not found in thumbnails/, capture them with ",
-      "R/capture.R (or the update-thumbnails skill), or use ", PLACEHOLDER, ":\n",
+      name, ": these thumbnails are absent from thumbnails/. Capture them ",
+      "with R/capture.R or the update-thumbnails skill, or use ", PLACEHOLDER, ":\n",
       paste0("  - ", labels[absent], " (", thumbs[absent], ")", collapse = "\n"),
       call. = FALSE
     )
   }
 
-  # Every link needs both halves, or the button renders pointing at nothing.
+  # A link needs both halves. If one is absent, the button points to nothing.
   for (i in seq_along(tiles)) {
     for (link in (tiles[[i]]$links %||% list())) {
       if (!all(c("text", "url") %in% names(link))) {
         stop(
-          name, ": every entry under `links` needs both `text` and `url`, see ",
+          name, ": each entry in `links` needs both `text` and `url`. See ",
           labels[i],
           call. = FALSE
         )
@@ -81,11 +82,12 @@ check_file <- function(path) {
     }
   }
 
-  # Warnings: the page still renders, but something is off.
+  # These conditions give a warning. The page is correct, but something is
+  # probably an error.
   dupes <- unique(labels[duplicated(labels)])
   if (length(dupes) > 0) {
     warning(
-      name, ": duplicate titles:\n", paste0("  - ", dupes, collapse = "\n"),
+      name, ": these titles are used more than one time:\n", paste0("  - ", dupes, collapse = "\n"),
       call. = FALSE
     )
   }
@@ -114,7 +116,7 @@ check_apps <- function(paths = c(here("apps.yml"), here("packages.yml"))) {
   orphans <- setdiff(on_disk, c(used, PLACEHOLDER))
   if (length(orphans) > 0) {
     warning(
-      "Images in thumbnails/ that no tile references:\n",
+      "No tile uses these images in thumbnails/:\n",
       paste0("  - ", orphans, collapse = "\n"),
       call. = FALSE
     )

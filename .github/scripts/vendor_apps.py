@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Vendor pinned app source into app/<name>/ from each repo's latest GitHub Release.
+"""Copy application source into app/<name>/ from the latest release of each repository.
 
-Reads app/sources.yml. For any entry whose pinned `ref` is behind that repo's
-latest release, downloads the tarball at that release, copies the `include`
-paths into app/<name>/ (replacing whatever was there), and updates `ref`.
+This script reads app/sources.yml. If the release of a repository is newer than
+the `ref` value of its entry, the script downloads the archive of that release.
+It then copies the paths in `include` into app/<name>/, and it replaces the
+files that were there. Last, it writes the new tag into `ref`.
 
-Run by .github/workflows/vendor-apps.yml, which treats a plain `git diff` as
-the source of truth for "did anything change" rather than trusting this
-script's bookkeeping. This script's only job is to make app/ correct and
-print a human-readable line per app it touched, for the PR body.
+.github/workflows/vendor-apps.yml operates this script. The workflow uses
+`git diff` to find out if the files changed. It does not use the result of this
+script for that decision. This script only makes app/ correct, and prints one
+line for each application that it changed.
 
-Uses ruamel.yaml's round-trip mode rather than plain PyYAML, specifically so
-the comments in sources.yml survive being rewritten by a bot.
+The script uses the round-trip mode of ruamel.yaml, and not PyYAML. This mode
+keeps the comments in sources.yml when the script writes the file.
 """
 
 import os
@@ -30,10 +31,10 @@ GH_API = "https://api.github.com"
 
 yaml = YAML()
 yaml.preserve_quotes = True
-# Matches the hand-written style in sources.yml (list markers indented under
-# their key, not flush with it). ruamel's own default would flatten that on
-# the first automated rewrite and make every PR's diff noisier than it needs
-# to be.
+# This indentation is the same as the hand-written style of sources.yml. The
+# list markers are indented below their key. The default of ruamel puts them at
+# the same level as the key, which makes a large and unnecessary difference in
+# the first pull request.
 yaml.indent(mapping=2, sequence=4, offset=2)
 
 
@@ -45,28 +46,31 @@ def gh_headers(token):
 
 
 def latest_release_tag(repo, token):
-    """Latest release tag, or None if the repo hasn't cut one yet.
+    """Give the tag of the latest release, or None if the repository has none.
 
-    "No release yet" is an expected state, not a failure: an app can sit in
-    sources.yml before its first release and start syncing by itself the day
-    one appears. Anything else (a bad token, a typo'd repo name, a network
-    fault) still raises.
+    A repository with no release is an expected condition, and not an error. You
+    can add an application to sources.yml before its first release. The
+    application starts to synchronize by itself after a release appears. All
+    other conditions raise an error. Examples are an incorrect token, an
+    incorrect repository name, and a network error.
     """
     resp = requests.get(
         f"{GH_API}/repos/{repo}/releases/latest", headers=gh_headers(token), timeout=30
     )
     if resp.status_code == 404:
-        # A 404 here is ambiguous: it means "no releases yet" and also "no such
-        # repo". Probe the repo itself to tell them apart, otherwise a typo'd
-        # `repo`, or one gone private, would sit in WAIT forever looking healthy.
+        # Status 404 has two meanings here. It means "this repository has no
+        # release" and also "this repository does not exist". Read the
+        # repository to find out which one is correct. If you do not do this, an
+        # incorrect `repo` value stays at WAIT and looks correct.
         probe = requests.get(
             f"{GH_API}/repos/{repo}", headers=gh_headers(token), timeout=30
         )
         if probe.status_code == 404:
             raise RuntimeError(
-                f"{repo} does not exist, or this token cannot see it. Check the "
-                "`repo` spelling in sources.yml, and that the repo is public or "
-                "the token has access."
+                f"{repo} does not exist, or this token cannot read it. Make "
+                "sure that the `repo` value in sources.yml is correct. Make "
+                "sure that the repository is public, or that the token has "
+                "access to it."
             )
         probe.raise_for_status()
         return None
@@ -88,13 +92,13 @@ def download_tarball(repo, tag, token, dest_dir):
             f.write(chunk)
     with tarfile.open(tarball_path) as tf:
         tf.extractall(dest_dir)
-    # GitHub's tarball endpoint always wraps the checkout in exactly one
-    # top-level directory (named <owner>-<repo>-<short sha>).
+    # The archive from GitHub always contains one top-level directory. Its
+    # name is <owner>-<repo>-<short sha>.
     extracted = [p for p in dest_dir.iterdir() if p.is_dir()]
     if len(extracted) != 1:
         raise RuntimeError(
-            f"expected exactly one top-level directory in {repo}@{tag}'s tarball, "
-            f"found {extracted}"
+            f"The archive of {repo}@{tag} must contain one top-level "
+            f"directory. It contains {extracted}."
         )
     return extracted[0]
 
@@ -121,8 +125,8 @@ def vendor_one(entry, token):
             dest = dest_root / rel
             if not src.exists():
                 raise RuntimeError(
-                    f"{repo}@{latest_tag} has no '{rel}' (listed in sources.yml "
-                    f"include for {name})"
+                    f"{repo}@{latest_tag} does not contain '{rel}'. The "
+                    f"`include` list of {name} in sources.yml names this path."
                 )
             if dest.exists():
                 shutil.rmtree(dest) if dest.is_dir() else dest.unlink()
@@ -142,9 +146,10 @@ def main():
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     data = yaml.load(SOURCES_PATH)
 
-    # Each app is isolated. One app failing (a renamed include path, a repo
-    # gone private) must not stop the others from syncing, or a single bad
-    # entry silently holds back every other app's updates.
+    # Each application is independent. One application can fail because a path
+    # in `include` has a new name, or because its repository became private. A
+    # failure of one application must not stop the others. If it did, one
+    # incorrect entry would hold back the updates of every other application.
     changes, failures = [], []
     for entry in data["apps"]:
         name = entry.get("name", "<unnamed>")
@@ -156,16 +161,17 @@ def main():
             print(f"ERROR  {name}: {exc}")
             failures.append(name)
 
-    # Only touch the file at all when something actually changed, so a no-op
-    # run leaves a clean `git status`.
+    # Write the file only when an application changed. Then a run that changes
+    # nothing leaves `git status` clean.
     if changes:
         with open(SOURCES_PATH, "w") as f:
             yaml.dump(data, f)
 
-    # Still exit non-zero so a failure is visible, but only after every healthy
-    # app has been vendored; the workflow commits whatever succeeded.
+    # Stop with an error code, so that the failure is visible. Do this only
+    # after the script copies every application that works. The workflow commits
+    # the applications that succeeded.
     if failures:
-        print(f"\n{len(failures)} app(s) failed: {', '.join(failures)}")
+        print(f"\n{len(failures)} application(s) failed: {', '.join(failures)}")
         sys.exit(1)
 
 

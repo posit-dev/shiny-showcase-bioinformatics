@@ -1,27 +1,29 @@
 name: Vendor apps
 
-# Pulls every app in app/sources.yml up to its source repo's latest GitHub
-# Release and pushes the result to a branch. Opening the PR is a manual step,
-# see below.
+# This workflow copies each application in app/sources.yml from the latest
+# release of its repository. It then pushes the result to a branch. A person
+# opens the pull request, as the text below explains.
 #
-# Run it after publishing a release in any app repo:
+# After you publish a release in an application repository, start this workflow:
 #
 #   gh workflow run vendor-apps.yml -R posit-dev/shiny-showcase-bioinformatics
 #
-# One run covers every app: the script checks each entry in sources.yml and
-# vendors only the ones whose release has moved. Release three apps over a
-# month, run this once.
+# One run covers every application. The script examines each entry in
+# sources.yml, and copies only the applications with a new release. If you
+# publish three releases in one month, one run is sufficient.
 #
-# Deliberately dispatch-only, no schedule. GitHub disables scheduled workflows
-# after 60 days without repository activity, and a gallery updated a few times
-# a year would trip that. A workflow_dispatch-only workflow is never disabled.
+# This workflow has no schedule, and that is deliberate. GitHub disables a
+# scheduled workflow after 60 days with no activity in the repository. This
+# gallery changes only a few times each year, so a schedule would stop. GitHub
+# never disables a workflow that starts only from workflow_dispatch.
 on:
   workflow_dispatch: {}
 
-# No pull-requests permission: the posit-dev org forbids GitHub Actions from
-# creating pull requests, so this pushes a branch and leaves the PR to a human.
-# A PAT or GitHub App token would lift that, but needs org approval; the manual
-# step needs nobody's permission and cannot expire.
+# This workflow has no pull-requests permission. The posit-dev organization
+# does not permit GitHub Actions to open pull requests. Therefore the workflow
+# pushes a branch, and a person opens the pull request. A personal access token
+# or a GitHub App token can remove this limit, but the organization must approve
+# it first. The manual step needs no approval, and it cannot expire.
 permissions:
   contents: write
 

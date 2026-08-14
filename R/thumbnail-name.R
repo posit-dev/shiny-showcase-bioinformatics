@@ -1,34 +1,38 @@
 library(stringr)
 library(fs)
 
-#' Canonical thumbnail filename for an app URL.
+#' Make the thumbnail file name from the URL of an application.
 #'
-#' The single source of truth for the naming convention, sourced by both
-#' `R/check.R` (to validate each tile's `thumbnail`) and `R/capture.R` (to save
-#' screenshots).
+#' NOTE: this convention applies to a third-party application, which a public
+#' URL identifies. The applications in this gallery are first-party, and their
+#' thumbnails have the name of the application. Nothing in this repository uses
+#' this function now. Keep it for a third-party application in the future.
 #'
-#' The query string is part of the name, because some apps are distinguished
-#' only by it: the three Small Molecule Suite tiles share a path and differ
-#' only in `tab=`. So:
+#' The query string is part of the name, because it is the only difference
+#' between some applications. For example, the three Small Molecule Suite tiles
+#' have the same path, and only their `tab=` value is different.
 #'
-#' * the protocol is dropped;
-#' * a `#fragment` is dropped, being client-side view state rather than app
-#'   identity;
-#' * `&` and percent-escapes (`%22` and friends) are stripped, and `=` and `.`
-#'   become `_`, all of them legal in a filename, so `path_sanitize()` leaves
-#'   them be, but all of them noise in a name;
-#' * `fs::path_sanitize()` handles everything that is genuinely unsafe: `/` and
-#'   `?` become `_`, as do `"`, `:`, `|`, `*`, `<`, `>` and control characters,
-#'   and a name that is *entirely* a Windows reserved word (`CON`, `NUL`, ...)
-#'   is escaped;
-#' * the result is trimmed to 251 characters and `.png` appended, keeping the
-#'   whole name inside the 255-byte limit most filesystems impose. Sanitizing
-#'   before appending means the extension is never mangled.
+#' The function does these operations, in this sequence:
 #'
-#' The upshot is that `_` is the only separator and the sole `.` is the one
-#' before the extension.
+#' * It removes the protocol.
+#' * It removes a `#fragment`. A fragment is a view state in the browser, and it
+#'   does not identify the application.
+#' * It removes `&` and percent-escapes such as `%22`. It changes `=` and `.`
+#'   to `_`. A file name can contain these characters, so `path_sanitize()`
+#'   keeps them, but they make the name difficult to read.
+#' * `fs::path_sanitize()` then changes the characters that are unsafe. It
+#'   changes `/` and `?` to `_`, and also `"`, `:`, `|`, `*`, `<`, `>` and the
+#'   control characters. It also escapes a name that is only a reserved word of
+#'   Windows, such as `CON` or `NUL`.
+#' * It cuts the result to 251 characters and adds `.png`. The complete name is
+#'   then less than the limit of 255 bytes that most file systems have. The
+#'   function makes the name safe before it adds the extension, so the extension
+#'   is always correct.
 #'
-#' @param url App URL.
+#' As a result, `_` is the only separator, and the name contains one `.`, before
+#' the extension.
+#'
+#' @param url The URL of the application.
 #'
 #' @examples
 #' thumbnail_name("https://rconnect.usgs.gov/PA_radon_map/")

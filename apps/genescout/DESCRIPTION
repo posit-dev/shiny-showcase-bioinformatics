@@ -1,6 +1,6 @@
 Package: genescout
 Title: Agentic Evidence-Review Workbench for Gene Prioritization
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person("Samuel", "Bharti", email = "sbharti@uab.edu", role = c("aut", "cre"))
 Description: GeneScout is an agentic, R-native evidence-review workbench for

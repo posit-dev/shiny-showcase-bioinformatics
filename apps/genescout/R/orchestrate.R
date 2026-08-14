@@ -216,6 +216,16 @@ run_enrich <- function(
     network_enr$evidence_long
   )
   gated <- validate_evidence(evidence_long)
+  # Gate the SIGNAL table too, not just the evidence table. A present-but-unciteable
+  # signal would otherwise move the composite and print a value in the ranked table
+  # while its evidence row was dropped as ungrounded.
+  gated_signals <- validate_signals(signals_long)
+  signals_long <- gated_signals$signals
+  context$n_ungrounded_signals <- gated_signals$n_ungrounded
+  # Carry what actually FAILED, so the report can distinguish "this gene has no
+  # ClinVar record" from "ClinVar was unreachable for this run".
+  context$source_failures <- enriched$failures %||% empty_failures()
+  context$unreachable_hosts <- enriched$unreachable_hosts %||% character()
   genes <- assemble_matrix(signals_long, resolved, registry)
 
   list(
@@ -548,6 +558,52 @@ genescout_provenance <- function(context = list()) {
           scap$kept,
           scap$total,
           STRING_MAX_NODES
+        ),
+        endpoint = ""
+      ))
+    )
+  }
+  # Reliability notes. Without these a source that was DOWN is indistinguishable in
+  # the audit trail from a source that legitimately had nothing for these genes,
+  # and the ranking looks equally confident either way.
+  hosts <- pluck_at(context, "unreachable_hosts")
+  if (length(hosts) > 0) {
+    sources <- c(
+      sources,
+      list(list(
+        source = sprintf(
+          "Unreachable during this run (values may be missing, not absent): %s",
+          paste(sort(hosts), collapse = ", ")
+        ),
+        endpoint = ""
+      ))
+    )
+  }
+  fails <- pluck_at(context, "source_failures")
+  if (!is.null(fails) && nrow(fails) > 0) {
+    per_source <- table(fails$label)
+    sources <- c(
+      sources,
+      list(list(
+        source = sprintf(
+          "Lookup errors (gene x source): %s",
+          paste(
+            sprintf("%s (%d)", names(per_source), as.integer(per_source)),
+            collapse = ", "
+          )
+        ),
+        endpoint = ""
+      ))
+    )
+  }
+  n_ung <- pluck_at(context, "n_ungrounded_signals")
+  if (!is.null(n_ung) && n_ung > 0) {
+    sources <- c(
+      sources,
+      list(list(
+        source = sprintf(
+          "Citation gate: dropped %d signal value(s) with no source id",
+          n_ung
         ),
         endpoint = ""
       ))

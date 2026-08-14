@@ -59,7 +59,7 @@
 apps:
   - name: genescout
     repo: samuelbharti/genescout
-    ref: "v0.1.0"
+    ref: "v0.1.1"
     include:
       - app.R
       - global.R
@@ -82,11 +82,6 @@ apps:
       - DESCRIPTION
       - .Rprofile
       - LICENSE
-    # Waiver, and it is temporary. genescout v0.1.1 corrects the manifest: it
-    # names 91 files, and not the 231 files of the complete repository. But
-    # apps/genescout/ still holds the copy of v0.1.0. Remove this line in the
-    # same pull request that vendors v0.1.1.
-    allow_missing_manifest_files: true
 
   - name: tahoe-explorer
     repo: samuelbharti/tahoe-explorer
@@ -138,7 +133,7 @@ apps:
   # every package already.
   - name: gene-list-builder
     repo: samuelbharti/gene-list-builder
-    ref: ""
+    ref: "v0.2.0"
     include:
       - global.R
       - ui.R

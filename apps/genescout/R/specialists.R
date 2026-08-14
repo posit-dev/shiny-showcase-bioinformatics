@@ -201,7 +201,10 @@ clean_specialist_result <- function(raw, valid) {
   }
   strength <- tolower(trimws(as.character(raw$strength %||% "")))
   if (!strength %in% c("strong", "moderate", "weak", "none")) {
-    strength <- "moderate"
+    # An unparseable confidence is not a moderate one. Defaulting up manufactured a
+    # confident badge out of a malformed model response; "none" states the absence,
+    # matching how clean_synthesis_result() falls back to "uncertain".
+    strength <- "none"
   }
   findings_raw <- raw$findings %||% list()
   if (is.data.frame(findings_raw)) {

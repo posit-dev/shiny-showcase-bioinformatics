@@ -1,0 +1,67 @@
+# Brand configuration: the app's colors, fonts, and logo in one place.
+# Consumed automatically by bslib via `bs_theme(brand = TRUE)` (see ui.R).
+# Spec: https://posit-dev.github.io/brand-yml/
+#
+# "Greige & Crimson", built from the supplied colours:
+#
+#   #C29979  camel        -> secondary actions
+#   #C33149  crimson      -> the primary accent
+#   #D4AFB9  dusty rose   -> soft accent, quiet status
+#
+# The supplied #F3D9B1 cream is not used as the ground: across a full page it
+# read as yellow. A warm greige carries the same three accents without it.
+#
+# Two rules carried over from the previous theme:
+#   1. No white anywhere. Bootstrap defaults cards, inputs, dropdowns, modals
+#      and tables to #FFF, so each is overridden to the lighter cream below.
+#   2. Surfaces are tinted, not flat: the card sits lighter than the ground so
+#      hierarchy reads without a border doing all the work.
+#
+# olive/amber/brick are additions, not supplied: value-box status needs an
+# ok/warning/error triad that is legible against warm cream, and crimson is
+# already spoken for as the primary. brick is a deeper crimson so an error
+# state cannot be confused with an ordinary primary button.
+#
+# Every palette entry reaches Sass as `$brand-<name>` (e.g. `$brand-card`), and
+# ui.R references those variables rather than repeating hex codes. This file is
+# the single source of truth for colour: do not hard-code hexes in ui.R.
+
+meta:
+  name: Gene List Builder
+
+color:
+  palette:
+    # The supplied cream (#F3D9B1) read as yellow across a full page, so the
+    # ground is a warm greige instead. The three accent colours below are
+    # unchanged, and greige sits with all of them without adding a fourth hue.
+    canvas: "#EAE3DE" # warm greige ground
+    card: "#F7F2EE" # lighter warm surface, tinted, never white
+    border: "#D9CEC6" # hairline between ground and surface
+    tan: "#C29979" # camel (supplied): secondary actions
+    crimson: "#C33149" # crimson (supplied): the primary accent
+    rose: "#D4AFB9" # dusty rose (supplied): soft accent / quiet status
+    ink: "#33241E" # deep warm brown-black (text)
+    muted: "#7A6455" # warm muted brown (secondary text)
+    olive: "#6F7A4B" # success (added: no green was supplied)
+    amber: "#B57A33" # warning (added)
+    brick: "#A32438" # danger: deeper than crimson so errors read distinctly
+  foreground: ink
+  background: canvas
+  primary: crimson
+  secondary: tan
+  success: olive
+  info: rose
+  warning: amber
+  danger: brick
+
+typography:
+  fonts:
+    - family: Inter
+      source: google
+      weight: [400, 500, 600, 700]
+  base:
+    family: Inter
+    size: 16px
+  headings:
+    family: Inter
+    weight: 600

@@ -25,8 +25,9 @@
 # worth it, so we stay serial. Overridable for tuning/tests.
 GENESCOUT_PARALLEL_MIN_GENES <- 12L
 # Bounded concurrency: a politeness cap so we never open more simultaneous connections
-# to a single bio-database host than is neighbourly (pairs with the per-host throttle
-# and circuit-breaker in R/http.R). Overridable via the option below.
+# to a single bio-database host than is neighbourly. Each daemon is told this count so
+# the per-host throttle in R/http.R can divide the host's rate limit by it; that plus
+# the circuit-breaker are what keep the fan-out well behaved. Overridable below.
 GENESCOUT_PARALLEL_MAX_WORKERS <- 6L
 # The isolated mirai compute profile for enrichment (kept separate from ellmer's pool).
 GENESCOUT_PARALLEL_COMPUTE <- "genescout_enrich"
@@ -158,6 +159,10 @@ enrich_genes_parallel <- function(
       for (f in sort(tools)) {
         sys.source(f, envir = globalenv())
       }
+      # Each daemon holds its OWN per-host throttle, so tell it how many peers it is
+      # sharing a host with; R/http.R divides each host's published rate limit by
+      # this so the AGGREGATE rate across the pool stays within it.
+      options(genescout.http.concurrency = genescout_workers)
       assign(".genescout_reg", genescout_reg, envir = globalenv())
       assign(".genescout_ctx", genescout_ctx, envir = globalenv())
     },
@@ -165,6 +170,7 @@ enrich_genes_parallel <- function(
     genescout_root = root,
     genescout_reg = registry,
     genescout_ctx = context,
+    genescout_workers = workers,
     .compute = GENESCOUT_PARALLEL_COMPUTE
   )
 
@@ -198,6 +204,13 @@ enrich_genes_parallel <- function(
 
   list(
     signals_long = dplyr::bind_rows(lapply(parts, `[[`, "signals_long")),
-    evidence_long = dplyr::bind_rows(lapply(parts, `[[`, "evidence_long"))
+    evidence_long = dplyr::bind_rows(lapply(parts, `[[`, "evidence_long")),
+    failures = dplyr::bind_rows(lapply(parts, `[[`, "failures")),
+    # Each daemon holds its own breaker, so the run's unreachable set is the union
+    # of what every worker saw.
+    unreachable_hosts = unique(unlist(
+      lapply(parts, `[[`, "unreachable_hosts"),
+      use.names = FALSE
+    ))
   )
 }

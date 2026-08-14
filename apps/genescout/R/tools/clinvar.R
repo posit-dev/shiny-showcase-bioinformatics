@@ -8,6 +8,15 @@
 CLINVAR_EUTILS_BASE <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 CLINVAR_WEB_BASE <- "https://www.ncbi.nlm.nih.gov/clinvar"
 
+# The optional NCBI API key (raises the rate limit from 3 to 10 requests/second),
+# as a cache-excluded query parameter. E-utilities takes its key in the query string
+# rather than a header, so it travels via `secret_query` (see R/http.R): appended to
+# the request, never hashed into the cache key. NULL when no key is configured.
+clinvar_secret_query <- function() {
+  key <- Sys.getenv("NCBI_API_KEY")
+  if (nzchar(key)) list(api_key = key) else NULL
+}
+
 # Count of pathogenic / likely-pathogenic germline variants ClinVar records for a
 # gene symbol. Returns:
 #   list(ok = TRUE, symbol, count, query, source_id, source_url)
@@ -20,15 +29,12 @@ clinvar_gene_pathogenic_count <- function(symbol) {
   }
   term <- clinvar_gene_pathogenic_term(symbol)
   query <- list(db = "clinvar", term = term, retmode = "json", retmax = 0)
-  key <- Sys.getenv("NCBI_API_KEY")
-  if (nzchar(key)) {
-    query$api_key <- key
-  }
   res <- http_get_json(
     CLINVAR_EUTILS_BASE,
     path = "esearch.fcgi",
     query = query,
-    source = "ClinVar"
+    source = "ClinVar",
+    secret_query = clinvar_secret_query()
   )
   if (!res$ok) {
     return(list(ok = FALSE, error = res$error))
@@ -78,15 +84,12 @@ clinvar_gene_disease_pathogenic_count <- function(symbol, disease) {
   }
   term <- clinvar_gene_disease_term(symbol, disease)
   query <- list(db = "clinvar", term = term, retmode = "json", retmax = 0)
-  key <- Sys.getenv("NCBI_API_KEY")
-  if (nzchar(key)) {
-    query$api_key <- key
-  }
   res <- http_get_json(
     CLINVAR_EUTILS_BASE,
     path = "esearch.fcgi",
     query = query,
-    source = "ClinVar"
+    source = "ClinVar",
+    secret_query = clinvar_secret_query()
   )
   if (!res$ok) {
     return(list(ok = FALSE, error = res$error))

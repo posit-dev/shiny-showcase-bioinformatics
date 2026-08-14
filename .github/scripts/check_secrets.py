@@ -47,6 +47,16 @@ FORBIDDEN = [
     ("service-account*.json", "This file holds a key for a service account."),
     ("secrets.y*ml", "This file holds secrets."),
     ("secrets.json", "This file holds secrets."),
+    (".posit", "Posit Publisher writes this directory. It records the server "
+               "URL and the content GUID of a deployment."),
+]
+
+# A directory that must not be in the repository, at any level. The test above
+# reads the name of the file, and the name of a file inside .posit/publish/
+# gives no sign of the problem. Therefore this test reads each part of the path.
+FORBIDDEN_DIRS = [
+    (".posit", "Posit Publisher writes this directory. It records the server "
+               "URL, the content GUID and the dashboard URL of a deployment."),
 ]
 
 # A file that only shows the shape of a secret file, with no value in it.
@@ -78,6 +88,13 @@ def main():
     findings = []
     for path in files:
         if is_permitted(path):
+            continue
+        parts = Path(path).parts
+        directory = next(
+            ((d, reason) for d, reason in FORBIDDEN_DIRS if d in parts[:-1]), None
+        )
+        if directory:
+            findings.append((path, directory[1]))
             continue
         name = Path(path).name
         for pattern, reason in FORBIDDEN:

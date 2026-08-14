@@ -262,7 +262,7 @@ that does not operate gives a false result.
 |---|---|---|
 | Manifests | `check_manifests.py` | A file that `manifest.json` names, but that `apps/<name>/` does not contain. Also a package that the code loads and the manifest does not name |
 | sources.yml | `check_sources.py` | An incorrect entry, and an `include` list that does not copy every file of the manifest. This test reads the release, so it finds the problem before the vendor workflow operates |
-| Secrets | `check_secrets.py` and gitleaks | A file with the name of a secret file, such as `.Renviron`. gitleaks then reads the content of each file, and also the history of git |
+| Secrets | `check_secrets.py` and gitleaks | A file with the name of a secret file, such as `.Renviron`, and a file inside a forbidden directory, such as `.posit`. gitleaks then reads the content of each file, and also the history of git |
 
 The three programs also operate on your machine:
 

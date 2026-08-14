@@ -36,6 +36,13 @@ library(bslib)
 library(ggplot2)
 library(DT)
 
+# bs_theme(brand = ...) below reads _brand.yml through the brand.yml package.
+# bslib only suggests that package, so a scan of this code does not find it and
+# manifest.json does not name it. Connect Cloud then installs everything except
+# brand.yml, and bs_theme() stops with "The package `brand.yml` is required".
+# This call makes the dependency visible to rsconnect::writeManifest().
+requireNamespace("brand.yml", quietly = TRUE)
+
 # Logic layer first (functions the modules call), then the component modules.
 for (f in list.files("R/_shared", pattern = "[.][Rr]$", full.names = TRUE)) {
   source(f)

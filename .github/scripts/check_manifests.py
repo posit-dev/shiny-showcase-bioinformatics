@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Compare each application in app/ with its own manifest.json.
+"""Compare each application in apps/ with its own manifest.json.
 
 Connect Cloud reads manifest.json, and then it reads every file that the
-manifest names. A file that the manifest names, but that app/<name>/ does not
+manifest names. A file that the manifest names, but that apps/<name>/ does not
 contain, stops the deployment. This script finds that condition before a
 deployment does.
 
@@ -16,13 +16,13 @@ The script makes three tests for each application:
   A package that is absent from the manifest is also absent from the server,
   and the application stops at run time.
 
-An entry in app/sources.yml can contain `allow_missing_manifest_files: true`.
+An entry in apps/sources.yml can contain `allow_missing_manifest_files: true`.
 This value makes the first test a warning for that application. Use it only
 when the source repository writes a manifest of the complete repository, and
 not of the application alone. Correct the source repository, then remove the
 value.
 
-The script makes no network requests. It reads only the files in app/.
+The script makes no network requests. It reads only the files in apps/.
 """
 
 import hashlib
@@ -35,8 +35,8 @@ from pathlib import Path
 from ruamel.yaml import YAML
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-APP_DIR = REPO_ROOT / "app"
-SOURCES_PATH = APP_DIR / "sources.yml"
+APPS_DIR = REPO_ROOT / "apps"
+SOURCES_PATH = APPS_DIR / "sources.yml"
 
 # R gives these packages with every installation, so a manifest does not name
 # them.
@@ -111,7 +111,7 @@ def check_app(root, waived):
         detail = ", ".join(f"{path} ({count})" for path, count in groups.most_common(6))
         text = (
             f"{root.name}: the manifest names {len(missing)} files that are "
-            f"absent from app/{root.name}/. First paths: {detail}."
+            f"absent from apps/{root.name}/. First paths: {detail}."
         )
         if root.name in waived:
             warnings.append(text + " This application has a waiver.")
@@ -159,9 +159,9 @@ def check_app(root, waived):
 
 def main():
     waived = waivers()
-    apps = sorted(p for p in APP_DIR.iterdir() if p.is_dir())
+    apps = sorted(p for p in APPS_DIR.iterdir() if p.is_dir())
     if not apps:
-        print("app/ contains no application. Nothing to test.")
+        print("apps/ contains no application. Nothing to test.")
         return
 
     print(f"Testing {len(apps)} applications against their manifests:\n")

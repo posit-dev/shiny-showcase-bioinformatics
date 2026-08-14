@@ -94,8 +94,8 @@ def main():
             f"\n{len(findings)} file(s) must not be in this repository. Remove "
             "each file, and then change the secret that it holds. A secret in "
             "the history of git stays readable after you remove the file.\n"
-            "If the file comes from app/, remove its path from `include` in "
-            "app/sources.yml."
+            "If the file comes from apps/, remove its path from `include` in "
+            "apps/sources.yml."
         )
         sys.exit(1)
     print("No file has the name of a secret file.")

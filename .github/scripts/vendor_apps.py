@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Copy application source into app/<name>/ from the latest release of each repository.
+"""Copy application source into apps/<name>/ from the latest release of each repository.
 
-This script reads app/sources.yml. If the release of a repository is newer than
+This script reads apps/sources.yml. If the release of a repository is newer than
 the `ref` value of its entry, the script downloads the archive of that release.
-It then copies the paths in `include` into app/<name>/, and it replaces the
+It then copies the paths in `include` into apps/<name>/, and it replaces the
 files that were there. Last, it writes the new tag into `ref`.
 
 .github/workflows/vendor-apps.yml operates this script. The workflow uses
 `git diff` to find out if the files changed. It does not use the result of this
-script for that decision. This script only makes app/ correct, and prints one
+script for that decision. This script only makes apps/ correct, and prints one
 line for each application that it changed.
 
 The script uses the round-trip mode of ruamel.yaml, and not PyYAML. This mode
@@ -26,7 +26,7 @@ import requests
 from ruamel.yaml import YAML
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SOURCES_PATH = REPO_ROOT / "app" / "sources.yml"
+SOURCES_PATH = REPO_ROOT / "apps" / "sources.yml"
 GH_API = "https://api.github.com"
 
 yaml = YAML()
@@ -118,7 +118,7 @@ def vendor_one(entry, token):
 
     with tempfile.TemporaryDirectory() as tmp:
         src_root = download_tarball(repo, latest_tag, token, Path(tmp))
-        dest_root = REPO_ROOT / "app" / name
+        dest_root = REPO_ROOT / "apps" / name
 
         for rel in entry["include"]:
             src = src_root / rel

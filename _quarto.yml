@@ -1,12 +1,12 @@
 project:
   type: website
-  # app/ holds vendored source for real deployment (see app/sources.yml), not
+  # apps/ holds vendored source for real deployment (see apps/sources.yml), not
   # site content. Some apps carry their own .qmd files (report templates,
   # docs); without this, Quarto's project-wide scan would try to render those
   # as pages on this site.
   render:
     - "*.qmd"
-    - "!app/**"
+    - "!apps/**"
 
 website:
   title: "Shiny in Bioinformatics"

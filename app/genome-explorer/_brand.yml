@@ -1,0 +1,30 @@
+meta:
+  name: Lifescience Shiny Gallery
+  link:
+    home: https://shiny.posit.co/r/gallery/
+
+color:
+  palette:
+    blue: "#447099"
+    teal: "#419599"
+    green: "#72994E"
+    orange: "#EE6331"
+    grey: "#404041"
+    light-grey: "#F2F2F2"
+  foreground: "#404041"
+  background: "#FFFFFF"
+  primary: blue
+  secondary: grey
+  success: green
+  info: teal
+  warning: orange
+  danger: orange
+
+typography:
+  base:
+    family: Open Sans
+  headings:
+    family: Open Sans
+    weight: 600
+  monospace:
+    family: Source Code Pro

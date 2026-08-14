@@ -18,6 +18,26 @@
 #
 # A repo with no GitHub Release yet makes the bot fail loudly rather than
 # guess at "latest" from unsorted tags.
+#
+# NOT EVERYTHING UNDER app/ IS BOT-MANAGED. The four lifescience apps
+# (de-explorer, signature-scoring, drug-perturbation, genome-explorer) were
+# ported by hand and are deliberately absent from `apps:` below. Three reasons,
+# and the third is the one that matters:
+#
+#   1. Their source, posit-dev/lifescience-shiny-gallery, has no tags or
+#      releases at all, so there is nothing for the bot to pin to.
+#   2. Even with a release, a tarball would omit each app's R/_shared,
+#      R/_modules and _brand.yml, which are git-ignored there and produced by
+#      that repo's scripts/sync-shared.R at build time. The bot would vendor
+#      four apps that fail on startup.
+#   3. Adding them here anyway would break the bot for *every* app: vendor_one()
+#      raises on a repo with no releases and main() has no per-app error
+#      isolation, so one release-less entry aborts the whole run, genescout
+#      included.
+#
+# Update those four by re-copying from a synced lifescience-shiny-gallery
+# working tree. If that repo ever starts cutting releases AND tracking its
+# synced directories, they can move under `apps:` and become bot-managed.
 apps:
   - name: genescout
     repo: samuelbharti/genescout

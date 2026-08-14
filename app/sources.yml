@@ -31,11 +31,6 @@
 #                      Cloud cannot deploy it yet
 #   variant-reviewer   has manifest.json, but no Release cut yet
 #   gene-list-builder  needs both
-#
-# The four lifescience apps under app/ are NOT bot-managed and are deliberately
-# absent here: posit-dev/lifescience-shiny-gallery cuts no releases, and its
-# R/_shared and R/_modules are git-ignored build output, so a release tarball
-# would vendor apps that fail on startup. Re-copy those by hand instead.
 apps:
   - name: genescout
     repo: samuelbharti/genescout

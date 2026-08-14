@@ -1,17 +1,29 @@
 name: Vendor apps
 
-# Pulls each app in app/sources.yml up to its source repo's latest GitHub
-# Release, and opens a PR when that moves the pin. Manual dispatch exists so
-# this can be run on demand (e.g. right after tagging a release) instead of
-# only on the schedule.
+# Pulls every app in app/sources.yml up to its source repo's latest GitHub
+# Release and pushes the result to a branch. Opening the PR is a manual step,
+# see below.
+#
+# Run it after publishing a release in any app repo:
+#
+#   gh workflow run vendor-apps.yml -R posit-dev/shiny-showcase-bioinformatics
+#
+# One run covers every app: the script checks each entry in sources.yml and
+# vendors only the ones whose release has moved. Release three apps over a
+# month, run this once.
+#
+# Deliberately dispatch-only, no schedule. GitHub disables scheduled workflows
+# after 60 days without repository activity, and a gallery updated a few times
+# a year would trip that. A workflow_dispatch-only workflow is never disabled.
 on:
   workflow_dispatch: {}
-  schedule:
-    - cron: "17 6 * * *" # daily; offset from the hour to dodge the top-of-hour rush
 
+# No pull-requests permission: the posit-dev org forbids GitHub Actions from
+# creating pull requests, so this pushes a branch and leaves the PR to a human.
+# A PAT or GitHub App token would lift that, but needs org approval; the manual
+# step needs nobody's permission and cannot expire.
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   vendor:
@@ -36,28 +48,39 @@ jobs:
             echo VENDOR_LOG_EOF
           } >> "$GITHUB_OUTPUT"
 
-      - name: Check whether anything actually changed
-        id: diff
+      - name: Push the branch if anything changed
+        id: push
         run: |
-          if git status --porcelain -- app/ | grep -q .; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
+          if ! git status --porcelain -- app/ | grep -q .; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing to do: every app already matches its latest release."
+            exit 0
           fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add app/
+          git commit -m "Vendor app updates"
+          git push --force origin "$BRANCH"
+        env:
+          BRANCH: vendor-apps-bot
 
-      - name: Open a PR
-        if: steps.diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: "Vendor app updates"
-          title: "Vendor app updates"
-          body: |
-            Automated sync from `.github/workflows/vendor-apps.yml`.
-
-            ```
-            ${{ steps.vendor.outputs.log }}
-            ```
-          branch: vendor-apps-bot
-          delete-branch: true
-          add-paths: |
-            app/
+      - name: Summary
+        run: |
+          {
+            echo '```'
+            echo "${{ steps.vendor.outputs.log }}"
+            echo '```'
+            if [ "${{ steps.push.outputs.changed }}" = "true" ]; then
+              echo ""
+              echo "Pushed \`vendor-apps-bot\`. Open the PR with:"
+              echo ""
+              echo '```bash'
+              echo "gh pr create -R ${{ github.repository }} --head vendor-apps-bot --fill"
+              echo '```'
+            else
+              echo ""
+              echo "No changes; nothing pushed."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -16,6 +16,7 @@ the comments in sources.yml survive being rewritten by a bot.
 
 import os
 import shutil
+import sys
 import tarfile
 import tempfile
 from pathlib import Path
@@ -44,14 +45,31 @@ def gh_headers(token):
 
 
 def latest_release_tag(repo, token):
+    """Latest release tag, or None if the repo hasn't cut one yet.
+
+    "No release yet" is an expected state, not a failure: an app can sit in
+    sources.yml before its first release and start syncing by itself the day
+    one appears. Anything else (a bad token, a typo'd repo name, a network
+    fault) still raises.
+    """
     resp = requests.get(
         f"{GH_API}/repos/{repo}/releases/latest", headers=gh_headers(token), timeout=30
     )
     if resp.status_code == 404:
-        raise RuntimeError(
-            f"{repo} has no GitHub Releases. Publish one there first: this script "
-            "deliberately doesn't fall back to guessing 'latest' from unsorted tags."
+        # A 404 here is ambiguous: it means "no releases yet" and also "no such
+        # repo". Probe the repo itself to tell them apart, otherwise a typo'd
+        # `repo`, or one gone private, would sit in WAIT forever looking healthy.
+        probe = requests.get(
+            f"{GH_API}/repos/{repo}", headers=gh_headers(token), timeout=30
         )
+        if probe.status_code == 404:
+            raise RuntimeError(
+                f"{repo} does not exist, or this token cannot see it. Check the "
+                "`repo` spelling in sources.yml, and that the repo is public or "
+                "the token has access."
+            )
+        probe.raise_for_status()
+        return None
     resp.raise_for_status()
     return resp.json()["tag_name"]
 
@@ -85,6 +103,10 @@ def vendor_one(entry, token):
     name, repo = entry["name"], entry["repo"]
     current_ref = entry.get("ref") or None
     latest_tag = latest_release_tag(repo, token)
+
+    if latest_tag is None:
+        print(f"WAIT   {name}: {repo} has no GitHub Release yet")
+        return None
 
     if latest_tag == current_ref:
         print(f"SKIP   {name}: already at {latest_tag}")
@@ -120,13 +142,31 @@ def main():
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     data = yaml.load(SOURCES_PATH)
 
-    changes = [c for c in (vendor_one(e, token) for e in data["apps"]) if c]
+    # Each app is isolated. One app failing (a renamed include path, a repo
+    # gone private) must not stop the others from syncing, or a single bad
+    # entry silently holds back every other app's updates.
+    changes, failures = [], []
+    for entry in data["apps"]:
+        name = entry.get("name", "<unnamed>")
+        try:
+            change = vendor_one(entry, token)
+            if change:
+                changes.append(change)
+        except Exception as exc:
+            print(f"ERROR  {name}: {exc}")
+            failures.append(name)
 
     # Only touch the file at all when something actually changed, so a no-op
     # run leaves a clean `git status`.
     if changes:
         with open(SOURCES_PATH, "w") as f:
             yaml.dump(data, f)
+
+    # Still exit non-zero so a failure is visible, but only after every healthy
+    # app has been vendored; the workflow commits whatever succeeded.
+    if failures:
+        print(f"\n{len(failures)} app(s) failed: {', '.join(failures)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

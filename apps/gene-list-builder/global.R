@@ -2,6 +2,13 @@
 library(shiny)
 library(bslib)
 
+# bs_theme(brand = TRUE) below reads _brand.yml through the brand.yml package.
+# bslib only suggests that package, so a scan of this code does not find it and
+# manifest.json does not name it. Connect Cloud then installs everything except
+# brand.yml, and bs_theme() stops with "The package `brand.yml` is required".
+# This call makes the dependency visible to rsconnect::writeManifest().
+requireNamespace("brand.yml", quietly = TRUE)
+
 # The loading spinner defaults to a saturated Bootstrap blue that clashes with
 # the theme. Pull it to the bronze accent. Read from the compiled theme rather
 # than hard-coded so _brand.yml stays the single source of truth for colour.

@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-The MIT license above covers the code in this repository.
-
-It does not cover the third-party datasets vendored under `data/` and
-`www/data/`, which keep the licenses of their sources. Those are listed
-per dataset in `data/prep/PROVENANCE.md`, and include CC BY 4.0 (10x Genomics
-Visium and Xenium, UniProtKB, AlphaFold DB, Tahoe-100M), CC0 (InterPro), and
-ODbL (cBioPortal) over open-access TCGA data. If you redistribute this
-repository, those terms travel with the data.

@@ -1,5 +1,9 @@
 # Gene List Builder
 
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21936035-1682D4)](https://doi.org/10.5281/zenodo.21936035)
+
+By [Samuel Bharti](https://www.samuelbharti.com)
+
 A lightweight Shiny app for building a curated gene list for a disease: "GDA
 (gene–disease association) for gene lists". It replaces the manual,
 API-by-hand curation workflow with a reproducible pipeline:
@@ -11,7 +15,7 @@ API-by-hand curation workflow with a reproducible pipeline:
 5. **Curate** the final list with an AI agent (Google Gemini), on demand.
 6. **Export** the gene list (CSV) and a run report (Markdown).
 
-Current app version: v0.2.0
+Current app version: v0.2.1
 
 ## Data sources
 
@@ -200,4 +204,34 @@ place, applied by bslib via `bs_theme(brand = TRUE)` in [ui.R](ui.R). See
 
 ## Contributing
 
-See CONTRIBUTING.md for contribution guidelines.
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+first, and please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+For a security problem, do not open a public issue: [SECURITY.md](SECURITY.md)
+explains how to report it privately.
+
+## Author
+
+Samuel Bharti
+
+- Email: <samuelbharti.io@gmail.com>
+- Web: [samuelbharti.com](https://www.samuelbharti.com)
+- ORCID: [0000-0003-4190-7058](https://orcid.org/0000-0003-4190-7058)
+- GitHub: [@samuelbharti](https://github.com/samuelbharti)
+
+## Citation
+
+Zenodo archives each release. The badge at the top of this file resolves to the
+latest version; to cite one specific version, use that version's DOI from the
+[Zenodo record](https://doi.org/10.5281/zenodo.21936035).
+
+[CITATION.cff](CITATION.cff) holds the full metadata, and
+[CITATION.md](CITATION.md) gives a ready-made text and BibTeX entry.
+
+## License
+
+[MIT](LICENSE). Copyright (c) 2024-2026 Samuel Bharti.
+
+The app queries public gene-disease databases. Each one sets its own terms for
+the data it returns, and this license does not change them. The
+[Data sources](#data-sources) table links to every one of them.

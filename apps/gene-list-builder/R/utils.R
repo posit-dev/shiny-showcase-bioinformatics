@@ -7,7 +7,7 @@ safe_read_rds <- function(path, default = NULL) {
 }
 
 app_version <- function() {
-  "0.2.0"
+  "0.2.1"
 }
 
 # Coerce to numeric without warnings (returns NA for unparseable values).

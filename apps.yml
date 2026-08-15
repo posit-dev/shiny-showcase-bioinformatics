@@ -55,7 +55,7 @@
         - text: GitHub
           url: https://github.com/samuelbharti/tahoe-explorer
         - text: DOI
-          url: https://doi.org/10.5281/zenodo.21926312
+          url: https://doi.org/10.5281/zenodo.21950641
       tags: single-cell, perturbation, duckdb
 
     - title: genescout
@@ -68,7 +68,7 @@
         - text: GitHub
           url: https://github.com/samuelbharti/genescout
         - text: DOI
-          url: https://doi.org/10.5281/zenodo.21352389
+          url: https://doi.org/10.5281/zenodo.21950644
       tags: agents, evidence review, gene prioritization
 
     - title: Plotomics Live
@@ -83,7 +83,7 @@
         - text: GitHub
           url: https://github.com/samuelbharti/plotomics-live
         - text: DOI
-          url: https://doi.org/10.5281/zenodo.21936927
+          url: https://doi.org/10.5281/zenodo.21950647
       tags: visualization, webgl, shinyreact, spatial
 
     - title: variant-reviewer
@@ -96,7 +96,7 @@
         - text: GitHub
           url: https://github.com/samuelbharti/variant-reviewer
         - text: DOI
-          url: https://doi.org/10.5281/zenodo.21934012
+          url: https://doi.org/10.5281/zenodo.21950635
       tags: variants, annotation, clinical genetics
 
     - title: gene-list-builder
@@ -111,7 +111,7 @@
         - text: GitHub
           url: https://github.com/samuelbharti/gene-list-builder
         - text: DOI
-          url: https://doi.org/10.5281/zenodo.21936036
+          url: https://doi.org/10.5281/zenodo.21950640
       tags: gene-disease, target discovery, provenance
 
     - title: DE Explorer

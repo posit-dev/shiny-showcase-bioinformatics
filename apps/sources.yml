@@ -59,7 +59,7 @@
 apps:
   - name: genescout
     repo: samuelbharti/genescout
-    ref: "v0.1.1"
+    ref: "v0.1.2"
     include:
       - app.R
       - global.R
@@ -85,7 +85,7 @@ apps:
 
   - name: tahoe-explorer
     repo: samuelbharti/tahoe-explorer
-    ref: "v0.1.1"
+    ref: "v0.1.2"
     include:
       - global.R
       - ui.R
@@ -105,7 +105,7 @@ apps:
   # not need them.
   - name: variant-reviewer
     repo: samuelbharti/variant-reviewer
-    ref: "v2.3.0"
+    ref: "v2.3.1"
     include:
       - app.R
       - app_ui.R
@@ -133,7 +133,7 @@ apps:
   # every package already.
   - name: gene-list-builder
     repo: samuelbharti/gene-list-builder
-    ref: "v0.2.0"
+    ref: "v0.2.1"
     include:
       - global.R
       - ui.R
@@ -153,7 +153,7 @@ apps:
   # copy srcts/, because Connect Cloud operates no build step.
   - name: plotomics-live
     repo: samuelbharti/plotomics-live
-    ref: "v0.1.0"
+    ref: "v0.1.1"
     include:
       - app.R
       - manifest.json

@@ -16,11 +16,11 @@
     does a single job, and the applications compose them.
   tiles:
     - title: biobouncer
-      org: R · Python
+      org: R · Python · JavaScript
       description: >-
         A gate for biological inputs. Validate gene symbols, ontology terms, variant
-        formats and accessions through one API, offline or live. R and Python share a
-        conformance corpus, so the two cannot disagree.
+        formats and accessions through one API, offline or live. The three languages
+        share one conformance corpus, so they cannot disagree.
       thumbnail: biobouncer.png
       fit: hex
       alt: biobouncer hex logo
@@ -85,4 +85,11 @@
       fit: hex
       alt: plotomics hex logo
       tech: 17 components · volcano · embedding · heatmap · igv · network · oncoplot · spatial · and ten more
+      links:
+        - text: PyPI
+          url: https://pypi.org/project/plotomics/
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/plotomics
+        - text: npm
+          url: https://www.npmjs.com/package/plotomics
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

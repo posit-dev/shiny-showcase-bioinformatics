@@ -73,7 +73,9 @@ GH_TOKEN=$(gh auth token) python .github/scripts/check_sources.py
 
 # Deploy one application by hand. RENV_CONFIG_AUTOLOADER_ENABLED matters:
 # without it renv hides the rsconnect that this needs. PCC_ACCOUNT has no
-# default, and its value is the `pcc-account` of the category in apps.yml.
+# default, and its value is the `pcc-account` of the category in apps.yml. With
+# no PCC_CLIENT_ID the script registers no account, and uses the one that
+# connectCloudUser() registered interactively.
 RENV_CONFIG_AUTOLOADER_ENABLED=false APP=genescout PCC_ACCOUNT=posit \
   CONTENT_ID=<id from apps.yml> Rscript .github/scripts/deploy_app.R
 ```
@@ -114,6 +116,38 @@ none of them, so `deploy_app.R` calls the API directly through
    content* instead of updating, for any code that relies on `appName` alone.
    The content id is the only stable identifier.
 4. **`upload = FALSE`** fails with `object 'bundle' not found`.
+5. **`connectCloudClientCredentials()` needs `content:create`, and says
+   otherwise.** It takes the account by *name*, and registers it only when
+   `GET /v1/accounts` advertises that permission on it:
+
+   ```r
+   publishable <- filterPublishableAccounts(accounts)   # any permission == "content:create"
+   account <- Find(function(a) identical(a$name, accountName), publishable)
+   ```
+
+   Every deploy job of run 33903066870 stopped there with `Account "posit" is
+   visible to these credentials but does not grant publish permission.` The
+   message reads as a fault of the account or of the name. It is neither: the
+   name was right and the account was right, and the credential simply held no
+   publish role. **The remedy is to grant it, at
+   <https://login.posit.cloud/identity/credentials>.** There is nothing to fix
+   in this repository, and no argument for an account id to route around it, on
+   1.11.0 or on main.
+
+   Two things that look like the cause and are not:
+
+   - **The `account` argument in the Posit documentation is `accountName`.**
+     The example at
+     <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>
+     writes `account = "<YOUR_ACCOUNT_HERE>"`, which is not a formal of the
+     function: it partial-matches `accountName`, the only formal beginning with
+     "account". Verified with `match.call()`. The two spellings are one call.
+   - **The name of the account is `posit`, not `Posit PBC`.** The interface
+     shows `Posit PBC (posit)`, and those are the `display_name` and the `name`
+     of one account. The lookup compares `name`. Verified against the response.
+
+   Before you print or paste a listing of `GET /v1/accounts` to work on this,
+   read "This repository is public" below.
 
 Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 `current_revision` fault below.
@@ -183,6 +217,28 @@ application here returns tens of kilobytes of Shiny and bslib assets, and a
 broken one returned 61 bytes. `apps/variant-reviewer` was broken from its first
 deployment and nobody noticed, because both signals said it was fine.
 
+### This repository is public
+
+So its Actions logs are public, its pull requests are public, and its history is
+public. Three consequences, and the first one cost real cleanup:
+
+- **Never write a Connect Cloud account id anywhere in this repository**, in a
+  file, a commit message, a pull request body or a job log. Nothing here needs
+  one: the account name is in `apps.yml`, and a *content* id is not the same
+  thing and does belong there.
+- **Never print a listing of `GET /v1/accounts`.** It names every account the
+  credentials can see, with its id, including personal ones that have nothing
+  to do with the gallery. Read it in an interactive session if you must, and
+  keep it out of a job log.
+- **A pull request body cannot be un-published.** GitHub keeps every revision,
+  and `userContentEdits` serves the old text to anyone through the API, so
+  editing the body removes nothing. Only GitHub Support can purge it. The same
+  is true of a commit that a force-push orphaned: it stays fetchable by its
+  SHA.
+
+The rule is therefore about the first write, not the cleanup: assume anything
+that reaches GitHub is permanent.
+
 ### Facts about this account
 
 - Account `posit`, at <https://connect.posit.cloud/posit/>.
@@ -190,7 +246,9 @@ deployment and nobody noticed, because both signals said it was fine.
 - New content is created with `default_robots_policy: "disallow_all"`, and this
   is a gallery, so `deploy_app.R` sets `allow_all`.
 - The workflow authenticates with `PCC_CLIENT_ID` and `PCC_CLIENT_SECRET`,
-  repository secrets from <https://login.posit.cloud/identity/credentials>.
+  repository secrets from <https://login.posit.cloud/identity/credentials>. The
+  credential must hold publish permission on `posit`; fault 5 above is what the
+  job prints when it does not.
 
 ## Keeping this file current
 

@@ -448,13 +448,37 @@ is the reason for the version requirement.
 ### The two secrets
 
 The workflow authenticates with an OAuth service account, from
-<https://login.posit.cloud/identity/credentials>. The credentials must grant
-publish permission on the `posit` account. Store them as repository secrets:
+<https://login.posit.cloud/identity/credentials>. Store them as repository
+secrets:
 
 | Secret | Value |
 |---|---|
 | `PCC_CLIENT_ID` | The client id |
 | `PCC_CLIENT_SECRET` | The client secret |
+
+`deploy_app.R` makes the call that the
+[Connect Cloud documentation](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html)
+gives:
+
+```r
+rsconnect::connectCloudClientCredentials(
+  clientId = ..., clientSecret = ..., account = "posit"
+)
+```
+
+**The credentials must grant publish permission on that account.** The
+function registers it only when `GET /v1/accounts` advertises `content:create`
+on it, and the failure names the account rather than the permission:
+
+```
+Account "posit" is visible to these credentials but does not grant
+publish permission.
+```
+
+The account name is `posit`, and not the `Posit PBC` that the interface shows
+beside it: those are the `name` and the `display_name` of the same account, and
+the lookup compares `name`. The name comes from `pcc-account` in `apps.yml`,
+which is the only copy of it.
 
 ### Git-backed publishing is the other option
 

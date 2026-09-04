@@ -80,11 +80,16 @@ installPrimaryFileShim(primaryFileFromManifest(manifest))
 
 # An empty client id means an interactive session, where the account is already
 # registered with connectCloudUser().
+#
+# `account` is the spelling that the Connect Cloud documentation uses, and it
+# partial-matches the `accountName` formal. The credentials must grant publish
+# permission on this account; CLAUDE.md, fault 5, has what the failure looks
+# like when they do not.
 if (nzchar(clientId)) {
   rsconnect::connectCloudClientCredentials(
     clientId = clientId,
     clientSecret = clientSecret,
-    accountName = account
+    account = account
   )
 }
 

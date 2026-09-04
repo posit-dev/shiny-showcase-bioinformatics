@@ -107,6 +107,23 @@ jobs:
           # whose entry in apps.yml changed. `before` is absent on a manual run,
           # and it names a missing commit after a force push; in both cases the
           # test is unavailable, so the application deploys.
+          #
+          # A package update is a file change, so this test covers it. Every
+          # version an application runs is pinned in apps/<app>/manifest.json,
+          # the R version included, and Connect Cloud installs what the manifest
+          # names. So updating a package means rewriting that file, which is
+          # under apps/<app>/, which this test matches. vendor-apps.yml commits
+          # a refreshed manifest the same way, and the merge deploys that
+          # application alone.
+          #
+          # The consequence runs the other way, and it is the one to remember:
+          # a deployment that does not change the manifest changes no package
+          # version. Regenerate the manifest to take a newer package; the test
+          # then follows on its own.
+          #
+          # What this test does skip is a redeploy with no file change at all,
+          # to recover content or to repeat a failed run. That is what
+          # workflow_dispatch is for, and it reaches the branch above.
           if [ "${{ github.event_name }}" = "push" ] \
             && git cat-file -e "$BEFORE" 2>/dev/null; then
             changed=$(git diff --name-only "$BEFORE" "$SHA")

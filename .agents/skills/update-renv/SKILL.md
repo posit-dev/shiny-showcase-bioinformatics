@@ -56,8 +56,9 @@ problem to fix.
    ```
 
    Until the library exists, `renv::status()` says only that nothing is
-   installed, and `renv::update()` has nothing to compare. This step installs
-   about 60 packages and takes a few minutes.
+   installed, and `renv::update()` has nothing to compare. A cold renv cache
+   makes this step a few minutes; a warm one makes it seconds, because renv
+   links from the cache instead of installing.
 
 2. **Update.**
 
@@ -65,9 +66,16 @@ problem to fix.
    renv::update()
    ```
 
-   To move renv itself, use `renv::upgrade()`, and make it a separate commit.
-   It rewrites `R/renv/activate.R`, which is a large diff with nothing to
-   review in it, so it does not belong beside a package change.
+   renv is itself in the lockfile, so `renv::update()` moves renv too, and
+   moving renv rewrites `R/renv/activate.R`. Expect that file in the diff, and
+   do not try to keep it out: a lockfile that records renv 1.2.4 beside a
+   bootstrap script for 1.1.5 is the inconsistent state, not the clean one.
+   `renv::upgrade()` is for moving renv on its own, without touching another
+   package.
+
+   Every R session between this step and step 4 prints that the loaded renv is
+   not the recorded one. Step 4 ends it. The message is correct and there is
+   nothing to fix.
 
 3. **Test both consumers.** `R/check.R` is the easy one:
 
@@ -89,7 +97,21 @@ problem to fix.
    still passes. The failure would otherwise appear the next time somebody
    captured a thumbnail, a long way from the commit that caused it.
 
-4. **Snapshot, scoped.** Use the call above, not a bare `renv::snapshot()`.
+4. **Snapshot, scoped.** Use the call at the top of this file, not a bare
+   `renv::snapshot()`.
+
+   That one call changes versions and drops packages at the same time, and the
+   dropped ones make a diff of a thousand lines that hides the versions
+   completely. Two calls separate them, and each one is a real snapshot rather
+   than an edited file:
+
+   ```r
+   # First: the versions alone, keeping every package the lockfile already has.
+   old <- names(jsonlite::fromJSON("R/renv.lock", simplifyVector = FALSE)$Packages)
+   renv::snapshot(packages = old)
+   # Commit. Then the scoped call, whose diff is now removals alone.
+   renv::snapshot(packages = unique(renv::dependencies("R", quiet = TRUE)$Package))
+   ```
 
 5. **Read the diff before you commit.**
 
@@ -100,6 +122,18 @@ problem to fix.
    Version numbers are expected. A package appearing or disappearing is not,
    unless step 4 or a code change explains it. Name the reason in the commit
    message.
+
+   If the scoped call removed packages, test the removal instead of reasoning
+   about it. Restore the new lockfile into an empty library outside the
+   project, and run both consumers against it:
+
+   ```bash
+   RENV_PATHS_LIBRARY=/tmp/renv-fresh-lib R -q -e 'renv::restore(prompt = FALSE); source("R/check.R")'
+   ```
+
+   That is what a person cloning the repository gets. A library that still has
+   the removed packages installed cannot fail this way, so testing in place
+   proves nothing.
 
 ## Notes
 
@@ -116,9 +150,9 @@ supports.
 `R/renv/library` is gitignored, along with the rest of `R/renv` except
 `activate.R` and `settings.json`. Only the lockfile is a reviewable artifact.
 
-The lockfile currently records 57 packages, and no code in `R/` reaches all of
-them. `googledrive` is the clearest case: nothing in the repository names it,
-and it brings `gargle`, `readr`, `vroom` and their dependencies with it. An
-earlier version of the tooling used them. The scoped snapshot in step 4 removes
-that tail, which is correct, but it is a separate decision from a version
-update. Do one or the other in a commit, and say which.
+The seven direct dependencies of `R/` need 29 packages with their recursive
+dependencies. A lockfile materially larger than that has a tail from an earlier
+version of the tooling, and the scoped call in step 4 removes it. That happened
+once already: a lockfile of 57 packages carried `googledrive`, `readr`, `dplyr`
+and `tidyr`, which nothing in the repository names, and those four brought 24
+more with them.

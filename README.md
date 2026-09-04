@@ -33,6 +33,12 @@ control, and `intro` text for each category.
 >    the screenshots.
 >
 > The repository is private, and nothing publishes the site automatically.
+>
+> The same caution applies to a deployment. The workflow publishes an
+> application to a public address, and to a search engine. The four
+> `lifescience-shiny-gallery` applications carry `deploy: false` in `apps.yml`,
+> and they must keep it until the sanitization pass. The five applications with
+> a public repository and a DOI are deployed.
 
 ## Two kinds of content
 
@@ -57,6 +63,12 @@ holds R code.
 script writes them. Quarto reads each file and makes a grid of cards with the
 `showcase.ejs` template.
 
+`apps.yml` is also the source of truth for the deployments. Its `app`,
+`content_id` and `deploy` fields decide which applications
+`.github/workflows/deploy-apps.yml` publishes, and where. Nothing else records
+that, so nothing else can disagree with it. `CLAUDE.md` states the rule, and
+"Deployment to Connect Cloud" below describes the workflow.
+
 Quarto shows the categories and the tiles in the same order as the file. Position
 in the file is the only control of order. There is no `order` field. To move a
 card on the page, move its block in the file.
@@ -77,7 +89,10 @@ card on the page, move its block in the file.
 | `org` | required | The line below the title. The owner, or the parent project |
 | `description` | required | Markdown is permitted |
 | `thumbnail` | required | A file in `thumbnails/`, named after the application |
-| `links` | optional | A list of `{text, url}`. Each one makes a button |
+| `app` | optional | The directory in `apps/` that holds the source code. The title is a display name, and the two are not always the same |
+| `content_id` | optional | The Connect Cloud content that `app` deploys to. Absent means the application is not published yet |
+| `deploy` | optional | Default `true`. `false` holds the workflow back from an application that has both `app` and `content_id` |
+| `links` | optional | A list of `{text, url}`. Each one makes a button. Not for the "View app" button, which the template derives |
 | `tech` | optional | The stack line below the description. Only `packages.yml` uses it |
 | `fit` | optional | `cover` (default, crops a screenshot), `contain` (shows a diagram complete), or `hex` (puts a package logo in the center of a tint) |
 | `alt` | optional | Alternative text for the image. It defaults from the title |
@@ -103,8 +118,11 @@ Three applications have no links: DE Explorer, Signature Scoring and Drug
 Perturbation. They came from `posit-dev/lifescience-shiny-gallery`, which is
 not public.
 
-No application has a "View app" link, because no application is deployed in
-public yet. Add that link to a tile after its deployment gets an address.
+**Do not write a "View app" link.** `showcase.ejs` makes that button itself,
+from `app` and `content_id`, and it puts the button first. The address of a
+deployment is `https://posit-<app>.share.connect.posit.cloud/`, a function of
+the directory name, so a URL written by hand is a second copy of a value that
+the file already holds. `R/check.R` rejects one.
 
 Make sure that each link gives status 200 before you add it. A dead link on a
 card is worse than no link.
@@ -252,6 +270,166 @@ The second command opens the pull request. The `posit-dev` organization does not
 permit GitHub Actions to open pull requests, so a person must do this step. The
 summary of the workflow shows the command.
 
+## Deployment to Connect Cloud
+
+`.github/workflows/deploy-apps.yml` publishes the applications to
+[Posit Connect Cloud](https://connect.posit.cloud/posit/), under the `posit`
+account. It operates after a merge into main, and it deploys only the
+applications that the merge touched. `workflow_dispatch` deploys every
+configured application.
+
+The workflow holds no list of applications and no content id. `apps.yml` holds
+both, and `.github/scripts/deploy_matrix.py` turns its tiles into the matrix of
+the deploy job:
+
+```yaml
+- title: genescout
+  app: genescout
+  content_id: "01a068f2-...."
+```
+
+A tile deploys when it has `app` and `content_id`, and `deploy` is not false. So
+one edit of `apps.yml` starts a deployment, stops it, or moves it to different
+content, in the same block that gives the application its card:
+
+| Fields | Result |
+|---|---|
+| `app` and `content_id` | Deploys |
+| `app`, no `content_id` | Reported as `WAIT`. The application is not published yet |
+| `app`, `deploy: false` | Reported as `HOLD` |
+| No `app` | A description with no code in this repository |
+
+To see what the workflow will do:
+
+```bash
+python .github/scripts/deploy_matrix.py
+```
+
+`R/check.R` and that script test the same fields, so a mistake fails on the pull
+request, through the `apps.yml` job of `checks.yml`.
+
+### The address of an application
+
+Every deployment serves at `https://posit-<app>.share.connect.posit.cloud/`,
+where `<app>` is the name of the directory in `apps/`.
+
+`deploy_app.R` sets that address, with the `vanity_name` field of the content.
+Connect Cloud puts the account name in front of the value, so `vanity_name` of
+`genescout` becomes `posit-genescout`. The original address of the content, the
+one with the content id in it, redirects to the new one, so a change breaks no
+link.
+
+The script also sets `default_robots_policy` to `allow_all`. Connect Cloud
+creates content with `disallow_all`, and this is a gallery, so the applications
+must be findable.
+
+Both settings belong to the content and not to a deployment, but the
+application serves each one as it stood at its last publish. So `deploy_app.R`
+applies them *before* it deploys, and a change lands in the same run. It reads
+the content first and writes only when a value differs, so an ordinary run
+makes one request and changes nothing.
+
+Do not call `POST /contents/{id}/republish` to land a change instead. It can
+leave the content with no current revision, and then every later deployment
+fails with `Invalid token`. `apps/variant-reviewer` is in that state, and
+`CLAUDE.md` explains both the cause and the repair that `deploy_app.R` applies
+by itself.
+
+### Why the first deployment is manual
+
+rsconnect cannot find existing content by name on Connect Cloud, and it cannot
+create content with a known id. A runner holds no deployment record, so it
+needs the content id, and the id exists only after the first deployment.
+
+Therefore a person publishes each application one time, from their machine, and
+writes the id into `apps.yml`. After that the workflow updates the same content
+on every merge, and it never creates content. A missing id is an application
+that the matrix reports as `WAIT`, and never a second copy of the content.
+
+The `posit` account publishes content with public access, so a new deployment
+is readable by anybody who has the address. Confirm that in the content
+settings after the first deployment: rsconnect cannot set the visibility of
+Connect Cloud content, because its `appVisibility` argument has no effect on
+that server.
+
+### Publish an application the first time
+
+Authenticate one time. This opens a browser:
+
+```r
+rsconnect::connectCloudUser()
+```
+
+Then operate `deploy_app.R` with no `CONTENT_ID`. It creates the content and
+prints the new id:
+
+```bash
+RENV_CONFIG_AUTOLOADER_ENABLED=false \
+  APP=genescout PCC_ACCOUNT=posit Rscript .github/scripts/deploy_app.R
+```
+
+The environment variable disables renv. The project library holds the packages
+of the gallery tools, and this script needs rsconnect alone: it deploys from the
+committed manifest, so it installs no dependency of the application.
+
+Then do two things:
+
+1. Open the content settings in Connect Cloud, and confirm that Access is
+   public.
+2. Write the id that the script printed into the tile in `apps.yml`, as
+   `content_id`, beside its `app`.
+
+That is the whole configuration. The tile gets its "View app" button from those
+two fields, and the workflow gets its matrix entry from them.
+
+New content serves at its content id until the *second* deployment. The first
+run creates the content, so it can only set `vanity_name` afterwards, and the
+address follows that field at publish time. The first run of the workflow after
+step 2 gives the application its real address.
+
+### The two rsconnect problems that `deploy_app.R` works around
+
+The script needs rsconnect 1.11.0 or later. Two comments in it explain the
+detail; this is the summary.
+
+**The primary file.** rsconnect 1.10.1 through 1.11.0 send
+`primary_file: null` to Connect Cloud when they deploy from a manifest, and the
+API rejects the request. rsconnect infers that value while it infers the
+application mode, and a manifest supplies the mode, so the inference never
+happens. The script patches one internal function to supply it, from the file
+list of the manifest. Remove the patch when rsconnect reads the primary file
+from the manifest itself.
+
+**The deployment record.** `deployApp()` identifies existing Connect Cloud
+content only through a local `rsconnect/*.dcf` record. Its `appId` argument
+does not work there, because the Connect Cloud client implements no
+`getApplication()`, and content has no name to search for: the name that
+rsconnect reports is the title. A runner holds no record, and git ignores the
+directory that holds one, so the script writes the record from the content id
+first, with `migrateToConnectCloud()`. That function arrived in 1.11.0, and it
+is the reason for the version requirement.
+
+### The two secrets
+
+The workflow authenticates with an OAuth service account, from
+<https://login.posit.cloud/identity/credentials>. The credentials must grant
+publish permission on the `posit` account. Store them as repository secrets:
+
+| Secret | Value |
+|---|---|
+| `PCC_CLIENT_ID` | The client id |
+| `PCC_CLIENT_SECRET` | The client secret |
+
+### Git-backed publishing is the other option
+
+Connect Cloud can watch a branch by itself, with no workflow: it redeploys when
+the branch changes. This repository uses GitHub Actions instead, because a
+deployment then happens after the tests of `checks.yml`, and because one file
+records which applications publish and where.
+
+Do not enable both for one piece of content. Connect Cloud would redeploy on
+the push, and the workflow would redeploy again.
+
 ## Tests on each pull request
 
 `.github/workflows/checks.yml` operates three jobs on every pull request, and
@@ -288,7 +466,8 @@ second test finds a file that a person removed after the copy.
 ## Project structure
 
 ```
-apps.yml              # Applications section. Sequence in the file = sequence on the page
+CLAUDE.md             # Notes for an agent. The rules, and the hard-won knowledge
+apps.yml              # Applications section, and the source of truth for the deployments
 packages.yml          # Supporting Packages section. Same fields
 index.qmd             # The page. It shows both listings
 showcase.ejs          # Card template. Both listings use it
@@ -301,8 +480,11 @@ R/thumbnail-name.R    # The URL name convention of the upstream gallery. Unused
 R/renv.lock           # renv lockfile. .Rprofile sets the renv paths
 .github/workflows/    # vendor-apps.yml: copies applications from their releases
                       # checks.yml: the tests that operate on each pull request
+                      # deploy-apps.yml: publishes apps/ to Connect Cloud on merge
 .github/scripts/      # vendor_apps.py: the code that the vendor workflow operates
                       # check_manifests.py, check_sources.py, check_secrets.py
+                      # deploy_matrix.py: reads apps.yml, writes the deploy matrix
+                      # deploy_app.R: deploys one app, in CI or on your machine
 .agents/skills/       # update-thumbnails skill, symlinked into .claude/skills/
 _brand.yml            # Posit brand colors and typography
 _variables.yml        # Site variables: name, author, description, URLs

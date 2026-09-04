@@ -60,11 +60,26 @@ problem to fix.
    makes this step a few minutes; a warm one makes it seconds, because renv
    links from the cache instead of installing.
 
-2. **Update.**
+2. **Move the date, then update.** The lockfile names a dated Package Manager
+   snapshot, `https://packagemanager.posit.co/cran/2026-09-04` or later. That
+   repository is frozen, so `renv::update()` against it reports that every
+   package is up to date, whatever CRAN has released since. Moving the date is
+   the update.
 
    ```r
+   l <- renv::lockfile_read("R/renv.lock")
+   l <- renv::lockfile_modify(l, repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-11-20"))
+   renv::lockfile_write(l, "R/renv.lock")
    renv::update()
    ```
+
+   Use today's date, or an older one deliberately. `lockfile_modify()` is the
+   way to write it: `options(repos =)` followed by a snapshot looks equivalent
+   and is not, because renv resolves packages against the lockfile's
+   repositories rather than `options(repos)`, and the snapshot then rewrites
+   each package's `Repository` field from the name `CRAN` to the literal old
+   URL. Restore survives that, but the records are false, and a URL there
+   becomes binding under `package_repository_resolution: "strict"`.
 
    renv is itself in the lockfile, so `renv::update()` moves renv too, and
    moving renv rewrites `R/renv/activate.R`. Expect that file in the diff, and
@@ -137,10 +152,15 @@ problem to fix.
 
 ## Notes
 
-The lockfile points at `https://packagemanager.posit.co/cran/latest`, with no
-snapshot date. Two people restoring months apart do not get the same library,
-and that is the reason to update deliberately and record the result, rather
-than trust that a restore gives what the lockfile describes.
+A record's `Repository` field is the *name* that `options("repos")` carried when
+that package was installed, which `install.packages()` writes into the installed
+DESCRIPTION and renv copies out. It is not in the source tarball. So a record
+saying `RSPM` is a fossil of another machine's configuration, and three of them
+are in this lockfile. renv passes the field as `prefer` to
+`renv_available_packages_entry()`, a tie-break between repositories that both
+carry the package, so a name matching nothing costs nothing. Leave those
+records alone; reinstalling a working package to correct a field that decides
+nothing is not worth the diff.
 
 The lockfile's `R.Version` field records whoever last ran `snapshot()`. Let
 `snapshot()` write it and mention the change in the commit message if it moves.

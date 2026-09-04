@@ -147,6 +147,36 @@ check_file <- function(path) {
       )
     }
   }
+  # `pcc-account` belongs to the category, and it is necessary as soon as one
+  # tile below it is deployed: showcase.ejs builds the "View app" address from
+  # it, and deploy_matrix.py hands it to the workflow. Testing it here means a
+  # missing account is a failed test, and never a button that points nowhere.
+  for (category in gallery) {
+    deployed <- vapply(
+      category$tiles %||% list(),
+      function(t) !is.null(t$app) && !is.null(t$content_id),
+      logical(1)
+    )
+    if (!any(deployed)) {
+      next
+    }
+    account <- category[["pcc-account"]]
+    if (
+      is.null(account) ||
+        !is.character(account) ||
+        !grepl("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", account)
+    ) {
+      stop(
+        name, ": category \"", category$category, "\" has a deployed tile, and ",
+        "its `pcc-account` is ",
+        if (is.null(account)) "absent" else paste0("\"", account, "\""),
+        ". Write the Connect Cloud account there; the address of every ",
+        "application below it is built from that name.",
+        call. = FALSE
+      )
+    }
+  }
+
   named <- apps[!is.na(apps)]
   dupe_apps <- unique(named[duplicated(named)])
   if (length(dupe_apps) > 0) {

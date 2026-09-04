@@ -1,14 +1,14 @@
 name: Deploy apps
 
-# This workflow publishes the applications in apps/ to Posit Connect Cloud,
-# under the `posit` account, after a merge into main.
+# This workflow publishes the applications in apps/ to Posit Connect Cloud
+# after a merge into main.
 #
-# It holds no list of applications and no content id. apps.yml is the source of
-# truth for both, and `.github/scripts/deploy_matrix.py` turns the tiles of that
-# file into the matrix of the deploy job. A tile deploys when it has `app` and
-# `content_id`, and `deploy` is not false. So an application starts and stops
-# deploying through one edit of apps.yml, in the same place that gives it a card
-# on the page.
+# It holds no list of applications, no content id and no account name. apps.yml
+# is the source of truth for all three, and `.github/scripts/deploy_matrix.py`
+# turns the tiles of that file into the matrix of the deploy job. A tile
+# deploys when it has `app` and `content_id`, and `deploy` is not false. So an
+# application starts and stops deploying through one edit of apps.yml, in the
+# same place that gives it a card on the page.
 #
 # The one manual step is the first deployment of an application, which is what
 # creates the content and its id. README.md explains it. rsconnect cannot find
@@ -137,7 +137,7 @@ jobs:
         env:
           APP: ${{ matrix.app }}
           CONTENT_ID: ${{ matrix.content_id }}
-          PCC_ACCOUNT: posit
+          PCC_ACCOUNT: ${{ matrix.account }}
           PCC_CLIENT_ID: ${{ secrets.PCC_CLIENT_ID }}
           PCC_CLIENT_SECRET: ${{ secrets.PCC_CLIENT_SECRET }}
         run: Rscript .github/scripts/deploy_app.R
@@ -145,5 +145,5 @@ jobs:
       - name: Summary
         if: steps.gate.outputs.go == 'true'
         run: |
-          echo "Deployed **${{ matrix.app }}**: <https://posit-${{ matrix.app }}.share.connect.posit.cloud/>" \
+          echo "Deployed **${{ matrix.app }}**: <https://${{ matrix.account }}-${{ matrix.app }}.share.connect.posit.cloud/>" \
             >> "$GITHUB_STEP_SUMMARY"

@@ -5,7 +5,7 @@ workflow holds no list of applications and no content id. This script reads the
 tiles and prints the ones to deploy, as the JSON that a GitHub Actions matrix
 takes:
 
-    [{"app": "genescout", "content_id": "0198f3c2-..."}]
+    [{"app": "genescout", "content_id": "0198f3c2-...", "account": "posit"}]
 
 A tile deploys when it has `app` and `content_id`, and `deploy` is not false.
 Every other tile is either a description with no code in this repository, an
@@ -19,6 +19,10 @@ mistake here deploys the wrong code, or nothing at all, and a workflow that
 silently deploys nothing looks exactly like a workflow with nothing to do.
 
   - The file is a list of categories, and each one holds a list of tiles.
+  - `pcc-account` is on the category, and it is present whenever a tile below
+    it deploys. It is the account that publishes, and Connect Cloud builds the
+    address of the application from it, so the workflow must not carry its own
+    copy.
   - `app` is a string, and it names a directory in apps/ that holds a
     manifest.json. It must also be usable in a hostname, because the address of
     the deployment is built from it.
@@ -52,6 +56,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # cannot begin or end with a hyphen.
 APP = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 
+# The Connect Cloud account name. It is the other half of the hostname label,
+# so it takes the same characters as `app`.
+ACCOUNT = APP
+
 # A Connect Cloud content id, for example
 # 01a068f2-9d80-fb53-2bd6-e200435e2c95. The shape of a UUID, in lower case.
 CONTENT_ID = re.compile(r"^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$")
@@ -82,7 +90,7 @@ def tiles(path, problems):
             if not isinstance(tile, dict):
                 problems.append(f"{label}: tile {j + 1} is not a mapping.")
                 continue
-            found.append(tile)
+            found.append((tile, category))
     return found
 
 
@@ -91,8 +99,9 @@ def matrix(path, root=REPO_ROOT, log=sys.stderr):
     entries = []
     seen = {}
 
-    for tile in tiles(path, problems):
+    for tile, category in tiles(path, problems):
         label = tile.get("title", "<untitled>")
+        account = category.get("pcc-account")
         app = tile.get("app")
         content_id = tile.get("content_id")
         deploy = tile.get("deploy", True)
@@ -145,8 +154,22 @@ def matrix(path, root=REPO_ROOT, log=sys.stderr):
             print(f"WAIT  {app}: no `content_id` in apps.yml yet", file=log)
             continue
 
-        entries.append({"app": app, "content_id": content_id})
-        print(f"DEPLOY {app}: {content_id}", file=log)
+        # Only a tile that deploys needs the account, so a category of tiles
+        # with no code needs no `pcc-account`.
+        if not isinstance(account, str) or not ACCOUNT.match(account):
+            problems.append(
+                f"{label}: deploys, and `pcc-account` of its category is "
+                f"{account!r}. Write the Connect Cloud account there; the "
+                f"address of the application is built from it."
+            )
+            continue
+
+        entries.append({"app": app, "content_id": content_id, "account": account})
+        print(
+            f"DEPLOY {app}: {content_id} at "
+            f"https://{account}-{app}.share.connect.posit.cloud/",
+            file=log,
+        )
 
     if problems:
         raise SystemExit("apps.yml:\n" + "\n".join(f"  - {p}" for p in problems))

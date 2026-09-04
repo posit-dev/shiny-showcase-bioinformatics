@@ -20,11 +20,16 @@
 
 app <- Sys.getenv("APP")
 contentId <- Sys.getenv("CONTENT_ID")
-account <- Sys.getenv("PCC_ACCOUNT", "posit")
+account <- Sys.getenv("PCC_ACCOUNT")
 clientId <- Sys.getenv("PCC_CLIENT_ID")
 clientSecret <- Sys.getenv("PCC_CLIENT_SECRET")
 
-stopifnot("APP is empty" = nzchar(app))
+stopifnot(
+  "APP is empty" = nzchar(app),
+  # No default. The account belongs to apps.yml, which the workflow reads
+  # through deploy_matrix.py, so a hard-coded name here would be a second copy.
+  "PCC_ACCOUNT is empty" = nzchar(account)
+)
 
 appDir <- file.path("apps", app)
 manifestPath <- file.path(appDir, "manifest.json")
@@ -122,11 +127,11 @@ if (nzchar(contentId)) {
 #
 # `vanity_name`. It replaces the content id in the address with the name of the
 # application. Connect Cloud prefixes the account name, so `vanity_name` of
-# `genescout` under the `posit` account serves at
+# `genescout` under an account named `posit` serves at
 # https://posit-genescout.share.connect.posit.cloud/. The old address of the
 # content redirects to the new one, so no link breaks. This makes the address of
-# every application a function of its directory name, and `apps.yml` holds no
-# content id.
+# every application a function of PCC_ACCOUNT and the directory name, which is
+# what lets `showcase.ejs` build the same address with no URL written by hand.
 #
 # Both belong to the content and not to a revision, but the application serves
 # each one as it stood at its last publish. So this runs *before* the
@@ -259,10 +264,11 @@ if (!nzchar(contentId)) {
   deployedId <- rsconnect::deployments(appPath = appDir)$appId[[1]]
   applyContentSettings(deployedId)
   cat(sprintf(
-    "\nNew content for %s. Confirm that its access is public, then write this into deploy-apps.yml:\n  - app: %s\n    content_id: \"%s\"\nAddress: https://posit-%s.share.connect.posit.cloud/\n",
+    "\nNew content for %s. Confirm that its access is public, then write this into the tile in apps.yml:\n      app: %s\n      content_id: \"%s\"\nAddress: https://%s-%s.share.connect.posit.cloud/\n",
     app,
     app,
     deployedId,
+    account,
     app
   ))
 }

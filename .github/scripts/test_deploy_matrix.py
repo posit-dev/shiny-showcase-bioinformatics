@@ -23,6 +23,14 @@ from deploy_matrix import matrix  # noqa: E402
 
 TILE = """\
 - category: Applications
+  pcc-account: posit
+  tiles:
+{tiles}
+"""
+
+# The same, with no account on the category.
+NO_ACCOUNT = """\
+- category: Applications
   tiles:
 {tiles}
 """
@@ -63,6 +71,7 @@ def case(name, yaml_body, expect, **kwargs):
 
 
 ID = "01a068f2-9f3b-5219-e7da-701827504414"
+DEPLOYS = f"    - title: genescout\n      app: genescout\n      content_id: \"{ID}\"\n"
 
 
 def main():
@@ -70,7 +79,30 @@ def main():
     case(
         "a tile with app and content_id deploys",
         TILE.format(tiles=f"    - title: genescout\n      app: genescout\n      content_id: \"{ID}\"\n"),
-        [{"app": "genescout", "content_id": ID}],
+        [{"app": "genescout", "content_id": ID, "account": "posit"}],
+    )
+
+    # The account comes from the category, and only a tile that deploys needs
+    # it. Getting this wrong would build an address that points nowhere.
+    case(
+        "a deployed tile needs pcc-account on its category",
+        NO_ACCOUNT.format(tiles=DEPLOYS),
+        "`pcc-account` of its category is None",
+    )
+    case(
+        "pcc-account must be usable in a hostname",
+        TILE.format(tiles=DEPLOYS).replace("pcc-account: posit", "pcc-account: Posit Cloud"),
+        "`pcc-account` of its category is 'Posit Cloud'",
+    )
+    case(
+        "a category with no deployed tile needs no pcc-account",
+        NO_ACCOUNT.format(tiles="    - title: genescout\n      app: genescout\n"),
+        [],
+    )
+    case(
+        "the account is carried into the matrix entry",
+        TILE.format(tiles=DEPLOYS).replace("pcc-account: posit", "pcc-account: someone-else"),
+        [{"app": "genescout", "content_id": ID, "account": "someone-else"}],
     )
 
     # The three ways a tile does not deploy, none of which is an error.
@@ -92,7 +124,7 @@ def main():
     case(
         "deploy true is the default, and may be written",
         TILE.format(tiles=f"    - title: genescout\n      app: genescout\n      content_id: \"{ID}\"\n      deploy: true\n"),
-        [{"app": "genescout", "content_id": ID}],
+        [{"app": "genescout", "content_id": ID, "account": "posit"}],
     )
 
     # The dangerous one. A string is true in Python, so an unchecked
@@ -203,8 +235,8 @@ def main():
         TILE.format(tiles=f"    - title: genescout\n      app: genescout\n      content_id: \"{ID}\"\n")
     )
     assert json.loads(json.dumps(entries)) == entries
-    assert set(entries[0]) == {"app", "content_id"}, entries
-    print("ok   the output is JSON of app and content_id alone")
+    assert set(entries[0]) == {"app", "content_id", "account"}, entries
+    print("ok   the output is JSON of app, content_id and account alone")
 
     print("\nall tests pass")
 

@@ -11,6 +11,19 @@
 # Position in the file is the only control of sequence. There is no `order`
 # field. To move a card on the page, move its block in this file.
 #
+# Category fields
+#   category     required  The section heading.
+#   intro        optional  A paragraph below the heading.
+#   tiles        required  The cards, in the sequence they appear.
+#   pcc-account  required, when any tile in the category has a `content_id`.
+#                          The Posit Connect Cloud account that publishes the
+#                          applications. Connect Cloud puts this name in front
+#                          of the vanity name, so the address of a deployment is
+#                          https://<pcc-account>-<app>.share.connect.posit.cloud/
+#                          showcase.ejs builds the "View app" button from it,
+#                          deploy_matrix.py hands it to the workflow, and
+#                          nothing else records it. Written one time, here.
+#
 # Tile fields
 #   title        required
 #   org          required  The line below the title. The owner, or the parent
@@ -35,12 +48,10 @@
 #                              - text: GitHub
 #                                url: https://github.com/...
 #                          Do not put a "View app" link here. `showcase.ejs`
-#                          makes that button from `app` and `content_id`,
-#                          because the address of an application is a function
-#                          of its directory name:
-#                          https://posit-<app>.share.connect.posit.cloud/
-#                          A URL written by hand can go stale; a derived one
-#                          cannot.
+#                          makes that button from `pcc-account`, `app` and
+#                          `content_id`, because the address of an application
+#                          is a function of those three. A URL written by hand
+#                          can go stale; a derived one cannot.
 #   tech         optional  The stack line below the description. The tiles in
 #                          this file do not use it. The tiles in packages.yml do,
 #                          because the stack of a package is important.
@@ -66,6 +77,7 @@
 # knowledge-graph-viewer, and Genome Explorer from lifescience-shiny-gallery.
 # Their tiles are in the git history, at commit 3194430.
 - category: Applications
+  pcc-account: posit
   tiles:
     - title: tahoe-explorer
       org: Samuel Bharti

@@ -18,15 +18,18 @@ Three things read `apps.yml`, and none of them keeps its own copy:
 |---|---|
 | `showcase.ejs`, through `index.qmd` | The cards, and the derived "View app" address |
 | `R/check.R` | Everything, to test it |
-| `.github/scripts/deploy_matrix.py` | `app`, `content_id` and `deploy`, as the matrix of `deploy-apps.yml` |
+| `.github/scripts/deploy_matrix.py` | `pcc-account`, `app`, `content_id` and `deploy`, as the matrix of `deploy-apps.yml` |
 
 Consequences that are easy to get wrong:
 
 - The address of a deployed application is
-  `https://posit-<app>.share.connect.posit.cloud/`, a function of the `app`
-  field. `showcase.ejs` builds the "View app" button from it. **Never write a
-  "View app" link into `apps.yml`**; `R/check.R` rejects one.
-- `deploy-apps.yml` holds no list of applications and no content id.
+  `https://<pcc-account>-<app>.share.connect.posit.cloud/`, a function of the
+  account on the category and the `app` field. `showcase.ejs` builds the "View
+  app" button from those. **Never write a "View app" link into `apps.yml`**, and
+  **never hard-code the account name**; `R/check.R` rejects the first and
+  `deploy_app.R` has no default for the second.
+- `deploy-apps.yml` holds no list of applications, no content id and no account
+  name.
 - To start, stop or move a deployment, edit `apps.yml`. Nothing else.
 
 ## Two kinds of content, which are easy to confuse
@@ -61,7 +64,8 @@ python .github/scripts/check_secrets.py
 GH_TOKEN=$(gh auth token) python .github/scripts/check_sources.py
 
 # Deploy one application by hand. RENV_CONFIG_AUTOLOADER_ENABLED matters:
-# without it renv hides the rsconnect that this needs.
+# without it renv hides the rsconnect that this needs. PCC_ACCOUNT has no
+# default, and its value is the `pcc-account` of the category in apps.yml.
 RENV_CONFIG_AUTOLOADER_ENABLED=false APP=genescout PCC_ACCOUNT=posit \
   CONTENT_ID=<id from apps.yml> Rscript .github/scripts/deploy_app.R
 ```

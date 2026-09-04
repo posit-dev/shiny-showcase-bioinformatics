@@ -63,8 +63,8 @@ holds R code.
 script writes them. Quarto reads each file and makes a grid of cards with the
 `showcase.ejs` template.
 
-`apps.yml` is also the source of truth for the deployments. Its `app`,
-`content_id` and `deploy` fields decide which applications
+`apps.yml` is also the source of truth for the deployments. Its `pcc-account`,
+`app`, `content_id` and `deploy` fields decide which applications
 `.github/workflows/deploy-apps.yml` publishes, and where. Nothing else records
 that, so nothing else can disagree with it. `CLAUDE.md` states the rule, and
 "Deployment to Connect Cloud" below describes the workflow.
@@ -80,6 +80,7 @@ card on the page, move its block in the file.
 | `category` | required | The section heading. Its lowercase-hyphenated form is the anchor |
 | `intro` | optional | A paragraph below the heading |
 | `tiles` | required | The cards, in the sequence they appear |
+| `pcc-account` | required, when a tile below it has a `content_id` | The Connect Cloud account that publishes. Every address below the category is built from it |
 
 ### Tile fields
 
@@ -119,10 +120,11 @@ Perturbation. They came from `posit-dev/lifescience-shiny-gallery`, which is
 not public.
 
 **Do not write a "View app" link.** `showcase.ejs` makes that button itself,
-from `app` and `content_id`, and it puts the button first. The address of a
-deployment is `https://posit-<app>.share.connect.posit.cloud/`, a function of
-the directory name, so a URL written by hand is a second copy of a value that
-the file already holds. `R/check.R` rejects one.
+from `pcc-account`, `app` and `content_id`, and it puts the button first. The
+address of a deployment is
+`https://<pcc-account>-<app>.share.connect.posit.cloud/`, a function of values
+the file already holds, so a URL written by hand is a second copy of them.
+`R/check.R` rejects one.
 
 Make sure that each link gives status 200 before you add it. A dead link on a
 card is worse than no link.
@@ -283,9 +285,12 @@ both, and `.github/scripts/deploy_matrix.py` turns its tiles into the matrix of
 the deploy job:
 
 ```yaml
-- title: genescout
-  app: genescout
-  content_id: "01a068f2-...."
+- category: Applications
+  pcc-account: posit
+  tiles:
+    - title: genescout
+      app: genescout
+      content_id: "01a068f2-...."
 ```
 
 A tile deploys when it has `app` and `content_id`, and `deploy` is not false. So
@@ -310,14 +315,19 @@ request, through the `apps.yml` job of `checks.yml`.
 
 ### The address of an application
 
-Every deployment serves at `https://posit-<app>.share.connect.posit.cloud/`,
-where `<app>` is the name of the directory in `apps/`.
+Every deployment serves at
+`https://<pcc-account>-<app>.share.connect.posit.cloud/`, where `<app>` is the
+directory in `apps/` and `<pcc-account>` is the account on the category.
 
 `deploy_app.R` sets that address, with the `vanity_name` field of the content.
 Connect Cloud puts the account name in front of the value, so `vanity_name` of
-`genescout` becomes `posit-genescout`. The original address of the content, the
-one with the content id in it, redirects to the new one, so a change breaks no
-link.
+`genescout` under the `posit` account becomes `posit-genescout`. The original
+address of the content, the one with the content id in it, redirects to the new
+one, so a change breaks no link.
+
+The account is written one time, in `apps.yml`. `showcase.ejs` builds the
+button from it, `deploy_matrix.py` puts it in the matrix, and `deploy_app.R`
+takes it from `PCC_ACCOUNT` with no default. Nothing hard-codes it.
 
 The script also sets `default_robots_policy` to `allow_all`. Connect Cloud
 creates content with `disallow_all`, and this is a gallery, so the applications

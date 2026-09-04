@@ -1,0 +1,149 @@
+name: Deploy apps
+
+# This workflow publishes the applications in apps/ to Posit Connect Cloud,
+# under the `posit` account, after a merge into main.
+#
+# It holds no list of applications and no content id. apps.yml is the source of
+# truth for both, and `.github/scripts/deploy_matrix.py` turns the tiles of that
+# file into the matrix of the deploy job. A tile deploys when it has `app` and
+# `content_id`, and `deploy` is not false. So an application starts and stops
+# deploying through one edit of apps.yml, in the same place that gives it a card
+# on the page.
+#
+# The one manual step is the first deployment of an application, which is what
+# creates the content and its id. README.md explains it. rsconnect cannot find
+# existing content by name on Connect Cloud, and its appId argument does not
+# work there either, so the id in a local deployment record is the only way to
+# identify content from a runner that holds no record.
+#
+# The path filter is safe here, unlike the one that checks.yml deliberately
+# omits. A test that does not operate gives a false result; a deployment that
+# does not operate leaves the previous deployment in place.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "apps.yml"
+      - ".github/workflows/deploy-apps.yml"
+      - ".github/scripts/deploy_app.R"
+      - ".github/scripts/deploy_matrix.py"
+  workflow_dispatch:
+
+# Two runs must not publish the same content at the same time, so every run of
+# this workflow is in one group. A new run cancels the run in progress: the
+# newer commit is the one worth deploying, and waiting would only publish the
+# older code second.
+#
+# The risk this accepts: a publish cancelled in the middle can leave content
+# with no current revision, which is the state that `ensureFreshBundle()` in
+# deploy_app.R repairs. CLAUDE.md explains it. The repair runs on every
+# deployment, so a cancelled run costs one extra request on the next one, and
+# not a broken application.
+concurrency:
+  group: deploy-apps
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # One cheap job reads apps.yml, so the deploy jobs below do not each parse it,
+  # and so a mistake in that file fails once, in one place, with one message.
+  matrix:
+    name: Read apps.yml
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.matrix.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install "ruamel.yaml>=0.18"
+
+      - id: matrix
+        run: python .github/scripts/deploy_matrix.py
+
+  deploy:
+    name: ${{ matrix.app }}
+    needs: matrix
+    # An empty matrix is an error in GitHub Actions, not an empty run, so the
+    # job does not start when apps.yml asks for no deployment.
+    if: needs.matrix.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+
+    # Each application is independent, so they deploy in parallel, and
+    # fail-fast is false. One application with a broken manifest must not stop
+    # the other deployments.
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.apps) }}
+
+    env:
+      # The repository .Rprofile activates renv, and renv would hide the
+      # rsconnect that the step below installs. The project library holds the
+      # packages of the gallery tools, and this job needs none of them.
+      RENV_CONFIG_AUTOLOADER_ENABLED: "false"
+
+    steps:
+      # The change test below reads the history.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to deploy
+        id: gate
+        env:
+          APP: ${{ matrix.app }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          # A manual run deploys every application that apps.yml configures. A
+          # push deploys only the applications it touched, and any application
+          # whose entry in apps.yml changed. `before` is absent on a manual run,
+          # and it names a missing commit after a force push; in both cases the
+          # test is unavailable, so the application deploys.
+          if [ "${{ github.event_name }}" = "push" ] \
+            && git cat-file -e "$BEFORE" 2>/dev/null; then
+            changed=$(git diff --name-only "$BEFORE" "$SHA")
+            if ! grep -q "^apps/$APP/" <<< "$changed" \
+              && ! grep -qx "apps.yml" <<< "$changed"; then
+              echo "go=false" >> "$GITHUB_OUTPUT"
+              echo "$APP is unchanged in this push." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
+
+          echo "go=true" >> "$GITHUB_OUTPUT"
+
+      - uses: r-lib/actions/setup-r@v2
+        if: steps.gate.outputs.go == 'true'
+        with:
+          use-public-rspm: true
+
+      # This job needs rsconnect alone. deploy_app.R deploys from the committed
+      # manifest.json, so no dependency of the application installs here.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        if: steps.gate.outputs.go == 'true'
+        with:
+          packages: any::rsconnect
+
+      - name: Deploy to Connect Cloud
+        if: steps.gate.outputs.go == 'true'
+        env:
+          APP: ${{ matrix.app }}
+          CONTENT_ID: ${{ matrix.content_id }}
+          PCC_ACCOUNT: posit
+          PCC_CLIENT_ID: ${{ secrets.PCC_CLIENT_ID }}
+          PCC_CLIENT_SECRET: ${{ secrets.PCC_CLIENT_SECRET }}
+        run: Rscript .github/scripts/deploy_app.R
+
+      - name: Summary
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          echo "Deployed **${{ matrix.app }}**: <https://posit-${{ matrix.app }}.share.connect.posit.cloud/>" \
+            >> "$GITHUB_STEP_SUMMARY"

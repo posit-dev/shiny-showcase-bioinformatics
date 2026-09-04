@@ -30,6 +30,31 @@ jobs:
 
       - run: python .github/scripts/check_manifests.py
 
+  apps_yml:
+    name: apps.yml describes the deployments correctly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install "ruamel.yaml>=0.18"
+
+      # The tests of the program come first. Its exit status is the only
+      # assertion that the step below makes, so a test that stopped working
+      # would turn this job green for every apps.yml.
+      - run: python .github/scripts/test_deploy_matrix.py
+
+      # apps.yml is the source of truth for which applications deploy and where.
+      # This is the same program that deploy-apps.yml operates to build its
+      # matrix, so a mistake in those fields fails here, on the pull request,
+      # and not on main with a deployment half done. It exits non-zero for a
+      # tile whose `app`, `content_id` or `deploy` has the wrong shape; the
+      # docstring of the script lists what it tests.
+      - run: python .github/scripts/deploy_matrix.py
+
   sources:
     name: sources.yml matches the releases
     runs-on: ubuntu-latest

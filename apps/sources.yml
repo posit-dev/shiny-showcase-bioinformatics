@@ -103,6 +103,16 @@ apps:
   # The manifest of this application names its LICENSE, README.md and CITATION
   # files. Therefore the list below contains them, although a deployment does
   # not need them.
+  #
+  # .Rprofile of this application carries a local patch, and it is the one
+  # exception to "never edit a vendored directory". At v2.3.1 the file reads
+  # `is.na(repos["biobouncer"])`, which is `logical(0)` when `getOption("repos")`
+  # is empty, and `if (logical(0))` is an error. Connect Cloud starts R that
+  # way, so the application failed at startup on every deployment. The patch
+  # uses `!("biobouncer" %in% names(repos))`, and the checksum of the file in
+  # manifest.json is the patched one. The next vendor run of this application
+  # discards both. Read .Rprofile of the new release before you merge that pull
+  # request: if it still holds the `is.na` form, apply this patch again.
   - name: variant-reviewer
     repo: samuelbharti/variant-reviewer
     ref: "v2.3.1"

@@ -49,6 +49,13 @@ edit those directories here**; the next vendor run discards the change. The four
 `lifescience-shiny-gallery` applications are local, and this repository is their
 home.
 
+One exception exists, and it is written beside its entry in `apps/sources.yml`:
+`apps/variant-reviewer/.Rprofile` is patched here, because at v2.3.1 the file
+stops R at startup on Connect Cloud and the application served nothing. A patch
+of a vendored file is temporary by construction, so it must carry a comment in
+`sources.yml` saying what to check in the next release. Prefer a fix in the
+source repository; patch here only when the application is dead without it.
+
 ## Commands
 
 ```bash

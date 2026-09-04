@@ -42,7 +42,8 @@ Consequences that are easy to get wrong:
 `apps.yml` is one file at the root. `apps/` is a directory. A tile can exist
 with no code, and code can exist with no tile.
 
-Vendored applications (`genescout`, `tahoe-explorer`, `variant-reviewer`) come
+Vendored applications (`genescout`, `tahoe-explorer`, `variant-reviewer`,
+`gene-list-builder`, `plotomics-live`) come
 from their own repositories through `.github/workflows/vendor-apps.yml`. **Never
 edit those directories here**; the next vendor run discards the change. The four
 `lifescience-shiny-gallery` applications are local, and this repository is their

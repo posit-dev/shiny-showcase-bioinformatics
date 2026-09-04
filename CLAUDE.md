@@ -121,14 +121,26 @@ none of them, so `deploy_app.R` calls the API directly through
    The service credentials of this repository fail that test, and every deploy
    job of run 33903066870 stopped there with `Account "posit" is visible to
    these credentials but does not grant publish permission.` There is no
-   argument for the account id, on 1.11.0 or on main. So `deploy_app.R` does
-   the two steps that function performs around the lookup, and skips the
-   lookup: `cloudAuthClient()$exchangeClientCredentials()`, then
+   argument for the account id, on 1.11.0 or on main. So `deploy_app.R` makes
+   the documented call first, and when it aborts it does the two steps that
+   function performs around the lookup and skips the lookup:
+   `cloudAuthClient()$exchangeClientCredentials()`, then
    `registerAccount(accountId = PCC_ACCOUNT_ID)`. The id is what the record
-   holds and what the API needs; the name is only the lookup key.
+   holds and what the client sends as `account_id`; the name is only the lookup
+   key.
 
-   ponytail: remove the work-around when the function takes an account id, or
-   when `GET /v1/accounts` reports `content:create` for service credentials.
+   **The `account` argument in the Posit documentation is `accountName`.** The
+   example at
+   <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>
+   writes `account = "<YOUR_ACCOUNT_HERE>"`, and that is not a formal of the
+   function: it partial-matches `accountName`, the only formal beginning with
+   "account". Verified with `match.call()`. So the documented call and the one
+   that failed are one call, and following the documentation does not avoid
+   this fault.
+
+   ponytail: delete the fallback and keep the documented call when
+   `GET /v1/accounts` reports `content:create` for service credentials, or when
+   the function takes an account id.
 
 Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 `current_revision` fault below.

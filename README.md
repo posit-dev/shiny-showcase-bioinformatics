@@ -452,19 +452,31 @@ secrets:
 | `PCC_CLIENT_SECRET` | The client secret |
 | `PCC_ACCOUNT_ID` | The id of the account that publishes, the one that `pcc-account` names |
 
-The account id is the third one because `deploy_app.R` registers the account by
-id. `rsconnect::connectCloudClientCredentials()` takes the account by *name*,
-and registers it only when `GET /v1/accounts` advertises `content:create` on
-it, which it does not for these credentials:
+The third one is a fallback. `deploy_app.R` makes the documented call first:
+
+```r
+rsconnect::connectCloudClientCredentials(
+  clientId = ..., clientSecret = ..., account = "posit"
+)
+```
+
+That call takes the account by name, and registers it only when
+`GET /v1/accounts` advertises `content:create` on it, which it does not for
+these credentials:
 
 ```
 Account "posit" is visible to these credentials but does not grant
 publish permission.
 ```
 
-The name is still in `apps.yml`, as `pcc-account`, and it is still the only
-copy of the name. The id is in a secret because a credential is what it belongs
-to, and it changes when the credential does.
+When it aborts, the script registers the account from `PCC_ACCOUNT_ID`
+instead, which skips the lookup. Either way it then prints the accounts and
+permissions that Connect Cloud reports, so a later publish failure names its
+cause.
+
+The account *name* is still in `apps.yml`, as `pcc-account`, and that is still
+the only copy of it. The id is in a secret because it belongs to the
+credential, and it changes when the credential does.
 
 ### Git-backed publishing is the other option
 

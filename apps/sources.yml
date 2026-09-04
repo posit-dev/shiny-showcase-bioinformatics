@@ -148,6 +148,29 @@ apps:
       - LICENSE
       - README.md
 
+  # The manifest of this application names its LICENSE, README.md and the other
+  # community files, so the list below contains them. It does not name
+  # .Rprofile, which only calls renv/activate.R, and Connect Cloud installs the
+  # packages itself.
+  - name: recount-explorer
+    repo: samuelbharti/recount-explorer
+    ref: "v0.1.1"
+    include:
+      - app.R
+      - manifest.json
+      - renv.lock
+      - DESCRIPTION
+      - _brand.yml
+      - R
+      - data
+      - www
+      - LICENSE
+      - README.md
+      - CITATION.cff
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - SECURITY.md
+
   # www/ of this application is build output, and it is 31 MB. Vite makes it
   # from srcts/, and the release contains the result. The list below does not
   # copy srcts/, because Connect Cloud operates no build step.

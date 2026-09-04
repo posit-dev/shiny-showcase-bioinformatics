@@ -1,0 +1,78 @@
+# Brand definition for Recount Explorer, in the brand.yml format.
+# https://posit-dev.github.io/brand-yml/
+#
+# This is the one place colours are decided. bslib reads it to build the
+# Bootstrap theme, and R/logic_brand.R reads the same file so the ggplot2
+# figures use the same palette. Change a colour here and both follow.
+#
+# The palette is coffee: dark roasted browns against cream, with caramel as the
+# accent instead of the usual Bootstrap blue.
+
+meta:
+  name: Recount Explorer
+  link:
+    home: https://github.com/samuelbharti/recount-explorer
+
+color:
+  # Named colours. Every role below refers to one of these, so the names are
+  # the vocabulary the rest of the app uses.
+  palette:
+    espresso: "#2B1D14"
+    roast: "#4A3226"
+    coffee: "#6F4A32"
+    caramel: "#8A5A3B"
+    cinnamon: "#A8734A"
+    latte: "#C4A484"
+    crema: "#D9C4A9"
+    foam: "#E7DACA"
+    cream: "#FBF7F2"
+    steam: "#F5EFE7"
+    # Roles that need to read as themselves rather than as coffee. Kept warm
+    # so they sit beside the browns without clashing.
+    sage: "#5C7B4E"
+    amber: "#B5822E"
+    brick: "#9E3B32"
+    slate: "#7C6A5C"
+    # Dark mode. Bootstrap inverts on its own, but the plots need real values,
+    # so the dark variants are named here rather than computed.
+    espresso-dark: "#1F1611"
+    roast-dark: "#2A1E17"
+    grounds: "#3A2A20"
+    tan: "#C89B6E"
+
+  foreground: espresso
+  background: cream
+  primary: caramel
+  secondary: slate
+  success: sage
+  info: coffee
+  warning: amber
+  danger: brick
+
+typography:
+  fonts:
+    - family: system-ui
+      source: system
+  base:
+    family: system-ui
+    line-height: 1.5
+  headings:
+    family: system-ui
+    weight: 600
+  monospace:
+    family: ui-monospace
+
+defaults:
+  bootstrap:
+    defaults:
+      border-radius: "0.5rem"
+      # bslib's own dashboard styling resets this back to empty for every
+      # card() (the .bslib-card class), so the tint that matters is the
+      # override in www/app.css, not this variable. Left as transparent so
+      # `bs_get_variables()` still reports something sane.
+      card-cap-bg: "transparent"
+      # Bootstrap takes link colours from primary. Caramel on cream is a
+      # little light for a run of body text, so links use the darker coffee.
+      # Palette entries are available to Sass with a brand- prefix.
+      link-color: "$brand-coffee"
+      link-hover-color: "$brand-roast"

@@ -212,10 +212,25 @@ start. `deploy_app.R` takes the value and stops. Do not remove that check.
 
 **A 200 from the address is not proof either.** Connect Cloud answers for
 content whose application failed to start, so `curl -o /dev/null -w
-'%{http_code}'` says 200 for a broken application. Read the body: a working
-application here returns tens of kilobytes of Shiny and bslib assets, and a
-broken one returned 61 bytes. `apps/variant-reviewer` was broken from its first
-deployment and nobody noticed, because both signals said it was fine.
+'%{http_code}'` says 200 for a broken application, and so does the *size* of
+the body: a dead application serves Connect Cloud's spinner page, about 5 kB.
+Read the body instead, and look at one line of it:
+
+```bash
+curl -s https://posit-<app>.share.connect.posit.cloud/ | head -5
+```
+
+A live application answers with `<base href="_w_<worker id>/">` in the head. A
+dead one answers with `<title>Posit Connect Cloud</title>` and a CSS spinner.
+`apps/variant-reviewer` was broken from its first deployment and nobody
+noticed, because every other signal said it was fine.
+
+**A fix that fails to deploy is not retried by the next push.** `deploy-apps.yml`
+deploys an application only when the push touched `apps/<app>/` or `apps.yml`,
+so after a failed deploy job every later push reports `<app> is unchanged in
+this push` and the run is green while the fix sits undeployed. That is how the
+`.Rprofile` patch of 1fe339b never reached Connect Cloud. After a failed deploy
+job, run the workflow by hand: `gh workflow run deploy-apps.yml`.
 
 ### This repository is public
 

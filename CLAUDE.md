@@ -107,6 +107,9 @@ none of them, so `deploy_app.R` calls the API directly through
    The content id is the only stable identifier.
 4. **`upload = FALSE`** fails with `object 'bundle' not found`.
 
+Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
+`current_revision` fault below.
+
 ### The publish state machine
 
 - `default_robots_policy` and `vanity_name` belong to the content, but the
@@ -124,8 +127,8 @@ none of them, so `deploy_app.R` calls the API directly through
 - **A PATCH of the content creates no revision, and is safe**, before a
   deployment or after one.
 - **`POST /contents/{id}/republish` is not safe.** It can leave the content with
-  no `current_revision` and a *published* `next_revision`, permanently.
-  `apps/variant-reviewer` is in that state. Do not call it.
+  no `current_revision` and a *published* `next_revision`, permanently. Do not
+  call it. Filed as rstudio/rsconnect#1370.
 
 ### `Invalid token`, and the content with no current revision
 
@@ -149,12 +152,28 @@ one hour after it was minted, so **every** deployment of such content fails with
 is the repair: it creates a pending revision with a fresh token, which the
 deployment then finds. `ensureFreshBundle()` in `deploy_app.R` does exactly
 that, and only for content in this state. Deleting and recreating the content is
-*not* necessary.
+*not* necessary, and deleting is not free: the delete is soft, `getContent()`
+then aborts with "Content is pending deletion", and only the vanity name is
+released at once.
 
 Dead ends, for the record: `POST /publish`, a second `republish`,
 `deployApp(upload = FALSE)`, and
 `POST /revisions/{id}/refresh_upload_url` (HTTP 409, "Revision has already been
 published").
+
+### A green job is not a working application
+
+**`deployApp()` does not signal a failed publish.** It prints `Deployment
+failed with error: ...` and returns `FALSE` *invisibly*, so a script that
+ignores the value exits 0 for an application that uploaded and then failed to
+start. `deploy_app.R` takes the value and stops. Do not remove that check.
+
+**A 200 from the address is not proof either.** Connect Cloud answers for
+content whose application failed to start, so `curl -o /dev/null -w
+'%{http_code}'` says 200 for a broken application. Read the body: a working
+application here returns tens of kilobytes of Shiny and bslib assets, and a
+broken one returned 61 bytes. `apps/variant-reviewer` was broken from its first
+deployment and nobody noticed, because both signals said it was fine.
 
 ### Facts about this account
 

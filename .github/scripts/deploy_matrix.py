@@ -50,10 +50,10 @@ from ruamel.yaml import YAML
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# The name of a directory in apps/, and the label in the address of the
-# deployment: https://posit-<app>.share.connect.posit.cloud/. Connect Cloud
-# permits letters, digits and hyphens in a vanity name, and a hostname label
-# cannot begin or end with a hyphen.
+# The name of a directory in apps/, and half of the label in the address of the
+# deployment: https://<pcc-account>-<app>.share.connect.posit.cloud/. Connect
+# Cloud permits letters, digits and hyphens in a vanity name, and a hostname
+# label cannot begin or end with a hyphen.
 APP = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 
 # The Connect Cloud account name. It is the other half of the hostname label,

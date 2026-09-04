@@ -243,7 +243,15 @@ if (nzchar(contentId)) {
   ensureFreshBundle(contentId)
 }
 
-rsconnect::deployApp(
+# deployApp() does not signal a failed publish. It prints "Deployment failed
+# with error: ..." and returns FALSE, invisibly, so a script that ignores the
+# value exits 0 for an application that uploaded correctly and then failed to
+# start. This job would have been green for a deployment that never ran.
+#
+# So take the value and stop. Connect Cloud installs the packages and starts
+# the application after the upload, and that is where an application with a
+# broken .Rprofile or an unresolvable package fails.
+deployed <- rsconnect::deployApp(
   appDir = appDir,
   manifestPath = manifestPath,
   appName = app,
@@ -254,6 +262,12 @@ rsconnect::deployApp(
   forceUpdate = TRUE,
   logLevel = "verbose"
 )
+if (!isTRUE(deployed)) {
+  stop(sprintf(
+    "%s did not deploy. The log above holds the reason; a failure after the upload is usually the application failing to start on Connect Cloud.",
+    app
+  ))
+}
 
 if (!nzchar(contentId)) {
   # deployApp() returns whether it succeeded, not the content, so the id of new

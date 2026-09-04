@@ -134,7 +134,14 @@
         public APIs, with a 3D structure viewer and a ClinVar typeahead.
       thumbnail: variant-reviewer.png
       app: variant-reviewer
-      content_id: "01a068f2-9d29-c235-3add-db7c42b59fd7"
+      # No content_id, and deploy is false: this application does not start on
+      # Connect Cloud. Its .Rprofile reads `repos["biobouncer"]`, and
+      # `getOption("repos")` is empty there, so R fails at startup with
+      # "argument is of length zero" and the application never serves. The file
+      # is vendored, so the fix belongs in samuelbharti/variant-reviewer; see
+      # the issue in this repository. Content 01a06d89-069b-1b9b-e8a7-be4da970cbcf
+      # is waiting for it. Restore the content_id when a release fixes it.
+      deploy: false
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/variant-reviewer

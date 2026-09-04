@@ -152,10 +152,7 @@ none of them, so `deploy_app.R` calls the API directly through
    `display_name` and `name`. The lookup compares `name`, so `posit` is the
    value to pass. Verified against the response.
 
-   Do not paste an account id or a listing of `GET /v1/accounts` into this
-   file, a commit message or a pull request. This repository is public. The id
-   lives in the `PCC_ACCOUNT_ID` secret, and `deploy_app.R` prints the listing
-   into the job log, which is where it belongs.
+   See "This repository is public" below before you print or paste any of this.
 
    ponytail: delete the fallback and the id candidate, and keep the documented
    call, when `GET /v1/accounts` reports `content:create` for service
@@ -228,6 +225,27 @@ content whose application failed to start, so `curl -o /dev/null -w
 application here returns tens of kilobytes of Shiny and bslib assets, and a
 broken one returned 61 bytes. `apps/variant-reviewer` was broken from its first
 deployment and nobody noticed, because both signals said it was fine.
+
+### This repository is public
+
+So its Actions logs are public, its pull requests are public, and its history is
+public. Three consequences, and the first one cost real cleanup:
+
+- **Never write an account id anywhere in this repository**, in a file, a commit
+  message, a pull request body or a job log. It belongs in the
+  `PCC_ACCOUNT_ID` secret and nowhere else. `deploy_app.R` prints the account
+  name, the role and whether `content:create` is present, and prints no id.
+- **Never print a listing of `GET /v1/accounts`.** It names every account the
+  credentials can see, including personal ones that have nothing to do with the
+  gallery. Filter it to `PCC_ACCOUNT` first, as `deploy_app.R` does.
+- **A pull request body cannot be un-published.** GitHub keeps every revision,
+  and `userContentEdits` serves the old text to anyone through the API, so
+  editing the body removes nothing. Only GitHub Support can purge it. The same
+  is true of a commit that a force-push orphaned: it stays fetchable by its
+  SHA.
+
+The rule is therefore about the first write, not the cleanup: assume anything
+that reaches GitHub is permanent.
 
 ### Facts about this account
 

@@ -133,28 +133,36 @@ if (nzchar(clientId)) {
       clientId = clientId,
       clientSecret = clientSecret
     )
-    cat(sprintf("Registered account %s by id (%s).\n", account, accountId))
+    cat(sprintf("Registered account %s by id.\n", account))
   }
 
   # What Connect Cloud says about the accounts these credentials can see, so
   # that a permission failure names its cause instead of appearing as a
   # deployment fault. This is the response that the lookup above judged. It is a
   # diagnostic and nothing depends on it, so it must not be what fails the job.
+  #
+  # **Print nothing beyond PCC_ACCOUNT itself.** This repository is public, so
+  # its Actions logs are public. An account id is not ours to publish, and
+  # neither is the name of another account these credentials happen to see. The
+  # name of this one is already public, as `pcc-account` in apps.yml.
   try({
     info <- rsconnect:::accountInfo(account, "connect.posit.cloud")
-    for (a in rsconnect:::clientForAccount(info)$getAccounts()$data) {
-      # `name` is what the lookup compares, and `display_name` is the other
-      # half of the "Posit PBC (posit)" that the Connect Cloud interface shows.
+    visible <- rsconnect:::clientForAccount(info)$getAccounts()$data
+    mine <- Filter(function(a) identical(a$name, account), visible)
+    for (a in mine) {
       cat(sprintf(
-        "  %s %s (%s), %s, role %s: %s\n",
-        if (identical(a$name, account)) "->" else "  ",
-        a$display_name,
+        "%s: role %s, content:create %s\n",
         a$name,
-        a$id,
         a$role,
-        paste(unlist(a$permissions), collapse = ", ")
+        "content:create" %in% unlist(a$permissions)
       ))
     }
+    cat(sprintf(
+      "%d account(s) visible to these credentials, %d named %s.\n",
+      length(visible),
+      length(mine),
+      account
+    ))
   })
 }
 

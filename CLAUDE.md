@@ -172,6 +172,42 @@ Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
   no `current_revision` and a *published* `next_revision`, permanently. Do not
   call it. Filed as rstudio/rsconnect#1370.
 
+### `Unauthenticated`, on a deploy from your own machine
+
+The `posit` account has `sso_enabled: true`, and **Connect Cloud rejects every
+write from a token that did not come through the organization's SSO**. Reads
+are unaffected, and so is `connectCloudUser()`: it registers the account and
+prints `Registered account.` The failure appears later, on the first PATCH.
+
+rsconnect reports only the `error` field, so it prints `HTTP status 401` and
+`Unauthenticated.` and nothing else. The body carries the reason, and the way
+to see it is to repeat the request with curl:
+
+```json
+{"error":"Unauthenticated.","error_type":"sso_required",
+ "error_args":{"idp":"lucid-auth:idps:...","logged_in":true}}
+```
+
+`logged_in: true` with `error_type: sso_required` is the signature: the browser
+session behind the device login was a plain login, not an SSO login. The remedy
+is to sign in to the organization through SSO at
+<https://connect.posit.cloud/posit/> first, and then run
+`rsconnect::connectCloudUser()` again so the device flow mints a token from
+that session.
+
+Two things this is **not**, and both look like it:
+
+- It is not fault 5 above. That one is a client credential with no publish
+  role, it names the account in the message, and it aborts in
+  `connectCloudClientCredentials()` before any request. This one aborts in
+  `PATCH()`, and `GET /v1/accounts` shows `role: "publisher"` on the account.
+- It is not a stale token. A token minted seconds earlier fails the same way,
+  and a refresh does not help. `withTokenRefreshRetry` refreshes and retries,
+  so the backtrace shows the *second* 401, not the first.
+
+A read that succeeds proves nothing about the token. Content here is public, so
+`GET /v1/contents/{id}` answers 200 with no credentials at all. Test a write.
+
 ### `Invalid token`, and the content with no current revision
 
 This one cost the most, and the cause is not where it appears to be.

@@ -21,24 +21,45 @@ The structure follows
 repository adds three things to the card template: optional links, a `fit`
 control, and `intro` text for each category.
 
-> [!CAUTION]
-> Do not make this repository public yet. Correct these two problems first.
->
-> 1. The site shows screenshots of private applications. `gene-list-builder` is
->    private. The four `lifescience-shiny-gallery` applications are
->    Posit-internal, because that repository is not public, although its license
->    is MIT. The README of `comp-bio-apps` says that this material needs a
->    sanitization pass first.
-> 2. `apps/` holds a copy of the source code of those applications, and not only
->    the screenshots.
->
-> The repository is private, and nothing publishes the site automatically.
->
-> The same caution applies to a deployment. The workflow publishes an
-> application to a public address, and to a search engine. The four
-> `lifescience-shiny-gallery` applications carry `deploy: false` in `apps.yml`,
-> and they must keep it until the sanitization pass. The five applications with
-> a public repository and a DOI are deployed.
+> [!IMPORTANT]
+> The four `lifescience-shiny-gallery` applications — DE Explorer, Signature
+> Scoring, Drug Perturbation and Genome Explorer — carry `deploy: false` in
+> `apps.yml`, and they keep it until a sanitization pass. Their source
+> repository is Posit-internal, so their code and screenshots are here but
+> their tiles carry no links, and nothing publishes them to a public address.
+> Do not remove `deploy: false` from one of them without that pass.
+
+## Source and citation
+
+Five applications have a public repository of their own, and each release is
+archived on Zenodo. Their tiles link to both.
+
+| Application | Source | DOI of the release on the tile |
+|---|---|---|
+| tahoe-explorer | [samuelbharti/tahoe-explorer](https://github.com/samuelbharti/tahoe-explorer) | [10.5281/zenodo.21950641](https://doi.org/10.5281/zenodo.21950641) |
+| genescout | [samuelbharti/genescout](https://github.com/samuelbharti/genescout) | [10.5281/zenodo.21950644](https://doi.org/10.5281/zenodo.21950644) |
+| plotomics-live | [samuelbharti/plotomics-live](https://github.com/samuelbharti/plotomics-live) | [10.5281/zenodo.21950647](https://doi.org/10.5281/zenodo.21950647) |
+| variant-reviewer | [samuelbharti/variant-reviewer](https://github.com/samuelbharti/variant-reviewer) | [10.5281/zenodo.21950635](https://doi.org/10.5281/zenodo.21950635) |
+| gene-list-builder | [samuelbharti/gene-list-builder](https://github.com/samuelbharti/gene-list-builder) | [10.5281/zenodo.21950640](https://doi.org/10.5281/zenodo.21950640) |
+
+Cite the application, and not the address of the deployment. An address moves;
+a DOI does not. The form Zenodo gives, for the release above:
+
+```
+Bharti, S. (2026). Tahoe Explorer: a Shiny app for exploring Tahoe-100M
+metadata (0.1.2). Zenodo. https://doi.org/10.5281/zenodo.21950641
+```
+
+Each DOI in `apps.yml` names **one version**. Zenodo also mints a concept DOI
+for the record, which always resolves to the newest version; the Zenodo page
+shows it under "Cite all versions". Cite the version DOI to name the software a
+piece of work used, and the concept DOI to name the application itself.
+
+The four `lifescience-shiny-gallery` applications have no public source and no
+DOI. Cite this gallery instead, until the sanitization pass gives them one.
+
+The packages in `packages.yml` follow the same convention, and their tiles
+carry the same buttons. Only `biobouncer` has a DOI so far.
 
 ## Two kinds of content
 
@@ -112,12 +133,12 @@ links:
   - text: GitHub
     url: https://github.com/samuelbharti/genescout
   - text: DOI
-    url: https://doi.org/10.5281/zenodo.21352389
+    url: https://doi.org/10.5281/zenodo.21950644
 ```
 
-Three applications have no links: DE Explorer, Signature Scoring and Drug
-Perturbation. They came from `posit-dev/lifescience-shiny-gallery`, which is
-not public.
+Four applications have no links: DE Explorer, Signature Scoring, Drug
+Perturbation and Genome Explorer. They came from
+`posit-dev/lifescience-shiny-gallery`, which is not public.
 
 **Do not write a "View app" link.** `showcase.ejs` makes that button itself,
 from `pcc-account`, `app` and `content_id`, and it puts the button first. The
@@ -233,7 +254,7 @@ applications hold their own `.qmd` files.
 
 | Kind | Applications | Where a change starts |
 |---|---|---|
-| Vendored | `genescout`, `tahoe-explorer`, `variant-reviewer` | The source repository. The workflow copies the release into this repository |
+| Vendored | `genescout`, `tahoe-explorer`, `variant-reviewer`, `gene-list-builder`, `plotomics-live` | The source repository. The workflow copies the release into this repository |
 | Local | `de-explorer`, `signature-scoring`, `drug-perturbation`, `genome-explorer` | Here. This repository is their home |
 
 `apps/sources.yml` lists the vendored applications. It records the source

@@ -14,5 +14,11 @@ apps/*/data/cache/
 # at every level.
 .posit/
 
+# rsconnect writes the same kind of record: one .dcf file per deployment, with
+# the server, the account and the content id. `deployApp()` writes it on your
+# machine and on the runner. deploy-apps.yml holds the ids that the deployment
+# needs, so this directory is output, and git ignores it.
+rsconnect/
+
 # macOS writes this file into any directory that the Finder opens.
 .DS_Store

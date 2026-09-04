@@ -31,7 +31,26 @@
         const fit = tile.fit || (pending ? "contain" : "cover");
         // `links` is optional and may be absent entirely -- a tile with nowhere
         // to point renders no footer rather than a dead button.
-        const links = tile.links || [];
+        //
+        // The "View app" button is derived, and never written in apps.yml. A
+        // deployed application serves at a name that Connect Cloud makes from
+        // the account and the directory in apps/, so the address is a function
+        // of `pcc-account` and `app` and cannot drift from the deployment.
+        // `content_id` is what says the application is published: a tile with
+        // code but no content id has no address yet.
+        //
+        // `pcc-account` is a field of the category, and R/check.R requires it
+        // whenever a tile below it carries a `content_id`, so a missing account
+        // is a failed test and never a broken button.
+        const account = item["pcc-account"];
+        const deployed = tile.app && tile.content_id && account;
+        const links = [
+          ...(deployed
+            ? [{ text: "View app",
+                 url: `https://${account}-${tile.app}.share.connect.posit.cloud/` }]
+            : []),
+          ...(tile.links || []),
+        ];
       %>
       <div class="card border g-col-12 g-col-md-6 g-col-lg-4 mb-4">
         <div class="card-img-top border-bottom">

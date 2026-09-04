@@ -1,9 +1,28 @@
-# The application data of the gallery. A person edits this file by hand, and no
+# The application data of the gallery, and the one source of truth for
+# everything about an application. A person edits this file by hand, and no
 # script writes it.
+#
+# Three things read it:
+#   index.qmd through showcase.ejs        the cards on the page
+#   R/check.R                             the tests of this file
+#   .github/scripts/deploy_matrix.py      which applications deploy, and where
 #
 # Quarto shows the categories and the tiles in the same sequence as this file.
 # Position in the file is the only control of sequence. There is no `order`
 # field. To move a card on the page, move its block in this file.
+#
+# Category fields
+#   category     required  The section heading.
+#   intro        optional  A paragraph below the heading.
+#   tiles        required  The cards, in the sequence they appear.
+#   pcc-account  required, when any tile in the category has a `content_id`.
+#                          The Posit Connect Cloud account that publishes the
+#                          applications. Connect Cloud puts this name in front
+#                          of the vanity name, so the address of a deployment is
+#                          https://<pcc-account>-<app>.share.connect.posit.cloud/
+#                          showcase.ejs builds the "View app" button from it,
+#                          deploy_matrix.py hands it to the workflow, and
+#                          nothing else records it. Written one time, here.
 #
 # Tile fields
 #   title        required
@@ -11,13 +30,28 @@
 #                          project.
 #   description  required
 #   thumbnail    required  A file in thumbnails/, with the name <slug>.png
-#   links        optional  A list of {text, url}. Each one makes a button. No
-#                          application tile uses this field now, because no
-#                          application has a public address. Add the links when
-#                          an application gets one:
+#   app          optional  The name of the directory in apps/ that holds the
+#                          source code. Absent means the tile describes an
+#                          application whose code is not in this repository.
+#                          The title is a display name and the two are not
+#                          always the same, so this field is separate.
+#   content_id   optional  The Connect Cloud content that `app` deploys to.
+#                          Absent means the application is not published yet.
+#                          A person writes it one time, from the output of
+#                          .github/scripts/deploy_app.R. See README.md.
+#   deploy       optional  Default true. `false` keeps the workflow away from an
+#                          application that has both `app` and `content_id`.
+#                          Use it to stop the deployments of one application
+#                          without discarding its content id.
+#   links        optional  A list of {text, url}. Each one makes a button:
 #                            links:
 #                              - text: GitHub
 #                                url: https://github.com/...
+#                          Do not put a "View app" link here. `showcase.ejs`
+#                          makes that button from `pcc-account`, `app` and
+#                          `content_id`, because the address of an application
+#                          is a function of those three. A URL written by hand
+#                          can go stale; a derived one cannot.
 #   tech         optional  The stack line below the description. The tiles in
 #                          this file do not use it. The tiles in packages.yml do,
 #                          because the stack of a package is important.
@@ -43,6 +77,7 @@
 # knowledge-graph-viewer, and Genome Explorer from lifescience-shiny-gallery.
 # Their tiles are in the git history, at commit 3194430.
 - category: Applications
+  pcc-account: posit
   tiles:
     - title: tahoe-explorer
       org: Samuel Bharti
@@ -51,6 +86,8 @@
         leave with a reproducible pull recipe. Summaries push down to DuckDB.
       thumbnail: tahoe-explorer.png
       alt: The Tahoe-100M metadata explorer, with cell-line and driver-gene summaries
+      app: tahoe-explorer
+      content_id: "01a068f2-9d80-fb53-2bd6-e200435e2c95"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/tahoe-explorer
@@ -64,6 +101,8 @@
         An agentic evidence-review workbench. Give it a candidate list and a disease
         context, get back a plausibility-ranked, cited shortlist. Research use only.
       thumbnail: genescout.png
+      app: genescout
+      content_id: "01a068f2-9f3b-5219-e7da-701827504414"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/genescout
@@ -79,6 +118,8 @@
         GPU.
       thumbnail: plotomics-live.png
       alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
+      app: plotomics-live
+      content_id: "01a068f2-9ba1-68a5-a0d5-18fe52babf56"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/plotomics-live
@@ -92,6 +133,15 @@
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
         public APIs, with a 3D structure viewer and a ClinVar typeahead.
       thumbnail: variant-reviewer.png
+      app: variant-reviewer
+      # No content_id, and deploy is false: this application does not start on
+      # Connect Cloud. Its .Rprofile reads `repos["biobouncer"]`, and
+      # `getOption("repos")` is empty there, so R fails at startup with
+      # "argument is of length zero" and the application never serves. The file
+      # is vendored, so the fix belongs in samuelbharti/variant-reviewer; see
+      # the issue in this repository. Content 01a06d89-069b-1b9b-e8a7-be4da970cbcf
+      # is waiting for it. Restore the content_id when a release fixes it.
+      deploy: false
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/variant-reviewer
@@ -107,6 +157,8 @@
         source weights.
       thumbnail: gene-list-builder.png
       alt: A ranked gene list for breast cancer, with a score for each source
+      app: gene-list-builder
+      content_id: "01a068f2-3d44-aed5-22e6-3733524b58d1"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/gene-list-builder
@@ -120,6 +172,10 @@
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
         thresholds and drill from a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
+      app: de-explorer
+      # No content_id, and deploy is false: this application needs a
+      # sanitization pass before it gets a public address. See README.md.
+      deploy: false
       tags: rna-seq, differential expression, tcga
 
     - title: Signature Scoring
@@ -128,6 +184,10 @@
         Condenses each TCGA-BRCA sample into scores for the 50 Hallmark pathways,
         contrasts clinical subtypes, and opens any pathway to the genes driving it.
       thumbnail: signature-scoring.png
+      app: signature-scoring
+      # No content_id, and deploy is false: this application needs a
+      # sanitization pass before it gets a public address. See README.md.
+      deploy: false
       tags: pathway activity, gene sets, msigdb
 
     - title: Drug Perturbation
@@ -136,6 +196,10 @@
         Connectivity scoring against a reference perturbation panel. Rank compounds into
         mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
+      app: drug-perturbation
+      # No content_id, and deploy is false: this application needs a
+      # sanitization pass before it gets a public address. See README.md.
+      deploy: false
       tags: drug repurposing, connectivity, lincs
 
     - title: Genome Explorer
@@ -145,4 +209,8 @@
         recurrence filter, then click a variant to zoom the browser to it.
       thumbnail: genome-explorer.png
       alt: The PIK3CA locus in an igv.js browser, above a table of recurrent variants
+      app: genome-explorer
+      # No content_id, and deploy is false: this application needs a
+      # sanitization pass before it gets a public address. See README.md.
+      deploy: false
       tags: igv, somatic variants, tcga

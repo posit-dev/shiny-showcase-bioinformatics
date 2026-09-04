@@ -31,7 +31,20 @@
         const fit = tile.fit || (pending ? "contain" : "cover");
         // `links` is optional and may be absent entirely -- a tile with nowhere
         // to point renders no footer rather than a dead button.
-        const links = tile.links || [];
+        //
+        // The "View app" button is derived, and never written in apps.yml. A
+        // deployed application serves at a name made from its directory in
+        // apps/, so the address is a function of `app` and cannot drift from
+        // the deployment. `content_id` is what says the application is
+        // published: a tile with code but no content id has no address yet.
+        const deployed = tile.app && tile.content_id;
+        const links = [
+          ...(deployed
+            ? [{ text: "View app",
+                 url: `https://posit-${tile.app}.share.connect.posit.cloud/` }]
+            : []),
+          ...(tile.links || []),
+        ];
       %>
       <div class="card border g-col-12 g-col-md-6 g-col-lg-4 mb-4">
         <div class="card-img-top border-bottom">

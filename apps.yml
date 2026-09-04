@@ -127,6 +127,21 @@
           url: https://doi.org/10.5281/zenodo.21950647
       tags: visualization, webgl, shinyreact, spatial
 
+    - title: recount-explorer
+      org: Samuel Bharti
+      description: >-
+        Browse 18,998 uniformly processed recount3 RNA-seq studies, load one through
+        the recount3 API, and read its quality checks, gene expression and PCA.
+      thumbnail: placeholder.svg
+      alt: The recount3 study catalog, with quality checks and a PCA of one study
+      app: recount-explorer
+      # No content_id: the application is not published yet. Deploy it once by
+      # hand, then write the content id here. See README.md.
+      links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/recount-explorer
+      tags: rna-seq, recount3, bioconductor
+
     - title: variant-reviewer
       org: Samuel Bharti
       description: >-

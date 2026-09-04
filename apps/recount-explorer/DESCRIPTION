@@ -1,0 +1,44 @@
+Package: recount.explorer
+Title: Recount Explorer
+Version: 0.1.1
+Authors@R:
+    person("Samuel", "Bharti", , "samuelbharti.io@gmail.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-4190-7058"))
+Description: A Shiny app for browsing, visualizing and exporting uniformly
+    processed human and mouse RNA-seq studies from the recount3 project.
+    This is an application rather than a library; the DESCRIPTION exists so
+    that renv and CI can resolve dependencies, including the Bioconductor
+    ones.
+License: MIT + file LICENSE
+URL: https://github.com/samuelbharti/recount-explorer
+BugReports: https://github.com/samuelbharti/recount-explorer/issues
+Depends:
+    R (>= 4.2)
+Imports:
+    brand.yml,
+    bsicons,
+    bslib (>= 0.9.1),
+    curl,
+    DT,
+    ggplot2,
+    ggrepel,
+    grDevices,
+    jsonlite,
+    mirai,
+    recount3,
+    scales,
+    shiny (>= 1.9.0),
+    stats,
+    SummarizedExperiment,
+    tools,
+    utils,
+    yaml
+Suggests:
+    lintr,
+    png,
+    testthat (>= 3.0.0),
+    withr
+biocViews: recount3, SummarizedExperiment
+Config/testthat/edition: 3
+Encoding: UTF-8

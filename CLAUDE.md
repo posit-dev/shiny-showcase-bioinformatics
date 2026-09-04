@@ -66,7 +66,9 @@ GH_TOKEN=$(gh auth token) python .github/scripts/check_sources.py
 
 # Deploy one application by hand. RENV_CONFIG_AUTOLOADER_ENABLED matters:
 # without it renv hides the rsconnect that this needs. PCC_ACCOUNT has no
-# default, and its value is the `pcc-account` of the category in apps.yml.
+# default, and its value is the `pcc-account` of the category in apps.yml. With
+# no PCC_CLIENT_ID the script registers no account, and uses the one that
+# connectCloudUser() registered interactively.
 RENV_CONFIG_AUTOLOADER_ENABLED=false APP=genescout PCC_ACCOUNT=posit \
   CONTENT_ID=<id from apps.yml> Rscript .github/scripts/deploy_app.R
 ```
@@ -107,6 +109,26 @@ none of them, so `deploy_app.R` calls the API directly through
    content* instead of updating, for any code that relies on `appName` alone.
    The content id is the only stable identifier.
 4. **`upload = FALSE`** fails with `object 'bundle' not found`.
+5. **`connectCloudClientCredentials()` will not register this account.** It
+   takes the account by *name*, and registers it only when `GET /v1/accounts`
+   advertises `content:create` on it:
+
+   ```r
+   publishable <- filterPublishableAccounts(accounts)   # any permission == "content:create"
+   account <- Find(function(a) identical(a$name, accountName), publishable)
+   ```
+
+   The service credentials of this repository fail that test, and every deploy
+   job of run 33903066870 stopped there with `Account "posit" is visible to
+   these credentials but does not grant publish permission.` There is no
+   argument for the account id, on 1.11.0 or on main. So `deploy_app.R` does
+   the two steps that function performs around the lookup, and skips the
+   lookup: `cloudAuthClient()$exchangeClientCredentials()`, then
+   `registerAccount(accountId = PCC_ACCOUNT_ID)`. The id is what the record
+   holds and what the API needs; the name is only the lookup key.
+
+   ponytail: remove the work-around when the function takes an account id, or
+   when `GET /v1/accounts` reports `content:create` for service credentials.
 
 Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 `current_revision` fault below.
@@ -183,7 +205,10 @@ deployment and nobody noticed, because both signals said it was fine.
 - New content is created with `default_robots_policy: "disallow_all"`, and this
   is a gallery, so `deploy_app.R` sets `allow_all`.
 - The workflow authenticates with `PCC_CLIENT_ID` and `PCC_CLIENT_SECRET`,
-  repository secrets from <https://login.posit.cloud/identity/credentials>.
+  repository secrets from <https://login.posit.cloud/identity/credentials>, and
+  registers the account with `PCC_ACCOUNT_ID`, a third secret. See fault 5
+  above for why the id and not the name. The name stays in `apps.yml`; the id
+  belongs to the credential, and changes when the credential does.
 
 ## Keeping this file current
 

@@ -440,16 +440,31 @@ directory that holds one, so the script writes the record from the content id
 first, with `migrateToConnectCloud()`. That function arrived in 1.11.0, and it
 is the reason for the version requirement.
 
-### The two secrets
+### The three secrets
 
 The workflow authenticates with an OAuth service account, from
-<https://login.posit.cloud/identity/credentials>. The credentials must grant
-publish permission on the `posit` account. Store them as repository secrets:
+<https://login.posit.cloud/identity/credentials>. Store these as repository
+secrets:
 
 | Secret | Value |
 |---|---|
 | `PCC_CLIENT_ID` | The client id |
 | `PCC_CLIENT_SECRET` | The client secret |
+| `PCC_ACCOUNT_ID` | The id of the account that publishes, the one that `pcc-account` names |
+
+The account id is the third one because `deploy_app.R` registers the account by
+id. `rsconnect::connectCloudClientCredentials()` takes the account by *name*,
+and registers it only when `GET /v1/accounts` advertises `content:create` on
+it, which it does not for these credentials:
+
+```
+Account "posit" is visible to these credentials but does not grant
+publish permission.
+```
+
+The name is still in `apps.yml`, as `pcc-account`, and it is still the only
+copy of the name. The id is in a secret because a credential is what it belongs
+to, and it changes when the credential does.
 
 ### Git-backed publishing is the other option
 

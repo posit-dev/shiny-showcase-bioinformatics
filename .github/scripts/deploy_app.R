@@ -16,11 +16,12 @@
 # it deploys only the applications that already have an id.
 #
 # Updating existing content needs rsconnect 1.11.0 or later. The script works
-# around two problems in that version, and each one has a comment below.
+# around several problems in that version, and each one has a comment below.
 
 app <- Sys.getenv("APP")
 contentId <- Sys.getenv("CONTENT_ID")
 account <- Sys.getenv("PCC_ACCOUNT")
+accountId <- Sys.getenv("PCC_ACCOUNT_ID")
 clientId <- Sys.getenv("PCC_CLIENT_ID")
 clientSecret <- Sys.getenv("PCC_CLIENT_SECRET")
 
@@ -78,14 +79,66 @@ installPrimaryFileShim <- function(primaryFile) {
 }
 installPrimaryFileShim(primaryFileFromManifest(manifest))
 
-# An empty client id means an interactive session, where the account is already
-# registered with connectCloudUser().
+# Register the account that the deployment publishes to, by its id.
+#
+# rsconnect::connectCloudClientCredentials() cannot do this. It takes the
+# account by *name*, looks the name up in GET /v1/accounts, and registers only
+# an account that the response advertises `content:create` on:
+#
+#   accounts <- client$getAccounts()$data
+#   publishable <- filterPublishableAccounts(accounts)
+#   account <- Find(function(a) identical(a$name, accountName), publishable)
+#   ... "is visible to these credentials but does not grant publish permission."
+#
+# Service credentials on this account fail that test, and every deploy job of
+# run 33903066870 stopped there. The account id is what the registration
+# actually records and what the API needs, so this takes the id directly and
+# performs the two steps that function performs around the lookup: exchange the
+# client credentials for a token, and write the account record.
+#
+# Neither step is exported, hence the `:::`. The token exchange is
+# RFC 6749 §4.4, and the client_credentials grant returns no refresh token, so
+# `refreshToken` is normally NULL; the client mints a new access token from the
+# client id and secret in the record when the current one expires.
+#
+# An empty client id means an interactive session, where connectCloudUser() has
+# already registered the account.
 if (nzchar(clientId)) {
-  rsconnect::connectCloudClientCredentials(
-    clientId = clientId,
-    clientSecret = clientSecret,
-    accountName = account
+  stopifnot(
+    "PCC_ACCOUNT_ID is empty, and the account cannot be registered by name" =
+      nzchar(accountId)
   )
+  tokens <- rsconnect:::cloudAuthClient()$exchangeClientCredentials(
+    clientId,
+    clientSecret
+  )
+  rsconnect:::registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = account,
+    accountId = accountId,
+    accessToken = tokens$access_token,
+    refreshToken = tokens$refresh_token,
+    clientId = clientId,
+    clientSecret = clientSecret
+  )
+  cat(sprintf("Registered account %s (%s).\n", account, accountId))
+
+  # What Connect Cloud says about the account, so that a permission failure
+  # below names its cause instead of appearing as a deployment fault. This is
+  # the response that connectCloudClientCredentials() judged. It is a
+  # diagnostic and nothing depends on it, so it must not be what fails the job.
+  try({
+    info <- rsconnect:::accountInfo(account, "connect.posit.cloud")
+    for (a in rsconnect:::clientForAccount(info)$getAccounts()$data) {
+      cat(sprintf(
+        "  %s %s (%s): %s\n",
+        if (identical(a$id, accountId)) "->" else "  ",
+        a$name,
+        a$id,
+        paste(unlist(a$permissions), collapse = ", ")
+      ))
+    }
+  })
 }
 
 # Point the local deployment record at the content that CONTENT_ID names.

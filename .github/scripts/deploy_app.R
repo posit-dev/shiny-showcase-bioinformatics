@@ -79,73 +79,43 @@ installPrimaryFileShim <- function(primaryFile) {
 }
 installPrimaryFileShim(primaryFileFromManifest(manifest))
 
-# Register the account that the deployment publishes to.
-#
-# The documented call is the one Connect Cloud publishes at
-# <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>,
-# and `account` is its spelling of the account name:
-#
-#   rsconnect::connectCloudClientCredentials(
-#     clientId = ..., clientSecret = ..., account = "<YOUR_ACCOUNT_HERE>"
-#   )
-#
-# `account` is not a formal of that function. It partial-matches `accountName`,
-# which is the only formal beginning with "account", so the documented spelling
-# and the full one are one call. Confirmed with match.call(). PCC_ACCOUNT
-# carries the name, and its value is the `pcc-account` of the category in
-# apps.yml, which is the name that <https://connect.posit.cloud/whoami> reports.
-#
-# The fallback below exists because that call fails for the service credentials
-# of this repository. It resolves the name against GET /v1/accounts and accepts
-# only an account that the response advertises `content:create` on:
-#
-#   accounts <- client$getAccounts()$data
-#   publishable <- filterPublishableAccounts(accounts)
-#   account <- Find(function(a) identical(a$name, accountName), publishable)
-#   ... "is visible to these credentials but does not grant publish permission."
-#
-# Every deploy job of run 33903066870 stopped there. The account id is what the
-# record actually holds, and what the client sends as `account_id`; the name is
-# only the lookup key. So when the documented call aborts, this performs the two
-# steps it performs around the lookup, and skips the lookup: exchange the client
-# credentials for a token, and write the account record from PCC_ACCOUNT_ID.
-#
-# Neither step is exported, hence the `:::`. The token exchange is
-# RFC 6749 §4.4, and the client_credentials grant returns no refresh token, so
-# `refreshToken` is normally NULL; the client mints a new access token from the
-# client id and secret in the record when the current one expires.
-#
-# This says nothing about whether the *API* grants the publish. If it does not,
-# the fallback moves the failure to the deployment, and the permissions printed
-# below are what tells the two cases apart. The remedy then is to grant the
-# credential publish permission on the account.
-#
-# ponytail: delete the fallback and keep the documented call when
-# GET /v1/accounts reports `content:create` for these credentials.
-#
-# An empty client id means an interactive session, where connectCloudUser() has
-# already registered the account.
+# Register the account that the deployment publishes to. connectCloudUser()
+# has already done it in an interactive session, which is what an empty client
+# id means. CLAUDE.md, fault 5, explains the account id and the fallback.
 if (nzchar(clientId)) {
-  registered <- tryCatch(
-    {
-      rsconnect::connectCloudClientCredentials(
-        clientId = clientId,
-        clientSecret = clientSecret,
-        account = account
-      )
-      TRUE
-    },
-    error = function(e) {
-      cat(sprintf(
-        "connectCloudClientCredentials() did not register %s: %s\nFalling back to the account id in PCC_ACCOUNT_ID.\n",
-        account,
-        conditionMessage(e)
-      ))
-      FALSE
+  registered <- FALSE
+  for (candidate in Filter(nzchar, unique(c(accountId, account)))) {
+    registered <- tryCatch(
+      {
+        rsconnect::connectCloudClientCredentials(
+          clientId = clientId,
+          clientSecret = clientSecret,
+          account = candidate,
+          # The local name of the record. It defaults to the name that the
+          # lookup matched, and the rest of this script, deployApp() included,
+          # reads the record by the name in PCC_ACCOUNT. So pin it, or a
+          # registration that matched the id would be filed under the id.
+          name = account
+        )
+        TRUE
+      },
+      error = function(e) {
+        cat(sprintf(
+          "connectCloudClientCredentials(account = \"%s\") did not register: %s\n",
+          candidate,
+          conditionMessage(e)
+        ))
+        FALSE
+      }
+    )
+    if (registered) {
+      cat(sprintf("Registered account %s, matched as \"%s\".\n", account, candidate))
+      break
     }
-  )
+  }
 
   if (!registered) {
+    cat("Falling back to the account id in PCC_ACCOUNT_ID.\n")
     stopifnot(
       "PCC_ACCOUNT_ID is empty, so the account cannot be registered by id either" =
         nzchar(accountId)
@@ -173,11 +143,15 @@ if (nzchar(clientId)) {
   try({
     info <- rsconnect:::accountInfo(account, "connect.posit.cloud")
     for (a in rsconnect:::clientForAccount(info)$getAccounts()$data) {
+      # `name` is what the lookup compares, and `display_name` is the other
+      # half of the "Posit PBC (posit)" that the Connect Cloud interface shows.
       cat(sprintf(
-        "  %s %s (%s): %s\n",
+        "  %s %s (%s), %s, role %s: %s\n",
         if (identical(a$name, account)) "->" else "  ",
+        a$display_name,
         a$name,
         a$id,
+        a$role,
         paste(unlist(a$permissions), collapse = ", ")
       ))
     }

@@ -121,9 +121,16 @@ none of them, so `deploy_app.R` calls the API directly through
    The service credentials of this repository fail that test, and every deploy
    job of run 33903066870 stopped there with `Account "posit" is visible to
    these credentials but does not grant publish permission.` There is no
-   argument for the account id, on 1.11.0 or on main. So `deploy_app.R` makes
-   the documented call first, and when it aborts it does the two steps that
-   function performs around the lookup and skips the lookup:
+   argument for the account id, on 1.11.0 or on main.
+
+   So `deploy_app.R` calls it twice, with `PCC_ACCOUNT_ID` and then with
+   `PCC_ACCOUNT`, and pins `name = PCC_ACCOUNT` so that either match files the
+   record under the name the rest of the script reads. The lookup compares
+   against `a$name`, so the id is expected to fail; it is first because it
+   costs one request to learn that, and the log says which candidate matched.
+
+   When both fail, the script does the two steps that function performs around
+   the lookup and skips the lookup:
    `cloudAuthClient()$exchangeClientCredentials()`, then
    `registerAccount(accountId = PCC_ACCOUNT_ID)`. The id is what the record
    holds and what the client sends as `account_id`; the name is only the lookup
@@ -134,13 +141,25 @@ none of them, so `deploy_app.R` calls the API directly through
    <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>
    writes `account = "<YOUR_ACCOUNT_HERE>"`, and that is not a formal of the
    function: it partial-matches `accountName`, the only formal beginning with
-   "account". Verified with `match.call()`. So the documented call and the one
+   "account". Verified with `match.call()`. The prose beside that example calls
+   it "the name of the your account", from
+   <https://connect.posit.cloud/whoami>. So the documented call and the one
    that failed are one call, and following the documentation does not avoid
    this fault.
 
-   ponytail: delete the fallback and keep the documented call when
-   `GET /v1/accounts` reports `content:create` for service credentials, or when
-   the function takes an account id.
+   **The name of the account is `posit`, not `Posit PBC`.** The interface shows
+   `Posit PBC (posit)`, and those are two fields of `GET /v1/accounts`:
+   `display_name` and `name`. The lookup compares `name`, so `posit` is the
+   value to pass. Verified against the response.
+
+   Do not paste an account id or a listing of `GET /v1/accounts` into this
+   file, a commit message or a pull request. This repository is public. The id
+   lives in the `PCC_ACCOUNT_ID` secret, and `deploy_app.R` prints the listing
+   into the job log, which is where it belongs.
+
+   ponytail: delete the fallback and the id candidate, and keep the documented
+   call, when `GET /v1/accounts` reports `content:create` for service
+   credentials, or when the function takes an account id.
 
 Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 `current_revision` fault below.

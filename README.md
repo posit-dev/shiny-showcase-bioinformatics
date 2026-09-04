@@ -452,16 +452,20 @@ secrets:
 | `PCC_CLIENT_SECRET` | The client secret |
 | `PCC_ACCOUNT_ID` | The id of the account that publishes, the one that `pcc-account` names |
 
-The third one is a fallback. `deploy_app.R` makes the documented call first:
+The third one is a fallback. `deploy_app.R` first makes the call that the
+[Connect Cloud documentation](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html)
+gives, once with the id and once with the name:
 
 ```r
 rsconnect::connectCloudClientCredentials(
-  clientId = ..., clientSecret = ..., account = "posit"
+  clientId = ..., clientSecret = ..., account = "posit", name = "posit"
 )
 ```
 
-That call takes the account by name, and registers it only when
-`GET /v1/accounts` advertises `content:create` on it, which it does not for
+The account name is `posit`, and not the `Posit PBC` that the interface shows
+beside it: `GET /v1/accounts` reports `name` and `display_name` separately, and
+the lookup in that function compares `name`. It registers the account only
+when the same response advertises `content:create` on it, which it does not for
 these credentials:
 
 ```

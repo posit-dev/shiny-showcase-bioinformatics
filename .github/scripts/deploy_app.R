@@ -16,12 +16,11 @@
 # it deploys only the applications that already have an id.
 #
 # Updating existing content needs rsconnect 1.11.0 or later. The script works
-# around several problems in that version, and each one has a comment below.
+# around two problems in that version, and each one has a comment below.
 
 app <- Sys.getenv("APP")
 contentId <- Sys.getenv("CONTENT_ID")
 account <- Sys.getenv("PCC_ACCOUNT")
-accountId <- Sys.getenv("PCC_ACCOUNT_ID")
 clientId <- Sys.getenv("PCC_CLIENT_ID")
 clientSecret <- Sys.getenv("PCC_CLIENT_SECRET")
 
@@ -79,91 +78,19 @@ installPrimaryFileShim <- function(primaryFile) {
 }
 installPrimaryFileShim(primaryFileFromManifest(manifest))
 
-# Register the account that the deployment publishes to. connectCloudUser()
-# has already done it in an interactive session, which is what an empty client
-# id means. CLAUDE.md, fault 5, explains the account id and the fallback.
+# An empty client id means an interactive session, where the account is already
+# registered with connectCloudUser().
+#
+# `account` is the spelling that the Connect Cloud documentation uses, and it
+# partial-matches the `accountName` formal. The credentials must grant publish
+# permission on this account; CLAUDE.md, fault 5, has what the failure looks
+# like when they do not.
 if (nzchar(clientId)) {
-  registered <- FALSE
-  for (candidate in Filter(nzchar, unique(c(accountId, account)))) {
-    registered <- tryCatch(
-      {
-        rsconnect::connectCloudClientCredentials(
-          clientId = clientId,
-          clientSecret = clientSecret,
-          account = candidate,
-          # The local name of the record. It defaults to the name that the
-          # lookup matched, and the rest of this script, deployApp() included,
-          # reads the record by the name in PCC_ACCOUNT. So pin it, or a
-          # registration that matched the id would be filed under the id.
-          name = account
-        )
-        TRUE
-      },
-      error = function(e) {
-        cat(sprintf(
-          "connectCloudClientCredentials(account = \"%s\") did not register: %s\n",
-          candidate,
-          conditionMessage(e)
-        ))
-        FALSE
-      }
-    )
-    if (registered) {
-      cat(sprintf("Registered account %s, matched as \"%s\".\n", account, candidate))
-      break
-    }
-  }
-
-  if (!registered) {
-    cat("Falling back to the account id in PCC_ACCOUNT_ID.\n")
-    stopifnot(
-      "PCC_ACCOUNT_ID is empty, so the account cannot be registered by id either" =
-        nzchar(accountId)
-    )
-    tokens <- rsconnect:::cloudAuthClient()$exchangeClientCredentials(
-      clientId,
-      clientSecret
-    )
-    rsconnect:::registerAccount(
-      serverName = "connect.posit.cloud",
-      accountName = account,
-      accountId = accountId,
-      accessToken = tokens$access_token,
-      refreshToken = tokens$refresh_token,
-      clientId = clientId,
-      clientSecret = clientSecret
-    )
-    cat(sprintf("Registered account %s by id.\n", account))
-  }
-
-  # What Connect Cloud says about the accounts these credentials can see, so
-  # that a permission failure names its cause instead of appearing as a
-  # deployment fault. This is the response that the lookup above judged. It is a
-  # diagnostic and nothing depends on it, so it must not be what fails the job.
-  #
-  # **Print nothing beyond PCC_ACCOUNT itself.** This repository is public, so
-  # its Actions logs are public. An account id is not ours to publish, and
-  # neither is the name of another account these credentials happen to see. The
-  # name of this one is already public, as `pcc-account` in apps.yml.
-  try({
-    info <- rsconnect:::accountInfo(account, "connect.posit.cloud")
-    visible <- rsconnect:::clientForAccount(info)$getAccounts()$data
-    mine <- Filter(function(a) identical(a$name, account), visible)
-    for (a in mine) {
-      cat(sprintf(
-        "%s: role %s, content:create %s\n",
-        a$name,
-        a$role,
-        "content:create" %in% unlist(a$permissions)
-      ))
-    }
-    cat(sprintf(
-      "%d account(s) visible to these credentials, %d named %s.\n",
-      length(visible),
-      length(mine),
-      account
-    ))
-  })
+  rsconnect::connectCloudClientCredentials(
+    clientId = clientId,
+    clientSecret = clientSecret,
+    account = account
+  )
 }
 
 # Point the local deployment record at the content that CONTENT_ID names.

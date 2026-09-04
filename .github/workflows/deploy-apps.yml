@@ -155,7 +155,6 @@ jobs:
           APP: ${{ matrix.app }}
           CONTENT_ID: ${{ matrix.content_id }}
           PCC_ACCOUNT: ${{ matrix.account }}
-          PCC_ACCOUNT_ID: ${{ secrets.PCC_ACCOUNT_ID }}
           PCC_CLIENT_ID: ${{ secrets.PCC_CLIENT_ID }}
           PCC_CLIENT_SECRET: ${{ secrets.PCC_CLIENT_SECRET }}
         run: Rscript .github/scripts/deploy_app.R

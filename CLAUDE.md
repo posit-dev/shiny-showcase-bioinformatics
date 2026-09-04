@@ -109,54 +109,38 @@ none of them, so `deploy_app.R` calls the API directly through
    content* instead of updating, for any code that relies on `appName` alone.
    The content id is the only stable identifier.
 4. **`upload = FALSE`** fails with `object 'bundle' not found`.
-5. **`connectCloudClientCredentials()` will not register this account.** It
-   takes the account by *name*, and registers it only when `GET /v1/accounts`
-   advertises `content:create` on it:
+5. **`connectCloudClientCredentials()` needs `content:create`, and says
+   otherwise.** It takes the account by *name*, and registers it only when
+   `GET /v1/accounts` advertises that permission on it:
 
    ```r
    publishable <- filterPublishableAccounts(accounts)   # any permission == "content:create"
    account <- Find(function(a) identical(a$name, accountName), publishable)
    ```
 
-   The service credentials of this repository fail that test, and every deploy
-   job of run 33903066870 stopped there with `Account "posit" is visible to
-   these credentials but does not grant publish permission.` There is no
-   argument for the account id, on 1.11.0 or on main.
+   Every deploy job of run 33903066870 stopped there with `Account "posit" is
+   visible to these credentials but does not grant publish permission.` The
+   message reads as a fault of the account or of the name. It is neither: the
+   name was right and the account was right, and the credential simply held no
+   publish role. **The remedy is to grant it, at
+   <https://login.posit.cloud/identity/credentials>.** There is nothing to fix
+   in this repository, and no argument for an account id to route around it, on
+   1.11.0 or on main.
 
-   So `deploy_app.R` calls it twice, with `PCC_ACCOUNT_ID` and then with
-   `PCC_ACCOUNT`, and pins `name = PCC_ACCOUNT` so that either match files the
-   record under the name the rest of the script reads. The lookup compares
-   against `a$name`, so the id is expected to fail; it is first because it
-   costs one request to learn that, and the log says which candidate matched.
+   Two things that look like the cause and are not:
 
-   When both fail, the script does the two steps that function performs around
-   the lookup and skips the lookup:
-   `cloudAuthClient()$exchangeClientCredentials()`, then
-   `registerAccount(accountId = PCC_ACCOUNT_ID)`. The id is what the record
-   holds and what the client sends as `account_id`; the name is only the lookup
-   key.
+   - **The `account` argument in the Posit documentation is `accountName`.**
+     The example at
+     <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>
+     writes `account = "<YOUR_ACCOUNT_HERE>"`, which is not a formal of the
+     function: it partial-matches `accountName`, the only formal beginning with
+     "account". Verified with `match.call()`. The two spellings are one call.
+   - **The name of the account is `posit`, not `Posit PBC`.** The interface
+     shows `Posit PBC (posit)`, and those are the `display_name` and the `name`
+     of one account. The lookup compares `name`. Verified against the response.
 
-   **The `account` argument in the Posit documentation is `accountName`.** The
-   example at
-   <https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html>
-   writes `account = "<YOUR_ACCOUNT_HERE>"`, and that is not a formal of the
-   function: it partial-matches `accountName`, the only formal beginning with
-   "account". Verified with `match.call()`. The prose beside that example calls
-   it "the name of the your account", from
-   <https://connect.posit.cloud/whoami>. So the documented call and the one
-   that failed are one call, and following the documentation does not avoid
-   this fault.
-
-   **The name of the account is `posit`, not `Posit PBC`.** The interface shows
-   `Posit PBC (posit)`, and those are two fields of `GET /v1/accounts`:
-   `display_name` and `name`. The lookup compares `name`, so `posit` is the
-   value to pass. Verified against the response.
-
-   See "This repository is public" below before you print or paste any of this.
-
-   ponytail: delete the fallback and the id candidate, and keep the documented
-   call, when `GET /v1/accounts` reports `content:create` for service
-   credentials, or when the function takes an account id.
+   Before you print or paste a listing of `GET /v1/accounts` to work on this,
+   read "This repository is public" below.
 
 Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 `current_revision` fault below.
@@ -231,13 +215,14 @@ deployment and nobody noticed, because both signals said it was fine.
 So its Actions logs are public, its pull requests are public, and its history is
 public. Three consequences, and the first one cost real cleanup:
 
-- **Never write an account id anywhere in this repository**, in a file, a commit
-  message, a pull request body or a job log. It belongs in the
-  `PCC_ACCOUNT_ID` secret and nowhere else. `deploy_app.R` prints the account
-  name, the role and whether `content:create` is present, and prints no id.
+- **Never write a Connect Cloud account id anywhere in this repository**, in a
+  file, a commit message, a pull request body or a job log. Nothing here needs
+  one: the account name is in `apps.yml`, and a *content* id is not the same
+  thing and does belong there.
 - **Never print a listing of `GET /v1/accounts`.** It names every account the
-  credentials can see, including personal ones that have nothing to do with the
-  gallery. Filter it to `PCC_ACCOUNT` first, as `deploy_app.R` does.
+  credentials can see, with its id, including personal ones that have nothing
+  to do with the gallery. Read it in an interactive session if you must, and
+  keep it out of a job log.
 - **A pull request body cannot be un-published.** GitHub keeps every revision,
   and `userContentEdits` serves the old text to anyone through the API, so
   editing the body removes nothing. Only GitHub Support can purge it. The same
@@ -254,10 +239,9 @@ that reaches GitHub is permanent.
 - New content is created with `default_robots_policy: "disallow_all"`, and this
   is a gallery, so `deploy_app.R` sets `allow_all`.
 - The workflow authenticates with `PCC_CLIENT_ID` and `PCC_CLIENT_SECRET`,
-  repository secrets from <https://login.posit.cloud/identity/credentials>, and
-  registers the account with `PCC_ACCOUNT_ID`, a third secret. See fault 5
-  above for why the id and not the name. The name stays in `apps.yml`; the id
-  belongs to the credential, and changes when the credential does.
+  repository secrets from <https://login.posit.cloud/identity/credentials>. The
+  credential must hold publish permission on `posit`; fault 5 above is what the
+  job prints when it does not.
 
 ## Keeping this file current
 

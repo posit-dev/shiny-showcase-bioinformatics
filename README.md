@@ -440,47 +440,40 @@ directory that holds one, so the script writes the record from the content id
 first, with `migrateToConnectCloud()`. That function arrived in 1.11.0, and it
 is the reason for the version requirement.
 
-### The three secrets
+### The two secrets
 
 The workflow authenticates with an OAuth service account, from
-<https://login.posit.cloud/identity/credentials>. Store these as repository
+<https://login.posit.cloud/identity/credentials>. Store them as repository
 secrets:
 
 | Secret | Value |
 |---|---|
 | `PCC_CLIENT_ID` | The client id |
 | `PCC_CLIENT_SECRET` | The client secret |
-| `PCC_ACCOUNT_ID` | The id of the account that publishes, the one that `pcc-account` names |
 
-The third one is a fallback. `deploy_app.R` first makes the call that the
+`deploy_app.R` makes the call that the
 [Connect Cloud documentation](https://docs.posit.co/connect-cloud/user/publish/console-or-terminal.html)
-gives, once with the id and once with the name:
+gives:
 
 ```r
 rsconnect::connectCloudClientCredentials(
-  clientId = ..., clientSecret = ..., account = "posit", name = "posit"
+  clientId = ..., clientSecret = ..., account = "posit"
 )
 ```
 
-The account name is `posit`, and not the `Posit PBC` that the interface shows
-beside it: `GET /v1/accounts` reports `name` and `display_name` separately, and
-the lookup in that function compares `name`. It registers the account only
-when the same response advertises `content:create` on it, which it does not for
-these credentials:
+**The credentials must grant publish permission on that account.** The
+function registers it only when `GET /v1/accounts` advertises `content:create`
+on it, and the failure names the account rather than the permission:
 
 ```
 Account "posit" is visible to these credentials but does not grant
 publish permission.
 ```
 
-When it aborts, the script registers the account from `PCC_ACCOUNT_ID`
-instead, which skips the lookup. Either way it then prints the accounts and
-permissions that Connect Cloud reports, so a later publish failure names its
-cause.
-
-The account *name* is still in `apps.yml`, as `pcc-account`, and that is still
-the only copy of it. The id is in a secret because it belongs to the
-credential, and it changes when the credential does.
+The account name is `posit`, and not the `Posit PBC` that the interface shows
+beside it: those are the `name` and the `display_name` of the same account, and
+the lookup compares `name`. The name comes from `pcc-account` in `apps.yml`,
+which is the only copy of it.
 
 ### Git-backed publishing is the other option
 

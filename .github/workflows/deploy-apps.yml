@@ -31,18 +31,18 @@ on:
   workflow_dispatch:
 
 # Two runs must not publish the same content at the same time, so every run of
-# this workflow is in one group. A new run cancels the run in progress: the
-# newer commit is the one worth deploying, and waiting would only publish the
-# older code second.
+# this workflow is in one group. A second run waits for the first, and it does
+# not cancel it.
 #
-# The risk this accepts: a publish cancelled in the middle can leave content
-# with no current revision, which is the state that `ensureFreshBundle()` in
-# deploy_app.R repairs. CLAUDE.md explains it. The repair runs on every
-# deployment, so a cancelled run costs one extra request on the next one, and
-# not a broken application.
+# Cancelling is the tempting choice, because the newer commit is the one worth
+# deploying. Do not make it. A publish interrupted in the middle can leave
+# content with no current revision, and that content then fails every later
+# deployment with `Invalid token`; `apps/variant-reviewer` is in that state
+# already. `ensureFreshBundle()` in deploy_app.R repairs it, but a deployment
+# that finishes needs no repair. CLAUDE.md has the detail.
 concurrency:
   group: deploy-apps
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read

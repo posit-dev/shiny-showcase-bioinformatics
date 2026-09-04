@@ -213,6 +213,11 @@ source("R/renv/activate.R")
 renv::restore()
 ```
 
+To move those dependencies to newer versions, use the `/update-renv` skill.
+`snapshot.type` is `implicit` here and renv reads `apps/` as well, so a bare
+`renv::snapshot()` records every application's packages in the lockfile. The
+skill has the scoped call that does not.
+
 ### 4. See the site locally
 
 ```bash
@@ -516,7 +521,7 @@ R/renv.lock           # renv lockfile. .Rprofile sets the renv paths
                       # check_manifests.py, check_sources.py, check_secrets.py
                       # deploy_matrix.py: reads apps.yml, writes the deploy matrix
                       # deploy_app.R: deploys one app, in CI or on your machine
-.agents/skills/       # update-thumbnails skill, symlinked into .claude/skills/
+.agents/skills/       # update-thumbnails, update-renv. Symlinked into .claude/skills/
 _brand.yml            # Posit brand colors and typography
 _variables.yml        # Site variables: name, author, description, URLs
 _quarto.yml           # Quarto project configuration

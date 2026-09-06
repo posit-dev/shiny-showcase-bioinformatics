@@ -1,5 +1,8 @@
 name: Deploy apps
 
+# NOTHING DEPLOYS AT THE MOMENT. The `deploy` job below begins with `if: false`,
+# and the comment there says why and how to undo it.
+#
 # This workflow publishes the applications in apps/ to Posit Connect Cloud
 # after a merge into main.
 #
@@ -70,9 +73,26 @@ jobs:
   deploy:
     name: ${{ matrix.app }}
     needs: matrix
-    # An empty matrix is an error in GitHub Actions, not an empty run, so the
-    # job does not start when apps.yml asks for no deployment.
-    if: needs.matrix.outputs.apps != '[]'
+    # `false &&` holds every deployment back, and the GitHub interface shows
+    # this job as skipped rather than green.
+    #
+    # The PCC_CLIENT_ID and PCC_CLIENT_SECRET secrets hold no publish permission
+    # on the `posit` account, so every deploy job stopped in
+    # `rsconnect::connectCloudClientCredentials()` with `Account "posit" is
+    # visible to these credentials but does not grant publish permission.`
+    # CLAUDE.md, fault 5, has the detail. Nothing in this repository can work
+    # around it, and a job that fails on every merge teaches people to ignore a
+    # red run. Publish by hand meanwhile; README.md, "Deployment to Connect
+    # Cloud", has the command.
+    #
+    # To deploy again: grant the permission at
+    # <https://login.posit.cloud/identity/credentials>, then delete `false &&`
+    # from the line below and the paragraph above it.
+    #
+    # The rest of the condition is separate and permanent. An empty matrix is an
+    # error in GitHub Actions, not an empty run, so the job must not start when
+    # apps.yml asks for no deployment.
+    if: false && needs.matrix.outputs.apps != '[]'
     runs-on: ubuntu-latest
 
     # Each application is independent, so they deploy in parallel, and

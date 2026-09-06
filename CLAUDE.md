@@ -172,6 +172,42 @@ Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
   no `current_revision` and a *published* `next_revision`, permanently. Do not
   call it. Filed as rstudio/rsconnect#1370.
 
+### `Unauthenticated`, on a deploy from your own machine
+
+The `posit` account has `sso_enabled: true`, and **Connect Cloud rejects every
+write from a token that did not come through the organization's SSO**. Reads
+are unaffected, and so is `connectCloudUser()`: it registers the account and
+prints `Registered account.` The failure appears later, on the first PATCH.
+
+rsconnect reports only the `error` field, so it prints `HTTP status 401` and
+`Unauthenticated.` and nothing else. The body carries the reason, and the way
+to see it is to repeat the request with curl:
+
+```json
+{"error":"Unauthenticated.","error_type":"sso_required",
+ "error_args":{"idp":"lucid-auth:idps:...","logged_in":true}}
+```
+
+`logged_in: true` with `error_type: sso_required` is the signature: the browser
+session behind the device login was a plain login, not an SSO login. The remedy
+is to sign in to the organization through SSO at
+<https://connect.posit.cloud/posit/> first, and then run
+`rsconnect::connectCloudUser()` again so the device flow mints a token from
+that session.
+
+Two things this is **not**, and both look like it:
+
+- It is not fault 5 above. That one is a client credential with no publish
+  role, it names the account in the message, and it aborts in
+  `connectCloudClientCredentials()` before any request. This one aborts in
+  `PATCH()`, and `GET /v1/accounts` shows `role: "publisher"` on the account.
+- It is not a stale token. A token minted seconds earlier fails the same way,
+  and a refresh does not help. `withTokenRefreshRetry` refreshes and retries,
+  so the backtrace shows the *second* 401, not the first.
+
+A read that succeeds proves nothing about the token. Content here is public, so
+`GET /v1/contents/{id}` answers 200 with no credentials at all. Test a write.
+
 ### `Invalid token`, and the content with no current revision
 
 This one cost the most, and the cause is not where it appears to be.
@@ -212,10 +248,25 @@ start. `deploy_app.R` takes the value and stops. Do not remove that check.
 
 **A 200 from the address is not proof either.** Connect Cloud answers for
 content whose application failed to start, so `curl -o /dev/null -w
-'%{http_code}'` says 200 for a broken application. Read the body: a working
-application here returns tens of kilobytes of Shiny and bslib assets, and a
-broken one returned 61 bytes. `apps/variant-reviewer` was broken from its first
-deployment and nobody noticed, because both signals said it was fine.
+'%{http_code}'` says 200 for a broken application, and so does the *size* of
+the body: a dead application serves Connect Cloud's spinner page, about 5 kB.
+Read the body instead, and look at one line of it:
+
+```bash
+curl -s https://posit-<app>.share.connect.posit.cloud/ | head -5
+```
+
+A live application answers with `<base href="_w_<worker id>/">` in the head. A
+dead one answers with `<title>Posit Connect Cloud</title>` and a CSS spinner.
+`apps/variant-reviewer` was broken from its first deployment and nobody
+noticed, because every other signal said it was fine.
+
+**A fix that fails to deploy is not retried by the next push.** `deploy-apps.yml`
+deploys an application only when the push touched `apps/<app>/` or `apps.yml`,
+so after a failed deploy job every later push reports `<app> is unchanged in
+this push` and the run is green while the fix sits undeployed. That is how the
+`.Rprofile` patch of 1fe339b never reached Connect Cloud. After a failed deploy
+job, run the workflow by hand: `gh workflow run deploy-apps.yml`.
 
 ### This repository is public
 

@@ -178,6 +178,12 @@ Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
   `GET /v1/domains` is empty for this account.
 - The old content-id address redirects to the vanity address, so changing a
   vanity name breaks no link.
+- **The first deployment of an application needs a second one.** New content has
+  no id until it is deployed, so `deploy_app.R` can only set the vanity name
+  *after* the publish, and the rule above then applies: the vanity address
+  answers `Page Not Found` until the next publish lands it. The content-id
+  address serves the application in the meantime. Observed on
+  `recount-explorer`. Deploy it twice, and check the vanity address.
 - **A PATCH of the content creates no revision, and is safe**, before a
   deployment or after one.
 - **`POST /contents/{id}/republish` is not safe.** It can leave the content with

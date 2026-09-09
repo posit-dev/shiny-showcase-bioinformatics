@@ -132,11 +132,10 @@
       description: >-
         Browse 18,998 uniformly processed recount3 RNA-seq studies, load one through
         the recount3 API, and read its quality checks, gene expression and PCA.
-      thumbnail: placeholder.svg
-      alt: The recount3 study catalog, with quality checks and a PCA of one study
+      thumbnail: recount-explorer.png
+      alt: The recount3 study catalog, filtered by organism, data source and size
       app: recount-explorer
-      # No content_id: the application is not published yet. Deploy it once by
-      # hand, then write the content id here. See README.md.
+      content_id: "01a0881c-48af-77e2-7e10-18bbeffb27b1"
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/recount-explorer

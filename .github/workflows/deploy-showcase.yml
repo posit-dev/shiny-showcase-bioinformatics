@@ -1,0 +1,101 @@
+name: Deploy showcase
+
+# NOTHING DEPLOYS AT THE MOMENT. The `deploy` job below begins with `if: false`,
+# and the comment there says why and how to undo it.
+#
+# This workflow publishes the gallery website itself — the site that index.qmd
+# renders — to Posit Connect Cloud after a merge into main. It is the sibling of
+# deploy-apps.yml, which publishes the applications in apps/. The account, the
+# vanity name and the content id are in .github/scripts/deploy_showcase.R,
+# because apps.yml describes tiles and the page that shows the tiles is not one
+# of them.
+#
+# The path filter is safe here, the way it is in deploy-apps.yml. A test that
+# does not operate gives a false result; a deployment that does not operate
+# leaves the previous deployment in place.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.qmd"
+      - "apps.yml"
+      - "packages.yml"
+      - "thumbnails/**"
+      - "showcase.ejs"
+      - "title-block.html"
+      - "styles.scss"
+      - "_quarto.yml"
+      - "_brand.yml"
+      - "_variables.yml"
+      - "R/renv.lock"
+      - ".github/workflows/deploy-showcase.yml"
+      - ".github/scripts/deploy_showcase.R"
+  workflow_dispatch:
+
+# One run at a time, and a second run waits rather than cancelling the first.
+# An interrupted publish can leave content with no current revision, which then
+# fails every later deployment with `Invalid token`. CLAUDE.md has the detail.
+# The group is separate from deploy-apps, which publishes different content.
+concurrency:
+  group: deploy-showcase
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Publish the site
+    # `if: false` holds the deployment back, and the GitHub interface shows this
+    # job as skipped rather than green.
+    #
+    # The `posit` account has `sso_enabled: true`, and Connect Cloud rejects
+    # every write from a token that did not come through the organization's SSO.
+    # The PCC_CLIENT_ID and PCC_CLIENT_SECRET secrets are client credentials, so
+    # they never pass through SSO and the API answers 401 `sso_required`. No
+    # runner can publish this content today, and a job that fails on every merge
+    # teaches people to ignore a red run.
+    #
+    # **Publish by hand meanwhile: use the `/publish-showcase` skill**, which has
+    # the SSO login, the deployment and the checks on the served page.
+    #
+    # Two things must change together before this job can run, and deleting the
+    # line below on its own is not enough:
+    #
+    #   1. Connect Cloud must accept a non-SSO token for this content, or the
+    #      runner must hold one that came through SSO.
+    #   2. deploy_showcase.R must grow the client-credentials branch that
+    #      deploy_app.R has. Today it asserts that the account is already
+    #      registered, which is true only on a person's machine.
+    if: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      # Unlike deploy-apps.yml, this job restores the project library instead of
+      # installing rsconnect on its own. R/renv.lock records the rsconnect that
+      # deploy_showcase.R needs, at the version that is known to work with
+      # Connect Cloud, and the script runs under renv for that reason.
+      #
+      # Not r-lib/actions/setup-renv: the lockfile is not at the root. The
+      # .Rprofile puts it at R/renv.lock through RENV_PATHS_LOCKFILE, and that
+      # action keys its cache on a root renv.lock.
+      - name: Restore the renv library
+        run: Rscript -e 'renv::restore(prompt = FALSE)'
+
+      - run: quarto render
+
+      - name: Deploy to Connect Cloud
+        run: Rscript .github/scripts/deploy_showcase.R
+
+      - name: Summary
+        run: |
+          echo "Deployed the showcase: <https://posit-shiny-showcase-bioinformatics.share.connect.posit.cloud/>" \
+            >> "$GITHUB_STEP_SUMMARY"

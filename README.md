@@ -224,6 +224,22 @@ skill has the scoped call that does not.
 quarto preview
 ```
 
+### 5. Publish the site
+
+The site is deployed to Connect Cloud under the same `posit` account as the
+applications, at
+<https://posit-shiny-showcase-bioinformatics.share.connect.posit.cloud/>, which
+is the homepage of this repository. Use the `/publish-showcase` skill; it
+renders, runs `.github/scripts/deploy_showcase.R`, and checks the served page.
+
+`.github/workflows/deploy-showcase.yml` would do this after a merge into main,
+and it is held back with `if: false`. The `posit` account requires SSO, and the
+`PCC_CLIENT_ID` credential that `deploy-apps.yml` uses never passes through it,
+so Connect Cloud answers 401 `sso_required`. Only a person who has run
+`rsconnect::connectCloudUser()` after an SSO login can publish the site, so a
+merge into main does not change it and the skill is the way. The comment on
+that job lists the two things that must change together before it can run.
+
 ## Application source code in `apps/`
 
 Connect Cloud deploys an application from its directory in `apps/`. Each

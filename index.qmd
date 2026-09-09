@@ -22,8 +22,6 @@ resources:
 
 {{< var gallery.description >}}
 
-Built by [{{< var gallery.author >}}](mailto:{{< var gallery.email >}}).
-
 [Learn more about Shiny](https://shiny.posit.co/){.call-to-action} [Supporting Packages](#supporting-packages){.call-to-action}
 
 ::: {#app-gallery}

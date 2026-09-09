@@ -78,6 +78,18 @@ GH_TOKEN=$(gh auth token) python .github/scripts/check_sources.py
 # connectCloudUser() registered interactively.
 RENV_CONFIG_AUTOLOADER_ENABLED=false APP=genescout PCC_ACCOUNT=posit \
   CONTENT_ID=<id from apps.yml> Rscript .github/scripts/deploy_app.R
+
+# Publish the gallery site itself. deploy-showcase.yml would do it on a merge and
+# is held back with `if: false`: `posit` requires SSO, and a PCC_CLIENT_ID
+# credential never passes through it, so only a person who has run
+# connectCloudUser() can publish. The `/publish-showcase` skill has that login and
+# the checks around it. The account, the vanity name and the content id live in
+# the script, because apps.yml describes tiles and the page that shows the tiles
+# is not one of them.
+# Unlike deploy_app.R, this one runs *under* renv: R/renv.lock records the
+# rsconnect it needs.
+quarto render
+Rscript .github/scripts/deploy_showcase.R
 ```
 
 `R/check.R` and `deploy_matrix.py` test the same deployment fields, and they are
@@ -207,6 +219,33 @@ Two things this is **not**, and both look like it:
 
 A read that succeeds proves nothing about the token. Content here is public, so
 `GET /v1/contents/{id}` answers 200 with no credentials at all. Test a write.
+
+A *rejected* write proves nothing either, unless the body was valid. Connect
+Cloud validates the body before it checks SSO, so `POST /v1/contents` with an
+empty body answers 422 `request_validation` on a token that cannot write at
+all. That 422 reads like "authenticated, bad payload" and is not.
+
+The cheap test of a write is a no-op PATCH: read existing content, and PATCH it
+back its own `default_robots_policy` and `vanity_name` with `domain_id = NULL`.
+A PATCH creates no revision, identical values change nothing, and the answer is
+200 or the `sso_required` 401.
+
+```r
+info <- rsconnect:::accountInfo("posit", "connect.posit.cloud")
+cl <- rsconnect:::clientForAccount(info)
+cur <- cl$getContent(id)
+tryCatch(
+  cl$withTokenRefreshRetry(rsconnect:::PATCH_JSON, paste0("/contents/", id), list(
+    default_robots_policy = cur$default_robots_policy,
+    vanity_name = cur$vanity_name,
+    domain_id = NULL
+  )),
+  rsconnect_http = function(e) list(status = e$status, type = e$errorType)
+)
+```
+
+`errorType` off the condition is how to see `sso_required` without curl;
+rsconnect prints only `Unauthenticated.`
 
 ### `Invalid token`, and the content with no current revision
 

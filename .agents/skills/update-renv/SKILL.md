@@ -33,15 +33,21 @@ them are reached only through `apps/`: `duckdb`, `SummarizedExperiment`,
 repository. A bare `renv::snapshot()` tries to record all 62 in the gallery's
 lockfile.
 
-Snapshot the packages that `R/` actually uses:
+Snapshot the packages that the tooling actually uses:
 
 ```r
-renv::snapshot(packages = unique(renv::dependencies("R", quiet = TRUE)$Package))
+renv::snapshot(packages = unique(renv::dependencies(c("R", ".github/scripts"), quiet = TRUE)$Package))
 ```
 
-That call gives renv the seven direct dependencies of `R/` — `chromote`, `fs`,
-`here`, `jsonlite`, `renv`, `stringr`, `yaml` — and renv adds their recursive
-dependencies itself.
+That call gives renv eight direct dependencies — `chromote`, `fs`, `here`,
+`jsonlite`, `renv`, `rsconnect`, `stringr`, `yaml` — and renv adds their
+recursive dependencies itself.
+
+`.github/scripts` is in the list for `rsconnect` alone, which
+`deploy_showcase.R` needs at 1.11.0 or later and which nothing in `R/` names.
+Dropping that path from the call silently removes `rsconnect` from the
+lockfile, and the next person to publish the site gets whatever version their
+system library holds.
 
 `renv::status()` reports the same confusion, as a long list of packages that
 are "used" and not "recorded". Those lines are `apps/`, and they are not a
@@ -125,7 +131,7 @@ problem to fix.
    old <- names(jsonlite::fromJSON("R/renv.lock", simplifyVector = FALSE)$Packages)
    renv::snapshot(packages = old)
    # Commit. Then the scoped call, whose diff is now removals alone.
-   renv::snapshot(packages = unique(renv::dependencies("R", quiet = TRUE)$Package))
+   renv::snapshot(packages = unique(renv::dependencies(c("R", ".github/scripts"), quiet = TRUE)$Package))
    ```
 
 5. **Read the diff before you commit.**

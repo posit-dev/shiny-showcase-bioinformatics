@@ -292,6 +292,20 @@ bslib::page_navbar(
   # Load shinyjs (demo auto-clicks the Resolve button) and cicerone (guided
   # tour) JS/CSS once for the whole app.
   header = tagList(
+    # GoatCounter, the visit counter of the bioinformatics gallery. It sets no
+    # cookie. The path it records begins with the hostname, so every
+    # application of the gallery lands in one dashboard. count.js sends nothing
+    # from localhost.
+    tags$head(
+      tags$script(HTML(
+        "window.goatcounter = {path: function(p) { return location.host + p }};"
+      )),
+      tags$script(
+        `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+        async = NA,
+        src = "https://gc.zgo.at/count.js"
+      )
+    ),
     shinyjs::useShinyjs(),
     cicerone::use_cicerone(),
     # Let the server click a control by DOM id (used by the assistant's tools to

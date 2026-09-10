@@ -1,6 +1,6 @@
 Package: recount.explorer
 Title: Recount Explorer
-Version: 0.1.1
+Version: 0.1.2
 Authors@R:
     person("Samuel", "Bharti", , "samuelbharti.io@gmail.com",
            role = c("aut", "cre"),

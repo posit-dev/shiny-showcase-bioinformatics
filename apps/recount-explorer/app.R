@@ -95,7 +95,19 @@ ui <- page_navbar(
       tags$link(rel = "stylesheet", href = "driver.css"),
       tags$script(src = "driver.js"),
       tags$script(src = "tour.js"),
-      tags$link(rel = "stylesheet", href = "app.css")
+      tags$link(rel = "stylesheet", href = "app.css"),
+      # GoatCounter, the visit counter of the bioinformatics gallery. It sets
+      # no cookie. The path it records begins with the hostname, so every
+      # application of the gallery lands in one dashboard. count.js sends
+      # nothing from localhost.
+      tags$script(HTML(
+        "window.goatcounter = {path: function(p) { return location.host + p }};"
+      )),
+      tags$script(
+        `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+        async = NA,
+        src = "https://gc.zgo.at/count.js"
+      )
     )
   ),
   nav_panel("Browse", study_browser_ui("browser")),

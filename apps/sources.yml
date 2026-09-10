@@ -136,7 +136,7 @@ apps:
   # every package already.
   - name: gene-list-builder
     repo: samuelbharti/gene-list-builder
-    ref: "v0.2.1"
+    ref: "v0.2.2"
     include:
       - global.R
       - ui.R
@@ -158,7 +158,7 @@ apps:
   # packages itself.
   - name: recount-explorer
     repo: samuelbharti/recount-explorer
-    ref: "v0.1.1"
+    ref: "v0.1.2"
     include:
       - app.R
       - manifest.json

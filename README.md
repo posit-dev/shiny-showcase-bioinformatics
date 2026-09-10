@@ -159,32 +159,35 @@ Add a tile below the correct category. To make a new section, add a top-level
 
 ### 2. Add a thumbnail
 
-Each thumbnail has the name of its application, for example `genescout.png`. The
-name does not come from a URL. These applications are first-party, and most of
-them operate at a localhost address that identifies nothing.
+Each thumbnail has the name of its application, for example `genescout.png`. A
+card shows it at 3:2, so every file is 2400x1600.
 
-A tile with no screenshot points to `thumbnails/placeholder.svg`. `check.R`
-lists these tiles as "awaiting a real screenshot".
+An application thumbnail is a drawing, not a screenshot. It shows what the
+application does: the variant, the volcano plot, the study catalog.
+`thumbnails/src/build_thumbs.py` holds one drawing per application, in the
+colors of that application's own `_brand.yml`, and writes each one as an
+artboard. `thumbnails/src/render_boards.R` renders the artboards to PNG:
 
-A package tile shows the hex logo of the package instead of a screenshot, with
-`fit: hex`. Each logo is a copy of `man/figures/logo.svg` (or `.png`) from that
-package.
-
-To capture a screenshot, use the `/update-thumbnails` skill. It operates in
-Claude Code and in Posit Assistant. To do it by hand, start the application
-locally. Then, in R:
-
-```r
-source("R/capture.R")
-url <- "http://127.0.0.1:3838"
-b <- open_app(url)                        # viewable window, 2400x1600 output
-# interact in the window, or drive it: b$Runtime$evaluate('...')
-capture_app(b, url, file = "genescout.png")
-b$close()
+```bash
+python thumbnails/src/build_thumbs.py
+Rscript --no-init-file thumbnails/src/render_boards.R
 ```
 
-A card crops the image to 3:2 from the top left corner. Put the header of the
-application, and its most legible content, in the top left of the capture.
+To change a thumbnail, edit its function in `build_thumbs.py` and run both
+commands. To add one, add a function and an entry in `ARTBOARDS`. `SCALE=2`
+renders 4800x3200, for a slide.
+
+A tile with no drawing yet points to `thumbnails/placeholder.svg`. `check.R`
+lists these tiles as "awaiting a real screenshot".
+
+A package tile shows the hex logo of the package instead, with `fit: hex`. Each
+logo is a copy of `man/figures/logo.svg` (or `.png`) from that package.
+
+`R/capture.R` and the `/update-thumbnails` skill capture a screenshot of a
+running application at the same size. They remain for a tile that needs a real
+screen rather than a drawing. A card crops a screenshot to 3:2 from the top
+left corner, so put the header of the application in the top left of the
+capture.
 
 `R/thumbnail-name.R` holds the name convention of the upstream gallery, which
 makes the file name from a URL. Nothing applies this convention now. It becomes
@@ -547,7 +550,8 @@ apps.yml              # Applications section, and the source of truth for the de
 packages.yml          # Supporting Packages section. Same fields
 index.qmd             # The page. It shows both listings
 showcase.ejs          # Card template. Both listings use it
-thumbnails/           # Screenshots, package hex logos, and placeholder.svg
+thumbnails/           # Application drawings, package hex logos, and placeholder.svg
+thumbnails/src/       # build_thumbs.py draws the applications, render_boards.R renders them
 apps/                 # Application source code for Connect Cloud
 apps/sources.yml      # Which applications the vendor workflow copies
 R/check.R             # check_apps(): reads both YAML files and reports problems

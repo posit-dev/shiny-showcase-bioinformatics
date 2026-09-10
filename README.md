@@ -8,8 +8,8 @@ The website is one page, `index.qmd`. It shows two sections:
 
 | Section | Data file |
 |---|---|
-| Applications | `apps.yml`, 9 tiles in 1 category |
-| Supporting Packages | `packages.yml`, 4 packages |
+| Applications | `apps.yml`, 10 tiles in 1 category |
+| Supporting Packages | `packages.yml`, 5 packages |
 
 The site has no navbar. The "Supporting Packages" button links to
 `#supporting-packages`. Quarto does not add an anchor to a heading that a
@@ -25,41 +25,53 @@ control, and `intro` text for each category.
 > The four `lifescience-shiny-gallery` applications — DE Explorer, Signature
 > Scoring, Drug Perturbation and Genome Explorer — carry `deploy: false` in
 > `apps.yml`, and they keep it until a sanitization pass. Their source
-> repository is Posit-internal, so their code and screenshots are here but
-> their tiles carry no links, and nothing publishes them to a public address.
-> Do not remove `deploy: false` from one of them without that pass.
+> repository is Posit-internal, so their code is here, their tiles link only
+> to this repository and to a demo clip, and nothing publishes them to a
+> public address. Do not remove `deploy: false` from one of them without that
+> pass.
 
 ## Source and citation
 
-Five applications have a public repository of their own, and each release is
+Six applications have a public repository of their own, and each release is
 archived on Zenodo. Their tiles link to both.
 
-| Application | Source | DOI of the release on the tile |
+| Application | Source | DOI on the tile |
 |---|---|---|
-| tahoe-explorer | [samuelbharti/tahoe-explorer](https://github.com/samuelbharti/tahoe-explorer) | [10.5281/zenodo.21950641](https://doi.org/10.5281/zenodo.21950641) |
-| genescout | [samuelbharti/genescout](https://github.com/samuelbharti/genescout) | [10.5281/zenodo.21950644](https://doi.org/10.5281/zenodo.21950644) |
-| plotomics-live | [samuelbharti/plotomics-live](https://github.com/samuelbharti/plotomics-live) | [10.5281/zenodo.21950647](https://doi.org/10.5281/zenodo.21950647) |
-| variant-reviewer | [samuelbharti/variant-reviewer](https://github.com/samuelbharti/variant-reviewer) | [10.5281/zenodo.21950635](https://doi.org/10.5281/zenodo.21950635) |
-| gene-list-builder | [samuelbharti/gene-list-builder](https://github.com/samuelbharti/gene-list-builder) | [10.5281/zenodo.21950640](https://doi.org/10.5281/zenodo.21950640) |
+| tahoe-explorer | [samuelbharti/tahoe-explorer](https://github.com/samuelbharti/tahoe-explorer) | [10.5281/zenodo.21926312](https://doi.org/10.5281/zenodo.21926312) |
+| variant-reviewer | [samuelbharti/variant-reviewer](https://github.com/samuelbharti/variant-reviewer) | [10.5281/zenodo.21934011](https://doi.org/10.5281/zenodo.21934011) |
+| plotomics-live | [samuelbharti/plotomics-live](https://github.com/samuelbharti/plotomics-live) | [10.5281/zenodo.21936926](https://doi.org/10.5281/zenodo.21936926) |
+| genescout | [samuelbharti/genescout](https://github.com/samuelbharti/genescout) | [10.5281/zenodo.21352389](https://doi.org/10.5281/zenodo.21352389) |
+| recount-explorer | [samuelbharti/recount-explorer](https://github.com/samuelbharti/recount-explorer) | [10.5281/zenodo.22067235](https://doi.org/10.5281/zenodo.22067235) |
+| gene-list-builder | [samuelbharti/gene-list-builder](https://github.com/samuelbharti/gene-list-builder) | [10.5281/zenodo.21936035](https://doi.org/10.5281/zenodo.21936035) |
+
+The DOI on a tile is the **concept DOI** of the record. It always resolves to
+the newest release, so a new release changes nothing on the tile. Zenodo also
+mints one DOI per version, and each repository lists those in its
+`CITATION.cff`. Cite the version DOI to name the software a piece of work used,
+and the concept DOI to name the application itself.
 
 Cite the application, and not the address of the deployment. An address moves;
-a DOI does not. The form Zenodo gives, for the release above:
+a DOI does not. The form Zenodo gives:
 
 ```
 Bharti, S. (2026). Tahoe Explorer: a Shiny app for exploring Tahoe-100M
-metadata (0.1.2). Zenodo. https://doi.org/10.5281/zenodo.21950641
+metadata. Zenodo. https://doi.org/10.5281/zenodo.21926312
 ```
 
-Each DOI in `apps.yml` names **one version**. Zenodo also mints a concept DOI
-for the record, which always resolves to the newest version; the Zenodo page
-shows it under "Cite all versions". Cite the version DOI to name the software a
-piece of work used, and the concept DOI to name the application itself.
+The four `lifescience-shiny-gallery` applications have no repository of their
+own and no DOI. Their tiles link to their directory in this repository. Cite
+this gallery instead, until the sanitization pass gives them one.
 
-The four `lifescience-shiny-gallery` applications have no public source and no
-DOI. Cite this gallery instead, until the sanitization pass gives them one.
+The five packages follow the same convention. Each tile links to the
+repository, to the DOI, and to the registries that carry the package.
 
-The packages in `packages.yml` follow the same convention, and their tiles
-carry the same buttons. Only `biobouncer` has a DOI so far.
+| Package | Source | DOI on the tile |
+|---|---|---|
+| biobouncer | [samuelbharti/biobouncer](https://github.com/samuelbharti/biobouncer) | [10.5281/zenodo.21346522](https://doi.org/10.5281/zenodo.21346522) |
+| biohttp | [samuelbharti/biohttp](https://github.com/samuelbharti/biohttp) | [10.5281/zenodo.21731864](https://doi.org/10.5281/zenodo.21731864) |
+| bioclients | [samuelbharti/bioclients](https://github.com/samuelbharti/bioclients) | [10.5281/zenodo.21770870](https://doi.org/10.5281/zenodo.21770870) |
+| plotomics | [samuelbharti/plotomics](https://github.com/samuelbharti/plotomics) | [10.5281/zenodo.21926306](https://doi.org/10.5281/zenodo.21926306) |
+| biocohort | [samuelbharti/biocohort](https://github.com/samuelbharti/biocohort) | [10.5281/zenodo.22685057](https://doi.org/10.5281/zenodo.22685057) |
 
 ## Two kinds of content
 
@@ -125,7 +137,7 @@ card on the page, move its block in the file.
 A tile gets a link when the link goes to a public address. A tile with no
 links shows no footer.
 
-Five applications have a public repository and a DOI, so their tiles link to
+Six applications have a public repository and a DOI, so their tiles link to
 both:
 
 ```yaml
@@ -133,16 +145,18 @@ links:
   - text: GitHub
     url: https://github.com/samuelbharti/genescout
   - text: DOI
-    url: https://doi.org/10.5281/zenodo.21950644
+    url: https://doi.org/10.5281/zenodo.21352389
 ```
 
-The four `lifescience-shiny-gallery` applications have no source link, because
-this repository is their home and their origin is not public. Three of them,
-DE Explorer, Signature Scoring and Drug Perturbation, have a "Demo" button
-instead. It opens a short clip that lives at `apps/<name>/assets/demo.mp4`.
-`_quarto.yml` lists that path as a resource, so the site serves the clip and
-the browser plays it. `.rscignore` keeps the directory out of a deployment of
-the application. Genome Explorer has no clip yet.
+Every application tile also has a "Demo" button. It opens a short clip that
+lives at `apps/<name>/assets/demo.mp4`. `_quarto.yml` lists that path as a
+resource, so the site serves the clip and the browser plays it. `.rscignore`
+keeps the directory out of a deployment of the application. A vendored
+application brings its clip with its release, and a local one keeps it here.
+
+The four `lifescience-shiny-gallery` applications have no repository of their
+own, so their GitHub button opens the application's directory in this
+repository. Change those four links when a repository exists.
 
 **Do not write a "View app" link.** `showcase.ejs` makes that button itself,
 from `pcc-account`, `app` and `content_id`, and it puts the button first. The
@@ -231,6 +245,11 @@ skill has the scoped call that does not.
 quarto preview
 ```
 
+The preview server does not answer byte-range requests, so a demo clip plays
+from the start there and cannot seek. To see the clips as the published site
+serves them, render and serve `_site/` with a static server that does, for
+example `npx http-server _site -p 4322`.
+
 ### 5. Publish the site
 
 The site is deployed to Connect Cloud under the same `posit` account as the
@@ -282,7 +301,7 @@ applications hold their own `.qmd` files.
 
 | Kind | Applications | Where a change starts |
 |---|---|---|
-| Vendored | `genescout`, `tahoe-explorer`, `variant-reviewer`, `gene-list-builder`, `plotomics-live` | The source repository. The workflow copies the release into this repository |
+| Vendored | `genescout`, `tahoe-explorer`, `variant-reviewer`, `gene-list-builder`, `recount-explorer`, `plotomics-live` | The source repository. The workflow copies the release into this repository |
 | Local | `de-explorer`, `signature-scoring`, `drug-perturbation`, `genome-explorer` | Here. This repository is their home |
 
 `apps/sources.yml` lists the vendored applications. It records the source
@@ -515,17 +534,18 @@ the push, and the workflow would redeploy again.
 
 ## Tests on each pull request
 
-`.github/workflows/checks.yml` operates three jobs on every pull request, and
+`.github/workflows/checks.yml` operates four jobs on every pull request, and
 also on `main` after a merge. The workflow has no path filter, because a test
 that does not operate gives a false result.
 
 | Job | Program | What it finds |
 |---|---|---|
 | Manifests | `check_manifests.py` | A file that `manifest.json` names, but that `apps/<name>/` does not contain. Also a package that the code loads and the manifest does not name |
+| apps.yml | `test_deploy_matrix.py` and `deploy_matrix.py` | A deployment field with the wrong type or shape, and a matrix that disagrees with `R/check.R` |
 | sources.yml | `check_sources.py` | An incorrect entry, and an `include` list that does not copy every file of the manifest. This test reads the release, so it finds the problem before the vendor workflow operates |
 | Secrets | `check_secrets.py` and gitleaks | A file with the name of a secret file, such as `.Renviron`, and a file inside a forbidden directory, such as `.posit`. gitleaks then reads the content of each file, and also the history of git |
 
-The three programs also operate on your machine:
+The programs also operate on your machine:
 
 ```bash
 python .github/scripts/check_manifests.py
@@ -569,7 +589,7 @@ R/renv.lock           # renv lockfile. .Rprofile sets the renv paths
                       # check_manifests.py, check_sources.py, check_secrets.py
                       # deploy_matrix.py: reads apps.yml, writes the deploy matrix
                       # deploy_app.R: deploys one app, in CI or on your machine
-.agents/skills/       # update-thumbnails, update-renv. Symlinked into .claude/skills/
+.agents/skills/       # publish-showcase, update-thumbnails, update-renv. Symlinked into .claude/skills/
 _brand.yml            # Posit brand colors and typography
 _variables.yml        # Site variables: name, author, description, URLs
 _quarto.yml           # Quarto project configuration

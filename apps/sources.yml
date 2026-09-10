@@ -187,3 +187,4 @@ apps:
       - data
       - LICENSE
       - README.md
+      - assets

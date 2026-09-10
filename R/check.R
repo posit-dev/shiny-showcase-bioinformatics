@@ -218,6 +218,7 @@ check_apps <- function(paths = c(here("apps.yml"), here("packages.yml"))) {
   used <- unique(unlist(lapply(paths, check_file)))
 
   on_disk <- basename(list.files(here("thumbnails")))
+  on_disk <- on_disk[!dir.exists(here("thumbnails", on_disk))]
   orphans <- setdiff(on_disk, c(used, PLACEHOLDER))
   if (length(orphans) > 0) {
     warning(

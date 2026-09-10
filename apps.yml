@@ -166,6 +166,8 @@
           url: https://github.com/samuelbharti/recount-explorer
         - text: DOI
           url: https://doi.org/10.5281/zenodo.22067235
+        - text: Demo
+          url: apps/recount-explorer/assets/demo.mp4
       tags: rna-seq, recount3, bioconductor
 
     - title: gene-list-builder
@@ -183,6 +185,8 @@
           url: https://github.com/samuelbharti/gene-list-builder
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21936035
+        - text: Demo
+          url: apps/gene-list-builder/assets/demo.mp4
       tags: gene-disease, target discovery, provenance
 
     - title: Signature Scoring

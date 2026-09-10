@@ -136,9 +136,13 @@ links:
     url: https://doi.org/10.5281/zenodo.21950644
 ```
 
-Four applications have no links: DE Explorer, Signature Scoring, Drug
-Perturbation and Genome Explorer. They came from
-`posit-dev/lifescience-shiny-gallery`, which is not public.
+The four `lifescience-shiny-gallery` applications have no source link, because
+this repository is their home and their origin is not public. Three of them,
+DE Explorer, Signature Scoring and Drug Perturbation, have a "Demo" button
+instead. It opens a short clip that lives at `apps/<name>/assets/demo.mp4`.
+`_quarto.yml` lists that path as a resource, so the site serves the clip and
+the browser plays it. `.rscignore` keeps the directory out of a deployment of
+the application. Genome Explorer has no clip yet.
 
 **Do not write a "View app" link.** `showcase.ejs` makes that button itself,
 from `pcc-account`, `app` and `content_id`, and it puts the button first. The

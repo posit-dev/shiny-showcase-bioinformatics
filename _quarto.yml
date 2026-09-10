@@ -7,6 +7,10 @@ project:
   render:
     - "*.qmd"
     - "!apps/**"
+  # The demo clip of a local application lives beside its code, and the site
+  # serves it, so a "Demo" button can open it in the browser.
+  resources:
+    - "apps/*/assets/demo.mp4"
 
 website:
   title: "Shiny in Bioinformatics"

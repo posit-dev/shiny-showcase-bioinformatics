@@ -188,6 +188,9 @@
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
       deploy: false
+      links:
+        - text: Demo
+          url: apps/signature-scoring/assets/demo.mp4
       tags: pathway activity, gene sets, msigdb
 
     - title: Drug Perturbation
@@ -201,6 +204,9 @@
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
       deploy: false
+      links:
+        - text: Demo
+          url: apps/drug-perturbation/assets/demo.mp4
       tags: drug repurposing, connectivity, lincs
 
     - title: DE Explorer
@@ -214,6 +220,9 @@
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
       deploy: false
+      links:
+        - text: Demo
+          url: apps/de-explorer/assets/demo.mp4
       tags: rna-seq, differential expression, tcga
 
     - title: Genome Explorer

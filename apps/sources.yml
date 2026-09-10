@@ -188,8 +188,3 @@ apps:
       - LICENSE
       - README.md
       - assets
-      # manifest.json of v0.1.2 also names these two, so the list must copy
-      # them. Neither belongs in a deployment: the source repository must put
-      # both in .rscignore and write the manifest again at its next release.
-      - CHANGELOG.md
-      - _writemanifest.R

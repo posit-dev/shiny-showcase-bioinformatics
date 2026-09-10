@@ -615,6 +615,17 @@ ui <- tagList(
       content = "width=device-width, initial-scale=1"
     ),
     tags$title("Drug Perturbation"),
+    # GoatCounter, the visit counter of the gallery. It sets no cookie. The
+    # path it records begins with the hostname, so every application lands in
+    # one dashboard. count.js sends nothing from localhost.
+    tags$script(HTML(
+      "window.goatcounter = {path: function(p) { return location.host + p }};"
+    )),
+    tags$script(
+      `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+      async = NA,
+      src = "https://gc.zgo.at/count.js"
+    ),
     tags$link(rel = "preconnect", href = "https://fonts.googleapis.com"),
     tags$link(
       rel = "preconnect",

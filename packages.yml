@@ -112,3 +112,20 @@
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21926306
       tags: visualization, gpu, webgl, htmlwidgets, anywidget
+
+    - title: biocohort
+      org: R
+      description: >-
+        Keeps the subjects, samples and analysis outputs of an omics study in one
+        validated object. Species and assay are values in the data, not columns or
+        classes, so one manifest works for any organism and any omics assay.
+      thumbnail: biocohort.png
+      fit: hex
+      alt: biocohort hex logo
+      tech: "sample manifest · pipeline sample sheets · analysis registry · cross-species translation"
+      links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/biocohort
+        - text: Docs
+          url: https://www.samuelbharti.com/biocohort/
+      tags: cohort, sample manifest, cross-species, omics

@@ -248,4 +248,7 @@
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
       deploy: false
+      links:
+        - text: Demo
+          url: apps/genome-explorer/assets/demo.mp4
       tags: igv, somatic variants, tcga

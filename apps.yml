@@ -109,6 +109,8 @@
           url: https://github.com/samuelbharti/variant-reviewer
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21950635
+        - text: Demo
+          url: apps/variant-reviewer/assets/demo.mp4
       tags: variants, annotation, clinical genetics
 
     - title: Plotomics Live

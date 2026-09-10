@@ -27,3 +27,6 @@ format:
   html:
     toc: false
     theme: [cosmo, brand, styles.scss]
+    # The visit counter. Every application carries the same lines in its own
+    # head, so the gallery page and the applications share one dashboard.
+    include-in-header: analytics.html

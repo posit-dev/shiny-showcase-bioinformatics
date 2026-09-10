@@ -569,6 +569,19 @@ Built with **Shiny** + **bslib**. MIT © 2026 Posit Software, PBC. Authored by S
 ui <- page_navbar(
   title = "DE Explorer",
   theme = bslib::bs_theme(brand = "_brand.yml", primary = "#447099"),
+  # GoatCounter, the visit counter of the gallery. It sets no cookie. The path
+  # it records begins with the hostname, so every application lands in one
+  # dashboard. count.js sends nothing from localhost.
+  header = tags$head(
+    tags$script(HTML(
+      "window.goatcounter = {path: function(p) { return location.host + p }};"
+    )),
+    tags$script(
+      `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+      async = NA,
+      src = "https://gc.zgo.at/count.js"
+    )
+  ),
   # Document-flow panels (not fill-the-viewport) so the Explorer rows sit at
   # their natural heights and the page scrolls.
   fillable = FALSE,

@@ -128,6 +128,8 @@
           url: https://github.com/samuelbharti/plotomics-live
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21950647
+        - text: Demo
+          url: apps/plotomics-live/assets/demo.mp4
       tags: visualization, webgl, shinyreact, spatial
 
     - title: genescout

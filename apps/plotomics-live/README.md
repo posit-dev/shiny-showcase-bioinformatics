@@ -201,7 +201,8 @@ latest version; to cite one specific version, use that version's DOI from the
 
 ## License
 
-The code is [MIT](LICENSE). Copyright (c) 2026 Samuel Bharti.
+The code is [MIT](LICENSE). Copyright (c) 2026 Samuel Bharti and Posit
+Software, PBC.
 
 The bundled datasets are **not** MIT-licensed. Each one keeps the license of
 its own source, and those terms travel with the data if you redistribute this

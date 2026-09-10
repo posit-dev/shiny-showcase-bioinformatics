@@ -1,8 +1,17 @@
 <!-- Static client root served by shinyreact::page_react_html("www/index.html").
-     page_react_html injects the shinyreact HTMLDependency (React + hooks) into
-     <head>; this file only needs our stylesheet, the mount point, and the
-     built bundle. -->
+     page_react_html injects the shinyreact HTMLDependency (React + hooks)
+     where the placeholder meta tag is; this file only needs that placeholder,
+     our stylesheet, the mount point, and the built bundle. -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="shiny-dependency-placeholder" content="">
 <title>Plotomics Live - biological visualizations, two ways</title>
 <link rel="stylesheet" href="app.css" />
+</head>
+<body>
 <div id="root"></div>
 <script src="app.js" defer></script>
+</body>
+</html>

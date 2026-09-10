@@ -144,6 +144,8 @@
           url: https://github.com/samuelbharti/genescout
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21950644
+        - text: Demo
+          url: apps/genescout/assets/demo.mp4
       tags: agents, evidence review, gene prioritization
 
     - title: recount-explorer

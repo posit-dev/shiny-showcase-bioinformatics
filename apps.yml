@@ -93,6 +93,8 @@
           url: https://github.com/samuelbharti/tahoe-explorer
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21926312
+        - text: Demo
+          url: apps/tahoe-explorer/assets/demo.mp4
       tags: single-cell, perturbation, duckdb
 
     - title: variant-reviewer

@@ -150,6 +150,7 @@ apps:
       - data
       - LICENSE
       - README.md
+      - assets
 
   # The manifest of this application names its LICENSE, README.md and the other
   # community files, so the list below contains them. It does not name
@@ -173,6 +174,7 @@ apps:
       - CODE_OF_CONDUCT.md
       - CONTRIBUTING.md
       - SECURITY.md
+      - assets
 
   # www/ of this application is build output, and it is 31 MB. Vite makes it
   # from srcts/, and the release contains the result. The list below does not

@@ -100,6 +100,7 @@ apps:
       - inst
       - data
       - www
+      - assets
 
   # The manifest of this application names its LICENSE, README.md and CITATION
   # files. Therefore the list below contains them, although a deployment does

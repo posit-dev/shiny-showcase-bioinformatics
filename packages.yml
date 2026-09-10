@@ -16,11 +16,11 @@
     does a single job, and the applications compose them.
   tiles:
     - title: biobouncer
-      org: R · Python · JavaScript
+      org: R · Python · TypeScript
       description: >-
-        A gate for biological inputs. Validate gene symbols, ontology terms, variant
-        formats and accessions through one API, offline or live. The three languages
-        share one conformance corpus, so they cannot disagree.
+        Validates gene symbols, ontology terms, variant formats and other biological
+        database IDs, offline or live, through one API. R, Python and TypeScript share
+        one conformance corpus, so they always agree.
       thumbnail: biobouncer.png
       fit: hex
       alt: biobouncer hex logo
@@ -28,10 +28,16 @@
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/biobouncer
-        - text: R-universe
-          url: https://samuelbharti.r-universe.dev/biobouncer
+        - text: Docs
+          url: https://www.samuelbharti.com/biobouncer/
+        - text: CRAN
+          url: https://cran.r-project.org/package=biobouncer
         - text: PyPI
           url: https://pypi.org/project/biobouncer/
+        - text: npm
+          url: https://www.npmjs.com/package/biobouncer
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/biobouncer
         - text: DOI
           url: https://doi.org/10.5281/zenodo.21346522
       tags: validation, gene symbols, ontology, cross-language
@@ -39,9 +45,9 @@
     - title: biohttp
       org: R
       description: >-
-        Normalized HTTP transport. Calls return a result value rather than raising, so
-        transport failure, a bad status code and an unreadable body stay distinct
-        outcomes. Circuit breaking, retry and caching are defaults.
+        HTTP transport for R clients of biological web services. Calls return a result
+        value instead of raising, so failures stay distinct from bad data. Circuit
+        breaking, retry and caching are defaults.
       thumbnail: biohttp.svg
       fit: hex
       alt: biohttp hex logo
@@ -49,10 +55,14 @@
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/biohttp
-        - text: R-universe
-          url: https://samuelbharti.r-universe.dev/biohttp
         - text: Docs
           url: https://www.samuelbharti.com/biohttp/
+        - text: CRAN
+          url: https://cran.r-project.org/package=biohttp
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/biohttp
+        - text: DOI
+          url: https://doi.org/10.5281/zenodo.21731864
       tags: http, transport, circuit breaker, caching
 
     - title: bioclients
@@ -68,28 +78,37 @@
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/bioclients
-        - text: R-universe
-          url: https://samuelbharti.r-universe.dev/bioclients
         - text: Docs
           url: https://www.samuelbharti.com/bioclients/
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/bioclients
+        - text: DOI
+          url: https://doi.org/10.5281/zenodo.21770870
       tags: rest api, ensembl, uniprot, gnomad, open targets
 
     - title: plotomics
       org: TypeScript · R · Python
       description: >-
-        Seventeen GPU-accelerated visualizations from one TypeScript core, wrapped three
-        ways: npm for React, htmlwidgets for R, anywidget for Python. Headless
-        factories rather than React components, so the core drops into all three
-        unchanged.
+        GPU-accelerated bioinformatics visualization for R, Python and the web, from one
+        TypeScript core. Seventeen components, wrapped as npm for React, htmlwidgets for
+        R, and anywidget for Python.
       thumbnail: plotomics.svg
       fit: hex
       alt: plotomics hex logo
       tech: 17 components · volcano · embedding · heatmap · igv · network · oncoplot · spatial · and ten more
       links:
+        - text: GitHub
+          url: https://github.com/samuelbharti/plotomics
+        - text: Docs
+          url: https://www.samuelbharti.com/plotomics/
+        - text: npm
+          url: https://www.npmjs.com/package/plotomics
+        - text: CRAN
+          url: https://cran.r-project.org/package=plotomics
         - text: PyPI
           url: https://pypi.org/project/plotomics/
         - text: R-universe
           url: https://samuelbharti.r-universe.dev/plotomics
-        - text: npm
-          url: https://www.npmjs.com/package/plotomics
+        - text: DOI
+          url: https://doi.org/10.5281/zenodo.21926306
       tags: visualization, gpu, webgl, htmlwidgets, anywidget

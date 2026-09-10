@@ -159,6 +159,20 @@ do.call(
       # plus a handler that redraws every plot to its container on request (the
       # plot-card refresh buttons; see R/theme.R tahoe_plot_refresh_*).
       header = tagList(
+        # GoatCounter, the visit counter of the bioinformatics gallery. It sets
+        # no cookie. The path it records begins with the hostname, so every
+        # application of the gallery lands in one dashboard. count.js sends
+        # nothing from localhost.
+        tags$head(
+          tags$script(HTML(
+            "window.goatcounter = {path: function(p) { return location.host + p }};"
+          )),
+          tags$script(
+            `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+            async = NA,
+            src = "https://gc.zgo.at/count.js"
+          )
+        ),
         cicerone::use_cicerone(),
         # A resize handler for the plot-card refresh buttons, plus a nudge that
         # fires a resize whenever a navbar tab is shown. Inputs (and their filter

@@ -11,6 +11,20 @@ navbarPage(
   theme = bslib::bs_theme(brand = TRUE),
   # A shared footer (version, copyright, license, GitHub) under every tab.
   footer = genescout_footer(),
+  # GoatCounter, the visit counter of the bioinformatics gallery. It sets no
+  # cookie. The path it records begins with the hostname, so every application
+  # of the gallery lands in one dashboard. count.js sends nothing from
+  # localhost.
+  header = tags$head(
+    tags$script(HTML(
+      "window.goatcounter = {path: function(p) { return location.host + p }};"
+    )),
+    tags$script(
+      `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+      async = NA,
+      src = "https://gc.zgo.at/count.js"
+    )
+  ),
   # Review and Chat are the functional pages. The reference/explainer pages are
   # grouped under a "Docs" dropdown; About stays top-level (it is the app's front
   # door, not a doc).

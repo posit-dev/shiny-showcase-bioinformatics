@@ -3182,7 +3182,7 @@
       "checksum": "3b4f2a224d186b347eb6a6c96a0f1bb7"
     },
     "DESCRIPTION": {
-      "checksum": "c76fa5bba894890fa5bbce8415999d18"
+      "checksum": "95d10f2618186f88b5358ee1ddca5d97"
     },
     "global.R": {
       "checksum": "dc52b29714b1953e11249a7d19e81a06"
@@ -3368,7 +3368,7 @@
       "checksum": "e93a54924371b12b1ba993e1c4f0b069"
     },
     "R/utils.R": {
-      "checksum": "1d367208af57d6a2c8bb4255e4f8df31"
+      "checksum": "7e4ae779cdb1e9f9d2f147396d024905"
     },
     "renv.lock": {
       "checksum": "89ca000413943548a7eeb2f5d7503c77"
@@ -3383,7 +3383,7 @@
       "checksum": "22b7e333cc2b318dc20fcda3fbdcf4ac"
     },
     "ui.R": {
-      "checksum": "63bc9a014a1da9c5b71fa6567a9545ec"
+      "checksum": "82d699e3ea179d3f90d1c38667684efe"
     },
     "userInterface/page_about.R": {
       "checksum": "79266a9c4c4eeebc7303da9e8d7a90a8"

@@ -7,5 +7,5 @@ safe_read_rds <- function(path, default = NULL) {
 }
 
 app_version <- function() {
-  "0.1.3"
+  "0.1.4"
 }

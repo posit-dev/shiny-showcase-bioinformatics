@@ -21,6 +21,18 @@ page_navbar(
   fillable = FALSE,
   header = tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "css/app.css"),
+    # GoatCounter, the visit counter of the bioinformatics gallery. It sets no
+    # cookie. The path it records begins with the hostname, so every
+    # application of the gallery lands in one dashboard. count.js sends nothing
+    # from localhost.
+    tags$script(HTML(
+      "window.goatcounter = {path: function(p) { return location.host + p }};"
+    )),
+    tags$script(
+      `data-goatcounter` = "https://samuelbharti.goatcounter.com/count",
+      async = NA,
+      src = "https://gc.zgo.at/count.js"
+    ),
     # Attach cicerone's assets when installed; the Demo button drives a guided
     # walkthrough with it (see R/demo_tour.R and the demo handler in server.R).
     if (requireNamespace("cicerone", quietly = TRUE)) cicerone::use_cicerone()

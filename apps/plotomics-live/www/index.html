@@ -9,6 +9,15 @@
 <meta name="shiny-dependency-placeholder" content="">
 <title>Plotomics Live - biological visualizations, two ways</title>
 <link rel="stylesheet" href="app.css" />
+<!-- GoatCounter, the visit counter of the bioinformatics gallery. It sets no
+     cookie. The path it records begins with the hostname, so every application
+     of the gallery lands in one dashboard. count.js sends nothing from
+     localhost. -->
+<script>
+  window.goatcounter = { path: function(p) { return location.host + p } };
+</script>
+<script data-goatcounter="https://samuelbharti.goatcounter.com/count"
+        async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div id="root"></div>

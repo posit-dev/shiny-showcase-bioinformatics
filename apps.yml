@@ -85,7 +85,7 @@
         Filter and subset Tahoe-100M perturbation metadata, 100.6 million rows, and
         leave with a reproducible pull recipe. Summaries push down to DuckDB.
       thumbnail: tahoe-explorer.png
-      alt: The Tahoe-100M metadata explorer, with cell-line and driver-gene summaries
+      alt: Tahoe-100M in large type over lake contours, with a lassoed subset of cells
       app: tahoe-explorer
       content_id: "01a068f2-9d80-fb53-2bd6-e200435e2c95"
       links:
@@ -101,6 +101,7 @@
         An agentic evidence-review workbench. Give it a candidate list and a disease
         context, get back a plausibility-ranked, cited shortlist. Research use only.
       thumbnail: genescout.png
+      alt: Scout, the mascot, beside a ranked and cited shortlist of genes
       app: genescout
       content_id: "01a068f2-9f3b-5219-e7da-701827504414"
       links:
@@ -117,7 +118,7 @@
         lines of R, one of which is the UI. Precomputed .f32 blobs go straight to the
         GPU.
       thumbnail: plotomics-live.png
-      alt: A Xenium spatial transcriptomics point cloud rendered in Plotomics Live
+      alt: A Xenium point cloud of a million cells, with one cluster lassoed
       app: plotomics-live
       content_id: "01a068f2-9ba1-68a5-a0d5-18fe52babf56"
       links:
@@ -133,7 +134,7 @@
         Browse 18,998 uniformly processed recount3 RNA-seq studies, load one through
         the recount3 API, and read its quality checks, gene expression and PCA.
       thumbnail: recount-explorer.png
-      alt: The recount3 study catalog, filtered by organism, data source and size
+      alt: A grid of 18,998 recount3 studies, with one opened into a PCA
       app: recount-explorer
       content_id: "01a0881c-48af-77e2-7e10-18bbeffb27b1"
       links:
@@ -147,6 +148,7 @@
         One gene, one variant, one page. Eighteen cards fan out asynchronously across
         public APIs, with a 3D structure viewer and a ClinVar typeahead.
       thumbnail: variant-reviewer.png
+      alt: BRAF codon 600, with the single T to A substitution highlighted
       app: variant-reviewer
       content_id: "01a06d89-069b-1b9b-e8a7-be4da970cbcf"
       links:
@@ -163,7 +165,7 @@
         in parallel, and dedupe to one row per gene. Re-ranks live as you tune the
         source weights.
       thumbnail: gene-list-builder.png
-      alt: A ranked gene list for breast cancer, with a score for each source
+      alt: Seven gene-disease sources converging into one ranked gene panel
       app: gene-list-builder
       content_id: "01a068f2-3d44-aed5-22e6-3733524b58d1"
       links:
@@ -179,6 +181,7 @@
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
         thresholds and drill from a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
+      alt: A volcano plot of LUAD versus LUSC, with marker genes labelled
       app: de-explorer
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
@@ -191,6 +194,7 @@
         Condenses each TCGA-BRCA sample into scores for the 50 Hallmark pathways,
         contrasts clinical subtypes, and opens any pathway to the genes driving it.
       thumbnail: signature-scoring.png
+      alt: Fifty Hallmark pathway scores sorted into an HR+ versus HER2+ contrast
       app: signature-scoring
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
@@ -203,6 +207,7 @@
         Connectivity scoring against a reference perturbation panel. Rank compounds into
         mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
+      alt: A query signature beside its mimic and its reverser, with connectivity scores
       app: drug-perturbation
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.
@@ -215,7 +220,7 @@
         Recurrent TCGA breast driver mutations placed on hg19 through igv.js. Raise the
         recurrence filter, then click a variant to zoom the browser to it.
       thumbnail: genome-explorer.png
-      alt: The PIK3CA locus in an igv.js browser, above a table of recurrent variants
+      alt: Chromosome 3 zooming to the PIK3CA exon track, with recurrent hotspots marked
       app: genome-explorer
       # No content_id, and deploy is false: this application needs a
       # sanitization pass before it gets a public address. See README.md.

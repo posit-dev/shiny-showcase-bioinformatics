@@ -3,6 +3,7 @@
 [![lint](https://github.com/samuelbharti/recount-explorer/actions/workflows/lint.yml/badge.svg)](https://github.com/samuelbharti/recount-explorer/actions/workflows/lint.yml)
 [![test](https://github.com/samuelbharti/recount-explorer/actions/workflows/test.yml/badge.svg)](https://github.com/samuelbharti/recount-explorer/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/1334565608.svg)](https://doi.org/10.5281/zenodo.22067235)
 
 Recount Explorer is a Shiny app that shows RNA-seq studies from the
 [recount3](https://bioconductor.org/packages/recount3/) project. recount3 holds

@@ -2521,16 +2521,16 @@
       "checksum": "2284a5f40cd89a4acd2302c9f6fffb2b"
     },
     "R/utils.R": {
-      "checksum": "d0ee452ac0e87f0895f5ad0c4ada0eb2"
+      "checksum": "f4cd7f9cac812147e2ac95c8ab55d0a9"
     },
     "README.md": {
-      "checksum": "ec51b2252379aa57d44686457e3f8be5"
+      "checksum": "f191847e1b91fe35afa728a1f20f4ff5"
     },
     "server.R": {
       "checksum": "aa7f992a4e9d7bafc429c8b188101bfe"
     },
     "ui.R": {
-      "checksum": "5027df8da41922cb74c2257c9fcc3cf0"
+      "checksum": "383fa24c87fef106d21e0e32e188a896"
     },
     "userInterface/about_ui.R": {
       "checksum": "5adc3d3e090f6e3cf4fb5da0434dfceb"

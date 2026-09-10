@@ -15,7 +15,7 @@ API-by-hand curation workflow with a reproducible pipeline:
 5. **Curate** the final list with an AI agent (Google Gemini), on demand.
 6. **Export** the gene list (CSV) and a run report (Markdown).
 
-Current app version: v0.2.1
+Current app version: v0.2.2
 
 ## Data sources
 

@@ -20,5 +20,14 @@ apps/*/data/cache/
 # needs, so this directory is output, and git ignores it.
 rsconnect/
 
+# thumbnails/src/build_thumbs.py writes one artboard per application, and
+# render_boards.R reads them. They are build output: the script is the source.
+thumbnails/src/*.dc.html
+thumbnails/src/canvas.json
+
+# render_boards.R writes the slide size, SCALE=2, beside the gallery files as
+# thumbnails/<app>-4800.png. The slides repository keeps those; this one does not.
+thumbnails/*-4800.png
+
 # macOS writes this file into any directory that the Finder opens.
 .DS_Store

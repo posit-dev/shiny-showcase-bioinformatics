@@ -178,7 +178,7 @@ apps:
   # copy srcts/, because Connect Cloud operates no build step.
   - name: plotomics-live
     repo: samuelbharti/plotomics-live
-    ref: "v0.1.1"
+    ref: "v0.1.3"
     include:
       - app.R
       - manifest.json

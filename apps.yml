@@ -156,6 +156,8 @@
       links:
         - text: GitHub
           url: https://github.com/samuelbharti/recount-explorer
+        - text: DOI
+          url: https://doi.org/10.5281/zenodo.22067236
       tags: rna-seq, recount3, bioconductor
 
     - title: gene-list-builder

@@ -128,6 +128,8 @@
           url: https://github.com/samuelbharti/biocohort
         - text: Docs
           url: https://www.samuelbharti.com/biocohort/
+        - text: R-universe
+          url: https://samuelbharti.r-universe.dev/biocohort
         - text: DOI
           url: https://doi.org/10.5281/zenodo.22685057
       tags: cohort, sample manifest, cross-species, omics

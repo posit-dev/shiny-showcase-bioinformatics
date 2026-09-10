@@ -69,13 +69,13 @@
 # capture a screenshot and write the new file name into `thumbnail`. Nothing
 # else changes.
 #
-# All the applications are in one section. The last three are part of
+# All the applications are in one section. The last four came from
 # lifescience-shiny-gallery, which also contains twelve component examples. The
-# `org` field of those three records this, and they have no separate category.
+# `org` field of those four records this, and they have no separate category.
+# This repository is their home now; see issue #43.
 #
-# Three other applications are absent from this page: multi-variant-reviewer,
-# knowledge-graph-viewer, and Genome Explorer from lifescience-shiny-gallery.
-# Their tiles are in the git history, at commit 3194430.
+# Two other applications are absent from this page: multi-variant-reviewer and
+# knowledge-graph-viewer. Their tiles are in the git history, at commit 3194430.
 - category: Applications
   pcc-account: posit
   tiles:
@@ -197,9 +197,6 @@
       thumbnail: signature-scoring.png
       alt: Fifty Hallmark pathway scores sorted into an HR+ versus HER2+ contrast
       app: signature-scoring
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/signature-scoring
@@ -215,9 +212,6 @@
       thumbnail: drug-perturbation.png
       alt: A query signature beside its mimic and its reverser, with connectivity scores
       app: drug-perturbation
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/drug-perturbation
@@ -233,9 +227,6 @@
       thumbnail: de-explorer.png
       alt: A volcano plot of LUAD versus LUSC, with marker genes labelled
       app: de-explorer
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/de-explorer
@@ -251,9 +242,6 @@
       thumbnail: genome-explorer.png
       alt: Chromosome 3 zooming to the PIK3CA exon track, with recurrent hotspots marked
       app: genome-explorer
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/genome-explorer

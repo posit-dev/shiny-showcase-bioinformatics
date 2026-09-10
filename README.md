@@ -22,13 +22,15 @@ repository adds three things to the card template: optional links, a `fit`
 control, and `intro` text for each category.
 
 > [!IMPORTANT]
-> The four `lifescience-shiny-gallery` applications — DE Explorer, Signature
-> Scoring, Drug Perturbation and Genome Explorer — carry `deploy: false` in
-> `apps.yml`, and they keep it until a sanitization pass. Their source
-> repository is Posit-internal, so their code is here, their tiles link only
-> to this repository and to a demo clip, and nothing publishes them to a
-> public address. Do not remove `deploy: false` from one of them without that
-> pass.
+> The four `lifescience-shiny-gallery` applications, DE Explorer, Signature
+> Scoring, Drug Perturbation and Genome Explorer, have no `content_id` in
+> `apps.yml` yet, so the deploy matrix reports them as `WAIT` and nothing
+> publishes them. This repository is their home, and changes to them land
+> here as pull requests; see
+> [issue #43](https://github.com/posit-dev/shiny-showcase-bioinformatics/issues/43).
+> The first publish of each one is manual, under the `posit` account. It
+> writes the `content_id` into the tile, and the workflow deploys the
+> application from then on.
 
 ## Source and citation
 
@@ -60,7 +62,7 @@ metadata. Zenodo. https://doi.org/10.5281/zenodo.21926312
 
 The four `lifescience-shiny-gallery` applications have no repository of their
 own and no DOI. Their tiles link to their directory in this repository. Cite
-this gallery instead, until the sanitization pass gives them one.
+this gallery instead.
 
 The five packages follow the same convention. Each tile links to the
 repository, to the DOI, and to the registries that carry the package.

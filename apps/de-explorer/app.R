@@ -600,7 +600,7 @@ ui <- page_navbar(
   ),
   nav_item(
     tags$a(
-      href = "https://github.com/posit-dev/lifescience-shiny-gallery",
+      href = "https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/de-explorer",
       target = "_blank",
       rel = "noopener",
       class = "nav-link",

@@ -160,7 +160,7 @@ Add a tile below the correct category. To make a new section, add a top-level
 ### 2. Add a thumbnail
 
 Each thumbnail has the name of its application, for example `genescout.png`. A
-card shows it at 3:2, so every file is 2400x1600.
+card shows an application thumbnail at 3:2, so each one is 2400x1600.
 
 An application thumbnail is a drawing, not a screenshot. It shows what the
 application does: the variant, the volcano plot, the study catalog.

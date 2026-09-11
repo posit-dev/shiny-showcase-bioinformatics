@@ -260,19 +260,20 @@ empty_decisions <- function() {
   )
 }
 
-# --- biogate seam (deferred) ------------------------------------------------
+# --- biobouncer seam (deferred) ---------------------------------------------
 
-# The deterministic ID-validation seam. Returns NULL unless the sibling `biogate`
-# package is installed, exactly like the ellmer guard - so biogate drops in by
-# merely being present, with no code change and without being in DESCRIPTION.
+# The deterministic ID-validation seam. Returns NULL unless the sibling
+# `biobouncer` package is installed, exactly like the ellmer guard - so
+# biobouncer drops in by merely being present, with no code change and without
+# being in DESCRIPTION.
 # When present it validates/canonicalizes symbols (e.g. retired MLL -> KMT2A);
 # it only ANNOTATES/NORMALIZES, never introduces a token.
 default_input_validator <- function() {
-  if (!requireNamespace("biogate", quietly = TRUE)) {
+  if (!requireNamespace("biobouncer", quietly = TRUE)) {
     return(NULL)
   }
   function(symbols, species = "human") {
-    biogate::check_id(symbols, source_db = "hgnc", how = "cache")
+    biobouncer::check_id(symbols, source_db = "hgnc", how = "cache")
   }
 }
 

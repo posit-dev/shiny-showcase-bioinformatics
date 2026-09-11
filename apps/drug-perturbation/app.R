@@ -401,7 +401,7 @@ rail_nav <- tags$aside(
     ),
     tags$a(
       class = "navlink",
-      href = "https://github.com/posit-dev/lifescience-shiny-gallery",
+      href = "https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/drug-perturbation",
       target = "_blank",
       rel = "noopener",
       icon("github"),

@@ -506,7 +506,7 @@ ui <- tagList(
       ),
       tags$a(
         class = "navlink",
-        href = "https://github.com/posit-dev/lifescience-shiny-gallery",
+        href = "https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/genome-explorer",
         target = "_blank",
         rel = "noopener",
         icon("github"),

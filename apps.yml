@@ -69,13 +69,12 @@
 # capture a screenshot and write the new file name into `thumbnail`. Nothing
 # else changes.
 #
-# All the applications are in one section. The last three are part of
-# lifescience-shiny-gallery, which also contains twelve component examples. The
-# `org` field of those three records this, and they have no separate category.
+# All the applications are in one section. The last four came from
+# lifescience-shiny-gallery, which also contains twelve component examples.
+# This repository is their home now; see issue #43.
 #
-# Three other applications are absent from this page: multi-variant-reviewer,
-# knowledge-graph-viewer, and Genome Explorer from lifescience-shiny-gallery.
-# Their tiles are in the git history, at commit 3194430.
+# Two other applications are absent from this page: multi-variant-reviewer and
+# knowledge-graph-viewer. Their tiles are in the git history, at commit 3194430.
 - category: Applications
   pcc-account: posit
   tiles:
@@ -190,16 +189,13 @@
       tags: gene-disease, target discovery, provenance
 
     - title: Signature Scoring
-      org: lifescience-shiny-gallery
+      org: Samuel Bharti
       description: >-
         Condenses each TCGA-BRCA sample into scores for the 50 Hallmark pathways,
         contrasts clinical subtypes, and opens any pathway to the genes driving it.
       thumbnail: signature-scoring.png
       alt: Fifty Hallmark pathway scores sorted into an HR+ versus HER2+ contrast
       app: signature-scoring
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/signature-scoring
@@ -208,16 +204,13 @@
       tags: pathway activity, gene sets, msigdb
 
     - title: Drug Perturbation
-      org: lifescience-shiny-gallery
+      org: Samuel Bharti
       description: >-
         Connectivity scoring against a reference perturbation panel. Rank compounds into
         mimics and reversers, then break any hit down by cell line or dose.
       thumbnail: drug-perturbation.png
       alt: A query signature beside its mimic and its reverser, with connectivity scores
       app: drug-perturbation
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/drug-perturbation
@@ -226,16 +219,13 @@
       tags: drug repurposing, connectivity, lincs
 
     - title: DE Explorer
-      org: lifescience-shiny-gallery
+      org: Samuel Bharti
       description: >-
         Differential expression over uniformly reprocessed TCGA and airway RNA-seq. Tune
         thresholds and drill from a PCA overview into per-gene detail.
       thumbnail: de-explorer.png
       alt: A volcano plot of LUAD versus LUSC, with marker genes labelled
       app: de-explorer
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/de-explorer
@@ -244,16 +234,13 @@
       tags: rna-seq, differential expression, tcga
 
     - title: Genome Explorer
-      org: lifescience-shiny-gallery
+      org: Samuel Bharti
       description: >-
         Recurrent TCGA breast driver mutations placed on hg19 through igv.js. Raise the
         recurrence filter, then click a variant to zoom the browser to it.
       thumbnail: genome-explorer.png
       alt: Chromosome 3 zooming to the PIK3CA exon track, with recurrent hotspots marked
       app: genome-explorer
-      # No content_id, and deploy is false: this application needs a
-      # sanitization pass before it gets a public address. See README.md.
-      deploy: false
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/genome-explorer

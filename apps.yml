@@ -196,6 +196,7 @@
       thumbnail: signature-scoring.png
       alt: Fifty Hallmark pathway scores sorted into an HR+ versus HER2+ contrast
       app: signature-scoring
+      content_id: "01a0920e-9ce6-38cf-6ed0-bdd3038c12d2"
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/signature-scoring
@@ -211,6 +212,7 @@
       thumbnail: drug-perturbation.png
       alt: A query signature beside its mimic and its reverser, with connectivity scores
       app: drug-perturbation
+      content_id: "01a0920e-ec67-df14-1a16-5a76be51e604"
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/drug-perturbation
@@ -226,6 +228,7 @@
       thumbnail: de-explorer.png
       alt: A volcano plot of LUAD versus LUSC, with marker genes labelled
       app: de-explorer
+      content_id: "01a0920f-25a1-908f-4446-fdb6295894aa"
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/de-explorer
@@ -241,6 +244,7 @@
       thumbnail: genome-explorer.png
       alt: Chromosome 3 zooming to the PIK3CA exon track, with recurrent hotspots marked
       app: genome-explorer
+      content_id: "01a0920f-6419-b291-6182-19122b08693e"
       links:
         - text: GitHub
           url: https://github.com/posit-dev/shiny-showcase-bioinformatics/tree/main/apps/genome-explorer

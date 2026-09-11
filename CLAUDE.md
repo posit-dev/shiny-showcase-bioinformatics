@@ -305,6 +305,19 @@ dead one answers with `<title>Posit Connect Cloud</title>` and a CSS spinner.
 `apps/variant-reviewer` was broken from its first deployment and nobody
 noticed, because every other signal said it was fine.
 
+**One curl is not the test. Cold content serves the spinner page too.** An
+application that has not run recently answers the *first* request with
+`<title>Posit Connect Cloud</title>` while the worker starts, and the next
+request, seconds later, answers with the `<base href>`. All six deployed
+applications read as dead on a single pass and as live on a second. So repeat
+the request until `<base href` appears, a few times before you conclude
+anything:
+
+```bash
+u=https://posit-<app>.share.connect.posit.cloud/
+for i in 1 2 3 4; do curl -s --max-time 40 "$u" | grep -o -m1 '<base href="_w_[^"]*"' && break; done
+```
+
 **A fix that fails to deploy is not retried by the next push.** `deploy-apps.yml`
 deploys an application only when the push touched `apps/<app>/` or `apps.yml`,
 so after a failed deploy job every later push reports `<app> is unchanged in

@@ -14,6 +14,10 @@ project:
 
 website:
   title: "Shiny in Bioinformatics"
+  # The Shiny hex, the same icon that shiny.posit.co and its gallery serve. The
+  # file is their favicon.png, byte for byte, so a browser tab of this gallery
+  # looks like a tab of the other Shiny galleries.
+  favicon: favicon.png
   # No navbar: the site is a single page, with apps and supporting packages as
   # sections of it.
   page-footer:

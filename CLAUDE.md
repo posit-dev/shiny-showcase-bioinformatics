@@ -107,26 +107,26 @@ user-facing documentation does not cover these fields. rsconnect exposes almost
 none of them, so `deploy_app.R` calls the API directly through
 `rsconnect:::PATCH_JSON` and the client's own `withTokenRefreshRetry`.
 
-### Broken in rsconnect 1.11.0 and on main
+### Fixed in rsconnect 1.11.1, and the floor is 1.11.2
 
-1. **`deployApp(manifestPath=)` sends `primary_file: null`** and Connect Cloud
-   rejects the request. rsconnect infers the primary file only while it infers
-   the application mode, and a manifest supplies the mode, so the inference
-   never runs. `deploy_app.R` patches `rsconnect:::appMetadata` to supply it.
-   Deploying from the manifest is not optional here: three applications name
-   packages that are not on CRAN, so a runner cannot resolve dependencies.
-2. **`appId` does not work for Connect Cloud.** The client implements no
-   `getApplication()`, so `deployApp(appId=)` fails. Content is identified only
-   through a local `rsconnect/*.dcf` record, and git ignores that directory, so
-   `deploy_app.R` writes the record from the content id with
-   `migrateToConnectCloud()` first. That function arrived in 1.11.0, which is
-   the floor for the version.
-3. **`applications()` aborts** for Connect Cloud accounts, so content cannot be
-   looked up by name. On main, the name-based lookup inside `deployApp()` was
-   removed for Connect Cloud as well: a future release will create *duplicate
-   content* instead of updating, for any code that relies on `appName` alone.
-   The content id is the only stable identifier.
-4. **`upload = FALSE`** fails with `object 'bundle' not found`.
+`deploy_app.R` stops on anything older than 1.11.2, and carries no work-around.
+It once carried three, for faults filed upstream and released in 1.11.1:
+`deployApp(manifestPath=)` sent `primary_file: null` (#1366),
+`deployApp(appId=)` failed on Connect Cloud (#1367), and content with no
+current revision failed every deployment with `Invalid token` (#1370).
+`applications()` (#1368) and `upload = FALSE` (#1369) were fixed as well.
+
+Two consequences remain:
+
+- Deploying from the manifest is not optional here: three applications name
+  packages that are not on CRAN, so a runner cannot resolve dependencies.
+- **The content id is the only stable identifier.** On main, the name-based
+  lookup inside `deployApp()` was removed for Connect Cloud: code that relies
+  on `appName` alone creates *duplicate content* instead of updating. So
+  `deploy_app.R` passes `appId`, and needs no local `rsconnect/*.dcf` record.
+
+### Still true in rsconnect 1.11.2 and on main
+
 5. **`connectCloudClientCredentials()` needs `content:create`, and says
    otherwise.** It takes the account by *name*, and registers it only when
    `GET /v1/accounts` advertises that permission on it:
@@ -143,7 +143,8 @@ none of them, so `deploy_app.R` calls the API directly through
    publish role. **The remedy is to grant it, at
    <https://login.posit.cloud/identity/credentials>.** There is nothing to fix
    in this repository, and no argument for an account id to route around it, on
-   1.11.0 or on main.
+   1.11.2 or on main. Run 37327177095 failed the same way on 1.11.2, after the
+   secrets were replaced: a new credential needs the role too.
 
    Two things that look like the cause and are not:
 
@@ -159,9 +160,6 @@ none of them, so `deploy_app.R` calls the API directly through
 
    Before you print or paste a listing of `GET /v1/accounts` to work on this,
    read "This repository is public" below.
-
-Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
-`current_revision` fault below.
 
 ### The publish state machine
 
@@ -186,8 +184,13 @@ Filed upstream: rstudio/rsconnect#1366, #1367, #1368, #1369, and #1370 for the
 - **A PATCH of the content creates no revision, and is safe**, before a
   deployment or after one.
 - **`POST /contents/{id}/republish` is not safe.** It can leave the content with
-  no `current_revision` and a *published* `next_revision`, permanently. Do not
-  call it. Filed as rstudio/rsconnect#1370.
+  no `current_revision` and a *published* `next_revision`. rsconnect 1.11.1
+  and later mint a fresh bundle on the next deployment, which repairs it
+  (#1370); before that, every deployment failed with `Invalid token`. Do not
+  call it anyway. Dead ends for that state, for the record: `POST /publish`, a
+  second `republish`, and `POST /revisions/{id}/refresh_upload_url` (HTTP
+  409). Deleting the content is not a repair either: the delete is soft, and
+  `getContent()` then aborts with "Content is pending deletion".
 
 ### `Unauthenticated`, on a deploy from your own machine
 
@@ -251,37 +254,6 @@ tryCatch(
 
 `errorType` off the condition is how to see `sso_required` without curl;
 rsconnect prints only `Unauthenticated.`
-
-### `Invalid token`, and the content with no current revision
-
-This one cost the most, and the cause is not where it appears to be.
-
-rsconnect asks Connect Cloud for a new bundle only when the content has a
-current revision:
-
-```r
-# current revision will be null only when creating new content
-if (!is.null(application$current_revision)) { ... updateContent(...) }
-```
-
-**That comment is wrong.** A republished content also has no current revision.
-rsconnect then skips the request that mints a bundle, and uploads against the
-`source_bundle_upload_url` that the content already carries. That token expires
-one hour after it was minted, so **every** deployment of such content fails with
-`Invalid token`, forever, and the failure looks like an authentication problem.
-
-`PATCH /contents/{id}?new_bundle=true` is the request rsconnect skipped, and it
-is the repair: it creates a pending revision with a fresh token, which the
-deployment then finds. `ensureFreshBundle()` in `deploy_app.R` does exactly
-that, and only for content in this state. Deleting and recreating the content is
-*not* necessary, and deleting is not free: the delete is soft, `getContent()`
-then aborts with "Content is pending deletion", and only the vanity name is
-released at once.
-
-Dead ends, for the record: `POST /publish`, a second `republish`,
-`deployApp(upload = FALSE)`, and
-`POST /revisions/{id}/refresh_upload_url` (HTTP 409, "Revision has already been
-published").
 
 ### A green job is not a working application
 

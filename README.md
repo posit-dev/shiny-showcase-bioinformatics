@@ -410,10 +410,9 @@ the content first and writes only when a value differs, so an ordinary run
 makes one request and changes nothing.
 
 Do not call `POST /contents/{id}/republish` to land a change instead. It can
-leave the content with no current revision, and then every later deployment
-fails with `Invalid token`. `apps/variant-reviewer` is in that state, and
-`CLAUDE.md` explains both the cause and the repair that `deploy_app.R` applies
-by itself.
+leave the content with no current revision. rsconnect 1.11.1 and later recover
+from that on the next deployment, but `CLAUDE.md` has why it is still worth
+avoiding.
 
 ### Why the first deployment is manual
 
@@ -428,9 +427,7 @@ that the matrix reports as `WAIT`, and never a second copy of the content.
 
 The `posit` account publishes content with public access, so a new deployment
 is readable by anybody who has the address. Confirm that in the content
-settings after the first deployment: rsconnect cannot set the visibility of
-Connect Cloud content, because its `appVisibility` argument has no effect on
-that server.
+settings after the first deployment; `deploy_app.R` does not set it.
 
 ### Publish an application the first time
 
@@ -467,27 +464,13 @@ run creates the content, so it can only set `vanity_name` afterwards, and the
 address follows that field at publish time. The first run of the workflow after
 step 2 gives the application its real address.
 
-### The two rsconnect problems that `deploy_app.R` works around
+### The rsconnect version
 
-The script needs rsconnect 1.11.0 or later. Two comments in it explain the
-detail; this is the summary.
-
-**The primary file.** rsconnect 1.10.1 through 1.11.0 send
-`primary_file: null` to Connect Cloud when they deploy from a manifest, and the
-API rejects the request. rsconnect infers that value while it infers the
-application mode, and a manifest supplies the mode, so the inference never
-happens. The script patches one internal function to supply it, from the file
-list of the manifest. Remove the patch when rsconnect reads the primary file
-from the manifest itself.
-
-**The deployment record.** `deployApp()` identifies existing Connect Cloud
-content only through a local `rsconnect/*.dcf` record. Its `appId` argument
-does not work there, because the Connect Cloud client implements no
-`getApplication()`, and content has no name to search for: the name that
-rsconnect reports is the title. A runner holds no record, and git ignores the
-directory that holds one, so the script writes the record from the content id
-first, with `migrateToConnectCloud()`. That function arrived in 1.11.0, and it
-is the reason for the version requirement.
+`deploy_app.R` needs rsconnect 1.11.2 or later, and stops on an older one.
+Earlier versions could not deploy to Connect Cloud from a manifest, could not
+deploy to content by id, and could not redeploy content whose last publish
+failed; the script used to carry a work-around for each. It now passes the
+content id to `deployApp(appId=)` and needs no local deployment record.
 
 ### The two secrets
 

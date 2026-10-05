@@ -12,9 +12,8 @@ name: Deploy apps
 #
 # The one manual step is the first deployment of an application, which is what
 # creates the content and its id. README.md explains it. rsconnect cannot find
-# existing content by name on Connect Cloud, and its appId argument does not
-# work there either, so the id in a local deployment record is the only way to
-# identify content from a runner that holds no record.
+# existing content by name on Connect Cloud, so the content id is the only way
+# to identify content from a runner.
 #
 # The path filter is safe here, unlike the one that checks.yml deliberately
 # omits. A test that does not operate gives a false result; a deployment that
@@ -36,10 +35,8 @@ on:
 #
 # Cancelling is the tempting choice, because the newer commit is the one worth
 # deploying. Do not make it. A publish interrupted in the middle can leave
-# content with no current revision, and that content then fails every later
-# deployment with `Invalid token`; `apps/variant-reviewer` is in that state
-# already. `ensureFreshBundle()` in deploy_app.R repairs it, but a deployment
-# that finishes needs no repair. CLAUDE.md has the detail.
+# content with no current revision. rsconnect 1.11.1 and later repair that on
+# the next deployment, but a deployment that finishes needs no repair.
 concurrency:
   group: deploy-apps
   cancel-in-progress: false

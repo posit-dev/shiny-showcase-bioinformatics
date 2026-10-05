@@ -15,8 +15,13 @@
 # creates new content and prints its id; the workflow never does this, because
 # it deploys only the applications that already have an id.
 #
-# Updating existing content needs rsconnect 1.11.0 or later. The script works
-# around two problems in that version, and each one has a comment below.
+# rsconnect 1.11.2 or later. Earlier versions could not deploy from a manifest
+# to Connect Cloud, nor deploy to content by id, nor redeploy content whose
+# last publish failed; this script once carried a work-around for each.
+stopifnot(
+  "rsconnect 1.11.2 or later is necessary" =
+    utils::packageVersion("rsconnect") >= "1.11.2"
+)
 
 app <- Sys.getenv("APP")
 contentId <- Sys.getenv("CONTENT_ID")
@@ -35,49 +40,6 @@ appDir <- file.path("apps", app)
 manifestPath <- file.path(appDir, "manifest.json")
 stopifnot("no manifest.json" = file.exists(manifestPath))
 
-manifest <- jsonlite::read_json(manifestPath)
-
-# The primary file of the application, by the rule that
-# rsconnect:::inferAppMode() applies to a Shiny application: app.R at the root
-# if it exists, and server.R otherwise. The applications here use both styles.
-primaryFileFromManifest <- function(manifest) {
-  root <- names(manifest$files)[dirname(names(manifest$files)) == "."]
-  for (candidate in c("app.R", "server.R")) {
-    hit <- root[tolower(root) == tolower(candidate)]
-    if (length(hit)) {
-      return(hit[[1]])
-    }
-  }
-  stop("manifest.json holds neither app.R nor server.R at its root")
-}
-
-# rsconnect 1.10.1 through 1.11.0 send `primary_file: null` to Connect Cloud
-# when deployApp() gets manifestPath, and the API rejects the request with
-# "Field `body.next_revision.primary_file` error". The value comes from
-# appMetadata(), which infers it while it infers the application mode; a
-# manifest supplies the mode, so rsconnect skips the inference and the value
-# stays empty. This shim supplies it. It affects the creation of content and
-# every later deployment, so both paths need it.
-#
-# ponytail: remove this when rsconnect reads the primary file from the
-# manifest. `get()` fails loudly if that function changes name, and the
-# condition below leaves a value that rsconnect does infer untouched.
-installPrimaryFileShim <- function(primaryFile) {
-  ns <- asNamespace("rsconnect")
-  original <- get("appMetadata", envir = ns)
-  patched <- function(...) {
-    metadata <- original(...)
-    if (
-      is.null(metadata$appPrimaryDoc) && is.null(metadata$inferredPrimaryFile)
-    ) {
-      metadata$inferredPrimaryFile <- primaryFile
-    }
-    metadata
-  }
-  utils::assignInNamespace("appMetadata", patched, ns = "rsconnect")
-}
-installPrimaryFileShim(primaryFileFromManifest(manifest))
-
 # An empty client id means an interactive session, where the account is already
 # registered with connectCloudUser().
 #
@@ -91,37 +53,6 @@ if (nzchar(clientId)) {
     clientSecret = clientSecret,
     account = account
   )
-}
-
-# Point the local deployment record at the content that CONTENT_ID names.
-# deployApp() needs that record: on Connect Cloud it cannot find content by
-# name, and its appId argument does not work either, because the Connect Cloud
-# client implements no getApplication(). A fresh runner holds no record, and
-# git ignores the directory that holds one, so this step runs on every job.
-if (nzchar(contentId)) {
-  stopifnot(
-    "rsconnect 1.11.0 or later is necessary for migrateToConnectCloud()" =
-      utils::packageVersion("rsconnect") >= "1.11.0"
-  )
-  record <- rsconnect::deployments(
-    appPath = appDir,
-    serverFilter = "connect.posit.cloud"
-  )
-  if (nrow(record) == 0) {
-    rsconnect::migrateToConnectCloud(
-      appPath = appDir,
-      contentId = contentId,
-      cloudAccount = account,
-      appName = app
-    )
-  } else if (!identical(record$appId[[1]], contentId)) {
-    stop(sprintf(
-      "the deployment record of %s names content %s, and CONTENT_ID names %s",
-      app,
-      record$appId[[1]],
-      contentId
-    ))
-  }
 }
 
 # Two settings of the content that this repository controls, and that a
@@ -146,8 +77,7 @@ if (nzchar(contentId)) {
 #
 # Do not republish to land a change instead. `POST /contents/{id}/republish`
 # leaves the content with no `current_revision` and a published
-# `next_revision`, and `ensureFreshBundle()` below then has to repair it on
-# every later deployment.
+# `next_revision`.
 #
 # The function reads the content first, and writes only when a value differs,
 # so the usual run makes one request and changes nothing. rsconnect has no
@@ -201,51 +131,8 @@ applyContentSettings <- function(id, policy = "allow_all") {
   ))
 }
 
-# Repair content that has no `current_revision`, which `POST .../republish`
-# leaves behind.
-#
-# rsconnect asks Connect Cloud for a new bundle only when the content has a
-# current revision:
-#
-#   # current revision will be null only when creating new content
-#   if (!is.null(application$current_revision)) { ... updateContent(...) }
-#
-# That comment is wrong. A republished content also has none, and then
-# rsconnect skips the request that mints a bundle and uploads against the
-# `source_bundle_upload_url` the content already carries. That token expires one
-# hour after it was minted, so every deployment of such content fails with
-# `Invalid token`, forever.
-#
-# `PATCH /contents/{id}?new_bundle=true` is the request rsconnect skipped. It
-# creates a pending revision with a fresh token, which the deployment then
-# finds and uploads to. This runs last, so nothing comes between minting the
-# token and using it.
-#
-# ponytail: remove this when rsconnect asks for a bundle whatever the state of
-# the content. `apps/variant-reviewer` is the content in this state.
-ensureFreshBundle <- function(id) {
-  info <- rsconnect:::accountInfo(account, "connect.posit.cloud")
-  client <- rsconnect:::clientForAccount(info)
-  if (!is.null(client$getContent(id)$current_revision$id)) {
-    return(invisible())
-  }
-  content <- client$updateContent(
-    id,
-    envVars = character(),
-    newBundle = TRUE,
-    primaryFile = primaryFileFromManifest(manifest),
-    appMode = manifest$metadata$appmode
-  )
-  cat(sprintf(
-    "%s has no current revision, so this run minted revision %s to upload to.\n",
-    app,
-    content$next_revision$id
-  ))
-}
-
 if (nzchar(contentId)) {
   applyContentSettings(contentId)
-  ensureFreshBundle(contentId)
 }
 
 # deployApp() does not signal a failed publish. It prints "Deployment failed
@@ -259,11 +146,14 @@ if (nzchar(contentId)) {
 deployed <- rsconnect::deployApp(
   appDir = appDir,
   manifestPath = manifestPath,
+  # The content id is the only stable identifier on Connect Cloud. NULL, for
+  # an empty CONTENT_ID, creates new content.
+  appId = if (nzchar(contentId)) contentId,
   appName = app,
   appTitle = app,
   account = account,
   server = "connect.posit.cloud",
-  # No prompt on a runner. The content is the one that the record names.
+  # No prompt on a runner.
   forceUpdate = TRUE,
   logLevel = "verbose"
 )

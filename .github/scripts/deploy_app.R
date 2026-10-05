@@ -47,7 +47,31 @@ stopifnot("no manifest.json" = file.exists(manifestPath))
 # partial-matches the `accountName` formal. The credentials must grant publish
 # permission on this account; CLAUDE.md, fault 5, has what the failure looks
 # like when they do not.
-if (nzchar(clientId)) {
+#
+# With PCC_ACCOUNT_ID, the script registers the account itself and skips that
+# check: connectCloudClientCredentials() trusts only the permissions that
+# `GET /v1/accounts` advertises, and the API that receives the deployment is
+# the better judge. The id comes from a secret, and must never be printed;
+# CLAUDE.md, "This repository is public".
+#
+# ponytail: a private rsconnect function, for as long as the advertised
+# permissions disagree with the API.
+accountId <- Sys.getenv("PCC_ACCOUNT_ID")
+if (nzchar(clientId) && nzchar(accountId)) {
+  token <- rsconnect:::cloudAuthClient()$exchangeClientCredentials(
+    clientId,
+    clientSecret
+  )
+  rsconnect:::registerAccount(
+    serverName = "connect.posit.cloud",
+    accountName = account,
+    accountId = accountId,
+    accessToken = token$access_token,
+    refreshToken = token$refresh_token,
+    clientId = clientId,
+    clientSecret = clientSecret
+  )
+} else if (nzchar(clientId)) {
   rsconnect::connectCloudClientCredentials(
     clientId = clientId,
     clientSecret = clientSecret,

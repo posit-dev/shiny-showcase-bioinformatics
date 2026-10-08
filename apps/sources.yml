@@ -107,7 +107,7 @@ apps:
   # not need them.
   - name: variant-reviewer
     repo: samuelbharti/variant-reviewer
-    ref: "v2.3.4"
+    ref: "v2.3.5"
     include:
       - app.R
       - app_ui.R

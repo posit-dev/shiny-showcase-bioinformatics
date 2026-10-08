@@ -30,7 +30,7 @@
     el = "tour_variant_summary",
     title = "Variant",
     description = paste(
-      "The variant's annotation: dbSNP, clinical significance, and scores",
+      "The variant's annotation: dbSNP, protein change, and CADD score",
       "(MyVariant)."
     )
   ),

@@ -14,7 +14,7 @@
   list(
     "Variant annotation",
     "MyVariant.info",
-    "rsID, HGVS protein change, CADD deleteriousness score, and ClinVar significance."
+    "rsID, HGVS protein change, and CADD deleteriousness score."
   ),
   list(
     "In-silico predictions",

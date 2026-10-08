@@ -44,8 +44,7 @@ variant_summary_server <- function(id, annotation, retry_annotation) {
         vr_field(
           "CADD (phred)",
           if (is_blank(res$cadd_phred)) NULL else vr_num(res$cadd_phred, 1)
-        ),
-        vr_field("ClinVar", res$clinvar_significance)
+        )
       )
     })
   })

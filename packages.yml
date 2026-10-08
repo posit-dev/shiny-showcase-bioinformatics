@@ -130,6 +130,8 @@
           url: https://github.com/samuelbharti/biocohort
         - text: Docs
           url: https://www.samuelbharti.com/biocohort/
+        - text: CRAN
+          url: https://cran.r-project.org/package=biocohort
         - text: R-universe
           url: https://samuelbharti.r-universe.dev/biocohort
         - text: DOI

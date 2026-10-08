@@ -262,7 +262,7 @@ genescout_signal_registry <- function(
     # which needs weight > 0); it exists purely to drive the "common variant" caveat
     # and as an informative column. normalize_saturating_desc makes its _n rarity
     # (rare -> high), so if a user ever raises its slider it nudges in the correct
-    # direction rather than rewarding a common gene.
+    # direction instead of rewarding a common gene.
     genescout_signal(
       "gnomad_af",
       "gnomAD common-LoF frequency",
@@ -613,7 +613,7 @@ extractor_scalar <- function(x, default) {
   x[[1]]
 }
 
-# Coerce an extractor's return to the scalar contract enrich_genes() relies on:
+# Coerce an extractor's return to the scalar shape enrich_genes() relies on:
 # a length-1 numeric `raw` and length-1 character `source_id`/`source_url`. Also
 # maps non-finite raws to NA: max(na.rm = TRUE) over an all-NA vector returns -Inf,
 # which is not a real measurement but passed `!is.na()` and counted as present.
@@ -732,7 +732,7 @@ GENESCOUT_PMC_EVIDENCE_MAX <- 5L
 # otherwise the gene's total mention count. The SCORE is the hit count
 # (europepmc_count, which keeps a genuine 0 as 0); when there IS literature, we
 # additionally pull the top few articles (europepmc_search) so the drill-down, the
-# AI curator, and the literature specialist can cite real PMIDs rather than only the
+# AI curator, and the literature specialist can cite real PMIDs instead of only the
 # search-query link. The paper pull is best-effort: a failed/empty search just leaves
 # the count row, and the score is unchanged either way.
 extract_pmc_hits <- function(resolved, context = list()) {
@@ -1870,7 +1870,7 @@ enrich_genes <- function(
   signals <- list()
   evidence <- list()
   # Per-(gene x signal) extractor failures. Collected so a run can tell an OUTAGE
-  # apart from a genuine absence instead of reporting both as "no data".
+  # from a genuine absence instead of reporting both as "no data".
   failures <- list()
   n_genes <- nrow(resolved)
   for (i in seq_len(n_genes)) {
@@ -1959,7 +1959,7 @@ enrich_genes <- function(
       empty_failures()
     },
     # Hosts whose circuit breaker is open at the end of this batch: the strongest
-    # cheap evidence that a source was DOWN rather than empty. Snapshotted here
+    # cheap evidence that a source was DOWN, not empty. Snapshotted here
     # because in the parallel path the breaker lives in the daemon, not the parent.
     unreachable_hosts = genescout_breaker_tripped_hosts()
   )
@@ -2118,7 +2118,7 @@ enrich_network_signals <- function(
   net_url <- if (isTRUE(net$ok)) net$source_url %||% "" else ""
   # The exact symbol set STRING was asked about, so a gene queried and found
   # isolated (grounded degree 0) is distinguishable from one never queried (fetch
-  # failed, or dropped past STRING_MAX_NODES), which must read NA rather than 0.
+  # failed, or dropped past STRING_MAX_NODES), which must read NA, not 0.
   queried <- if (isTRUE(net$ok)) {
     toupper(as.character(net$queried %||% query_syms))
   } else {

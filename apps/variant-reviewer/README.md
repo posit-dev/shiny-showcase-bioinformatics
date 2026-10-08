@@ -166,6 +166,20 @@ type a gene, the variant box suggests that gene's known pathogenic and likely
 pathogenic variants (from ClinVar, through MyVariant). You can still type any
 rsID or HGVS value by hand.
 
+One rsID can cover more than one allele. rs113488022, for example, is BRAF
+V600A, V600E and V600G. So each suggestion is one allele, stored as its GRCh38
+HGVS id, and the Variant, ClinVar, gnomAD, VEP and prediction cards all look up
+that same allele. If you type an rsID that covers several alleles, those cards
+list the alleles and the Variant box offers them, so you can pick one. Every
+genomic position in the app is GRCh38, and HGVS you type is read as GRCh38.
+
+To find one allele in every source, the app compares exact changes: position,
+reference bases and new bases, with an indel moved to its leftmost position
+in a repeat. MyVariant gives these for most alleles. For the rest, the app
+reads them from the allele's ClinVar block, or works them out from its HGVS
+id and the reference sequence (from UCSC, or Ensembl). ClinVar records are matched on
+their canonical SPDI, which describes the same exact change.
+
 Before the app queries an API, it checks the gene and the variant. It uses
 [biobouncer](https://github.com/samuelbharti/biobouncer)'s offline `pattern`
 mode: the HGNC grammar for genes, and the dbSNP format for rsIDs. This check

@@ -151,7 +151,7 @@ provider_credentials_ready <- function(provider, api_key = NULL) {
 
 # Produce a short, grounded narrative for a candidate from its evidence. The
 # prompt is constrained to the supplied evidence (each line carries a source id),
-# so the model summarizes rather than recalls. Returns NA_character_ on any
+# so the model summarizes instead of recalling. Returns NA_character_ on any
 # failure, so narration never breaks a review.
 narrate_candidate <- function(
   symbol,

@@ -21,8 +21,8 @@
 #  - No new hard dependency at load time: mirai is probed with requireNamespace(); if it
 #    is absent the app runs exactly as before (serial).
 
-# Below this many genes the daemon startup + per-gene serialization overhead is not
-# worth it, so we stay serial. Overridable for tuning/tests.
+# Below this many genes the daemon startup + per-gene serialization overhead costs
+# more than it saves, so we stay serial. Overridable for tuning/tests.
 GENESCOUT_PARALLEL_MIN_GENES <- 12L
 # Bounded concurrency: a politeness cap so we never open more simultaneous connections
 # to a single bio-database host than is neighbourly. Each daemon is told this count so

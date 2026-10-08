@@ -36,7 +36,7 @@ OT_DISEASE_XREFS_QUERY <- paste(
   sep = "\n"
 )
 
-# TRUE when `term` looks like an ontology id rather than free text.
+# TRUE when `term` looks like an ontology id, not free text.
 is_disease_id <- function(term) {
   grepl(DISEASE_ID_PATTERN, trimws(term %||% ""), ignore.case = TRUE)
 }

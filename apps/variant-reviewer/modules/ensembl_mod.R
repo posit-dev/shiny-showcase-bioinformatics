@@ -14,7 +14,8 @@ ensembl_ui <- function(id) {
 }
 
 # rsid: reactive() -> dbSNP rsID string (or NULL when none is available).
-ensembl_server <- function(id, rsid) {
+# allele: reactive() -> the allele being reviewed (see vr_variant_allele()).
+ensembl_server <- function(id, rsid, allele = reactive(NULL)) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     retry <- vr_retry_counter()
@@ -23,6 +24,18 @@ ensembl_server <- function(id, rsid) {
     vep <- reactive({
       retry$dep()
       id_value <- rsid()
+      picked <- allele()
+      if (isTRUE(picked$ambiguous)) {
+        return(vr_allele_needed("VEP consequences"))
+      }
+      # A picked allele is run by its region only. By rsID, VEP runs every
+      # allele of the rsID together.
+      if (!is.null(picked)) {
+        if (is.null(ensembl_vep_region(picked$vcf_id))) {
+          return(vr_allele_unplaced("Ensembl VEP"))
+        }
+        return(ensembl_vep(id_value, vcf_id = picked$vcf_id))
+      }
       if (is_blank(id_value)) {
         return(NULL)
       }

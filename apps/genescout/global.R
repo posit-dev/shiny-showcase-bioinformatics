@@ -23,6 +23,11 @@ if (requireNamespace("thematic", quietly = TRUE)) {
 
 source("R/load_components.R")
 
+# Close the background workers of the AI steps (R/llm_offload.R) when the app
+# stops. This must run at the top level: onStop() called inside a session
+# registers a callback for the end of that session instead.
+shiny::onStop(genescout_llm_pool_close)
+
 # Provider/model configuration (roles -> provider + model), read from config.yml.
 # Never hardcode model strings in engine logic; read them from here. Reserved for
 # the later subjective-ranking agent; the deterministic pipeline uses no LLM.

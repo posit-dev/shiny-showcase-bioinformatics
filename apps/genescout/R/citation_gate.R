@@ -31,12 +31,12 @@ is_grounded <- function(item) {
 # so an ungrounded one changed a gene's rank while its evidence row was dropped as
 # ungrounded - a number on screen with nothing behind it.
 #
-# An ungrounded row is DEMOTED to a miss rather than deleted: assemble_matrix()
+# An ungrounded row is DEMOTED to a miss, not deleted: assemble_matrix()
 # builds one column per (gene x signal) from this table, so dropping rows would
 # change the matrix shape. Demoting makes the cell read exactly like "no data",
-# which is what an unciteable value is worth.
+# which is the most an unciteable value can claim.
 #
-# Rows that are already absent (present = FALSE) are untouched - a miss legitimately
+# Rows that are already absent (present = FALSE) are untouched - a miss rightly
 # carries no source_id. Returns list(signals = <tibble>, n_ungrounded = <int>).
 validate_signals <- function(signals) {
   if (is.null(signals) || nrow(signals) == 0) {

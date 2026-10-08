@@ -1,7 +1,7 @@
 # cBioPortal: cross-cancer somatic mutation frequency for a gene. We query ONE
 # large, stable, public pan-cancer cohort (MSK-IMPACT, ~10,945 tumors) so the signal
 # is a single grounded number - the fraction of profiled tumors carrying >= 1
-# mutation in the gene - rather than an unbounded multi-study crawl. This is
+# mutation in the gene - instead of an unbounded multi-study crawl. This is
 # RESEARCH evidence (recurrent somatic mutation), never a clinical call.
 #
 # One POST to the study-view mutation-data-counts endpoint, keyed by HUGO symbol

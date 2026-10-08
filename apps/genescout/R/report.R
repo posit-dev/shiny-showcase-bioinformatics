@@ -694,7 +694,7 @@ evidence_sections <- function(evidence) {
 evidence_domain_table <- function(sub) {
   rows <- lapply(seq_len(nrow(sub)), function(i) {
     # A blank URL (e.g. input-provenance rows, whose "source" is the user's own
-    # list) renders as plain text rather than a dead link.
+    # list) renders as plain text instead of a dead link.
     source_cell <- if (is_blank(sub$source_url[i])) {
       htmltools::tags$td(sub$source_id[i])
     } else {

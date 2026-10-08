@@ -14,12 +14,13 @@ gnomad_ui <- function(id) {
 }
 
 # rsid: reactive() -> dbSNP rsID string (or NULL when none is available).
+# allele: reactive() -> the allele being reviewed (see vr_variant_allele()).
 #
 # Returns list(data, retry): `data` is the frequency reactive, exactly as
 # before; `retry` is this card's retry-bump function, exposed so the gnomAD
-# ancestry card -- which renders this same fetch rather than making its own --
+# ancestry card -- which renders this same fetch instead of making its own --
 # can also retry it from its own header button (see gnomad_ancestry_server()).
-gnomad_server <- function(id, rsid) {
+gnomad_server <- function(id, rsid, allele = reactive(NULL)) {
   moduleServer(id, function(input, output, session) {
     retry <- vr_retry_counter()
     vr_card_refresh_observer(input, retry$bump)
@@ -27,6 +28,13 @@ gnomad_server <- function(id, rsid) {
     frequency <- reactive({
       retry$dep()
       id_value <- rsid()
+      picked <- allele()
+      if (isTRUE(picked$ambiguous)) {
+        return(vr_allele_needed("population frequency"))
+      }
+      if (!is.null(picked)) {
+        return(gnomad_allele_frequency(id_value, picked$vcf_id))
+      }
       if (is_blank(id_value)) {
         return(NULL)
       }

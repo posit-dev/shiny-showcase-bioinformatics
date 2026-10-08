@@ -80,6 +80,8 @@
           url: https://github.com/samuelbharti/bioclients
         - text: Docs
           url: https://www.samuelbharti.com/bioclients/
+        - text: CRAN
+          url: https://cran.r-project.org/package=bioclients
         - text: R-universe
           url: https://samuelbharti.r-universe.dev/bioclients
         - text: DOI

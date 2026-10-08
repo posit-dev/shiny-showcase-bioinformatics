@@ -1,13 +1,16 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "Variant Reviewer"
-version: "2.3.4" # keep in sync with app_version() in R/utils.R
+version: "2.3.5" # keep in sync with app_version() in R/utils.R
 date-released: "2026-10-08"
 doi: 10.5281/zenodo.21934011 # concept DOI; resolves to the latest version
 identifiers:
   - type: doi
     value: "10.5281/zenodo.21934011"
     description: "Concept DOI (resolves to all versions)."
+  - type: doi
+    value: "10.5281/zenodo.23239154"
+    description: "DOI for version 2.3.4."
   - type: doi
     value: "10.5281/zenodo.22693580"
     description: "DOI for version 2.3.3."

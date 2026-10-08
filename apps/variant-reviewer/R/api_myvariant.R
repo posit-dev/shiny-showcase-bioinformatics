@@ -548,8 +548,8 @@ myvariant_same_vcf_id <- function(a, b) {
 }
 
 # Returns:
-#   list(ok = TRUE, id, rsid, gene, hgvsp, hgvsp_all, cadd_phred,
-#        clinvar_significance, clinvar_id, vcf_id)
+#   list(ok = TRUE, id, rsid, gene, hgvsp, hgvsp_all, hgvsc_all, cadd_phred,
+#        clinvar_id, vcf_id)
 #   list(ok = FALSE, error = "...") (plus ambiguous, gene and alleles when an
 #   rsID covers several alleles; see myvariant_fetch_allele())
 myvariant_annotate <- function(variant) {
@@ -569,8 +569,7 @@ myvariant_annotate <- function(variant) {
     fields = c(
       "dbsnp.rsid",
       "cadd.phred",
-      "dbnsfp.cadd.phred",
-      "clinvar.rcv.clinical_significance"
+      "dbnsfp.cadd.phred"
     ),
     not_found = "No annotation found for"
   )
@@ -633,11 +632,6 @@ myvariant_parse_hit <- function(hit, term = NA_character_) {
     hgvsp_all = myvariant_hgvsp_all(hit),
     hgvsc_all = myvariant_hgvsc_all(hit),
     cadd_phred = .mv_cadd(hit),
-    clinvar_significance = if (clinvar_ok) {
-      myvariant_clinvar_sig(hit)
-    } else {
-      NA_character_
-    },
     clinvar_id = if (clinvar_ok) {
       mygene_first(pluck_at(hit, "clinvar", "variant_id"))
     } else {
@@ -1143,12 +1137,15 @@ myvariant_parse_conservation <- function(hit) {
   list(ok = TRUE, metrics = df)
 }
 
-# Notable variants for a gene: ClinVar pathogenic / likely-pathogenic variants
-# that carry an rsID, used to populate the search box's variant suggestions.
-# One row per allele, keyed by its hg38 HGVS id, so the two pathogenic alleles
-# of rs113488022 (V600E and V600G) are two separate choices.
+# Variants for a gene's suggestion list: those with an rsID and at least one
+# Pathogenic or Likely pathogenic ClinVar submission. That is a rule for
+# choosing the list, not a classification: a variant here can have
+# conflicting submissions (BRAF V600E does), so the list shows no
+# classification, and the ClinVar card gives ClinVar's own. One row per allele,
+# keyed by its hg38 HGVS id, so V600E and V600G of rs113488022 are two
+# choices. `total` is how many MyVariant has; at most `size` are fetched.
 # Returns:
-#   list(ok = TRUE, variants = data.frame(id, rsid, label, significance, cadd))
+#   list(ok = TRUE, variants = data.frame(id, rsid, label, position), total)
 #   list(ok = FALSE, error = "...")
 myvariant_gene_variants <- function(symbol, size = 200) {
   if (is_blank(symbol)) {
@@ -1173,9 +1170,6 @@ myvariant_gene_variants <- function(symbol, size = 200) {
         "dbnsfp.aa.ref",
         "dbnsfp.aa.alt",
         "dbnsfp.aa.pos",
-        "clinvar.rcv.clinical_significance",
-        "cadd.phred",
-        "dbnsfp.cadd.phred",
         "dbnsfp.uniprot",
         sep = ","
       )
@@ -1185,7 +1179,11 @@ myvariant_gene_variants <- function(symbol, size = 200) {
   if (!res$ok) {
     return(list(ok = FALSE, error = res$error))
   }
-  myvariant_parse_gene_variants(res$data$hits)
+  parsed <- myvariant_parse_gene_variants(res$data$hits)
+  if (isTRUE(parsed$ok)) {
+    parsed$total <- as.integer(res$data$total %||% nrow(parsed$variants))
+  }
+  parsed
 }
 
 # One-letter amino-acid change (e.g. "V600E") from a dbnsfp.aa block, or NA.
@@ -1206,29 +1204,9 @@ myvariant_gene_variants <- function(symbol, size = 200) {
   paste0(ref, pos[[1]], if (identical(alt, "X")) "*" else alt)
 }
 
-# Primary clinical significance (label + severity rank) from the "; "-joined
-# significance string, so suggestions can lead with the most severe call.
-.mv_sig_primary <- function(sig) {
-  terms <- tolower(trimws(strsplit(sig %||% "", ";", fixed = TRUE)[[1]]))
-  if ("pathogenic" %in% terms) {
-    return(list(label = "Pathogenic", rank = 1L))
-  }
-  if ("likely pathogenic" %in% terms) {
-    return(list(label = "Likely pathogenic", rank = 2L))
-  }
-  first <- terms[nzchar(terms)]
-  list(
-    label = if (length(first) == 0) {
-      "ClinVar"
-    } else {
-      tools::toTitleCase(first[[1]])
-    },
-    rank = 3L
-  )
-}
-
-# Pure parser: turn gene-scoped hits into a ranked, de-duplicated variant table
-# (most severe first, then highest CADD). One row per allele.
+# Pure parser: turn gene-scoped hits into a variant table sorted by protein
+# position, then rsID, with variants that have no protein change last. One row
+# per allele.
 myvariant_parse_gene_variants <- function(hits) {
   empty <- list(ok = FALSE, error = "No notable variants found for this gene.")
   if (is.null(hits) || length(hits) == 0) {
@@ -1240,14 +1218,18 @@ myvariant_parse_gene_variants <- function(hits) {
     if (is_blank(id) || is_blank(rsid)) {
       return(NULL)
     }
-    prim <- .mv_sig_primary(myvariant_clinvar_sig(h))
+    aa <- pluck_at(h, "dbnsfp", "aa")
+    canonical <- .mv_swissprot_pos(h)
+    label <- .mv_aa_label(aa, canonical)
     data.frame(
       id = as.character(id),
       rsid = tolower(rsid),
-      label = .mv_aa_label(pluck_at(h, "dbnsfp", "aa"), .mv_swissprot_pos(h)),
-      significance = prim$label,
-      rank = prim$rank,
-      cadd = .mv_cadd(h),
+      label = label,
+      position = if (is.na(label)) {
+        NA_integer_
+      } else {
+        .mv_protein_pos(paste0("p.", label))
+      },
       stringsAsFactors = FALSE
     )
   })
@@ -1255,47 +1237,27 @@ myvariant_parse_gene_variants <- function(hits) {
   if (is.null(rows) || nrow(rows) == 0) {
     return(empty)
   }
-  rows <- rows[order(rows$rank, -ifelse(is.na(rows$cadd), -Inf, rows$cadd)), ]
   rows <- rows[!duplicated(rows$id), ]
-  rows$rank <- NULL
+  rsid_number <- suppressWarnings(as.numeric(sub("^rs", "", rows$rsid)))
+  rows <- rows[order(is.na(rows$position), rows$position, rsid_number), ]
   rownames(rows) <- NULL
   list(ok = TRUE, variants = rows)
 }
 
 # Named character vector for a selectizeInput: value = the allele's hg38 HGVS
-# id, name = display label like "V600E, rs113488022 (Pathogenic)". The value is
-# the HGVS id, not the rsID, because one rsID can be several alleles and the
-# choice has to say which one. Falls back to the rsID in the label when there
-# is no amino-acid change (e.g. splice/frameshift variants).
-myvariant_variant_choices <- function(parsed, max_n = 100) {
+# id, name = display label like "V600E, rs113488022". The value is the HGVS id,
+# not the rsID, because one rsID can be several alleles and the choice has to
+# say which one. The label is the rsID alone when there is no amino-acid
+# change (e.g. splice/frameshift variants).
+myvariant_variant_choices <- function(parsed) {
   if (is.null(parsed) || !isTRUE(parsed$ok)) {
     return(character())
   }
   v <- parsed$variants
-  if (nrow(v) > max_n) {
-    v <- v[seq_len(max_n), ]
-  }
-  disp <- ifelse(
-    is.na(v$label),
-    sprintf("%s (%s)", v$rsid, v$significance),
-    sprintf("%s, %s (%s)", v$label, v$rsid, v$significance)
-  )
+  disp <- ifelse(is.na(v$label), v$rsid, paste0(v$label, ", ", v$rsid))
+  # Two alleles can share a label (BRAF rs138333692 has two that give N236K);
+  # those get their HGVS id too.
+  repeated <- disp %in% disp[duplicated(disp)]
+  disp[repeated] <- paste0(disp[repeated], " (", v$id[repeated], ")")
   stats::setNames(v$id, disp)
-}
-
-# clinvar.rcv may be a single object or a list of RCV records; collapse the
-# distinct clinical significance values into one readable string.
-myvariant_clinvar_sig <- function(hit) {
-  rcv <- pluck_at(hit, "clinvar", "rcv")
-  if (is.null(rcv)) {
-    return(NA_character_)
-  }
-  sigs <- if (!is.null(rcv$clinical_significance)) {
-    rcv$clinical_significance
-  } else {
-    lapply(rcv, function(r) r$clinical_significance)
-  }
-  sigs <- unique(unlist(sigs, use.names = FALSE))
-  sigs <- sigs[!is.na(sigs) & nzchar(sigs)]
-  if (length(sigs) == 0) NA_character_ else paste(sigs, collapse = "; ")
 }

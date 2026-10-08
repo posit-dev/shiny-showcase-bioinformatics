@@ -95,9 +95,7 @@ vr_chat_variant <- function(res) {
     .vr_or(res$hgvsp),
     ", CADD phred ",
     .vr_or(res$cadd_phred),
-    ", ClinVar: ",
-    .vr_or(res$clinvar_significance),
-    "."
+    ". Its ClinVar classification is on the clinvar card."
   )
 }
 

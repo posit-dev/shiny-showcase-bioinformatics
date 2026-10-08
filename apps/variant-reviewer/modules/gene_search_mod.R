@@ -178,14 +178,21 @@ gene_search_server <- function(
       if (is.null(parsed) || !isTRUE(parsed$ok)) {
         return(NULL)
       }
+      # The list is chosen by a rule, not a classification: a variant here
+      # can have conflicting ClinVar submissions. The ClinVar card gives
+      # ClinVar's own classification.
       n <- nrow(parsed$variants)
+      total <- max(parsed$total %||% n, n)
       tags$div(
         class = "small text-muted mt-1",
-        sprintf(
-          "%d known pathogenic/likely-pathogenic variant%s for %s. Type to filter, or enter any rsID/HGVS.",
-          n,
-          if (n == 1) "" else "s",
-          trimws(input$gene %||% "")
+        paste0(
+          if (total > n) sprintf("Showing %d of %d", n, total) else n,
+          " variant",
+          if (total == 1) "" else "s",
+          " in ",
+          trimws(input$gene %||% ""),
+          " with at least one pathogenic or likely pathogenic ClinVar",
+          " submission. Type to filter, or enter any rsID or HGVS."
         )
       )
     })

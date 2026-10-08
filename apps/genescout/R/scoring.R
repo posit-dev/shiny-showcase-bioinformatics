@@ -72,8 +72,8 @@ normalize_saturating_desc <- function(m) {
 # Corroboration across the USER'S OWN sources: absolute, saturating on (count-1).
 # A gene in 1 source scores 0 (no bonus, and never sub-baseline); 2 -> 0.5;
 # 3 -> 0.667; 4 -> 0.75, saturating toward 1. NA or < 1 -> 0. Same closure family
-# as normalize_saturating; the (count-1) shift makes a lone source neutral rather
-# than penalized, and the saturation caps how far breadth alone can carry a gene.
+# as normalize_saturating; the (count-1) shift makes a lone source neutral, not
+# penalized, and the saturation caps how far breadth alone can carry a gene.
 normalize_corroboration <- function(m) {
   force(m)
   function(x) {

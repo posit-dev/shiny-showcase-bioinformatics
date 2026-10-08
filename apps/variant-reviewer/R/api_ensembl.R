@@ -3,19 +3,27 @@
 
 ENSEMBL_BASE <- "https://rest.ensembl.org"
 
-# Run VEP for a variant id (rsID).
+# Run VEP for a variant. VEP by rsID runs every allele of the rsID at once (one
+# record with the consequences of all of them mixed), so when `vcf_id` names
+# the one allele being reviewed, VEP is run on that allele's region instead.
 # Returns:
 #   list(ok = TRUE, most_severe, assembly,
 #        data = data.frame(gene, transcript, consequence, impact, sift, polyphen))
 #   list(ok = FALSE, error = "...")
-ensembl_vep <- function(rsid) {
-  if (is_blank(rsid)) {
+ensembl_vep <- function(rsid, vcf_id = NULL) {
+  region <- ensembl_vep_region(vcf_id)
+  if (is.null(region) && is_blank(rsid)) {
     return(list(ok = FALSE, error = "No rsID available for VEP lookup."))
   }
+  label <- if (is.null(region)) rsid else vcf_id
 
   res <- vr_api_get(
     ENSEMBL_BASE,
-    path = paste0("vep/human/id/", rsid),
+    path = if (is.null(region)) {
+      paste0("vep/human/id/", rsid)
+    } else {
+      paste0("vep/human/region/", region)
+    },
     query = list(`content-type` = "application/json"),
     source = "Ensembl VEP"
   )
@@ -26,11 +34,179 @@ ensembl_vep <- function(rsid) {
   if (is.null(records) || length(records) == 0) {
     return(list(
       ok = FALSE,
-      error = paste0("Ensembl VEP has no record for ", rsid, ".")
+      error = paste0("Ensembl VEP has no record for ", label, ".")
     ))
   }
 
   ensembl_parse_vep(records[[1]])
+}
+
+# VEP's region form of a chrom-pos-ref-alt allele (GRCh38), or NULL when it is
+# not one. VCF adds a shared leading base to insertions and deletions, which
+# VEP's form leaves out, and an insertion's region ends one base before it
+# starts:
+#   7-140753336-A-T    -> 7:140753336-140753336:1/T
+#   7-117559590-ATCT-A -> 7:117559591-117559593:1/-
+#   7-117559594-T-TCTT -> 7:117559595-117559594:1/CTT
+ensembl_vep_region <- function(vcf_id) {
+  if (is_blank(vcf_id)) {
+    return(NULL)
+  }
+  parts <- strsplit(as.character(vcf_id), "-", fixed = TRUE)[[1]]
+  if (length(parts) != 4 || !all(grepl("^[ACGTN]+$", parts[3:4]))) {
+    return(NULL)
+  }
+  pos <- suppressWarnings(as.integer(parts[[2]]))
+  ref <- parts[[3]]
+  alt <- parts[[4]]
+  if (is.na(pos)) {
+    return(NULL)
+  }
+  if (nchar(ref) != nchar(alt) && substr(ref, 1, 1) == substr(alt, 1, 1)) {
+    ref <- substring(ref, 2)
+    alt <- substring(alt, 2)
+    pos <- pos + 1L
+  }
+  paste0(
+    parts[[1]],
+    ":",
+    pos,
+    "-",
+    pos + nchar(ref) - 1L,
+    ":1/",
+    if (nzchar(alt)) alt else "-"
+  )
+}
+
+# Bases of the GRCh38 reference from `start` to `end` (1-based, inclusive), or
+# NULL when neither source answers. UCSC's genome API comes first: it answers
+# in well under a second, while Ensembl's sequence endpoint often takes 10 s
+# or more. Ensembl is the fallback.
+#
+# The sequence only refines a lookup, and every session waits on it (the app
+# fetches synchronously in one R process), so each source gets one short try.
+# After a source fails it is not asked again for REFERENCE_PAUSE seconds:
+# failures are not cached, and without the pause each allele lookup would
+# wait out the timeout again.
+REFERENCE_PAUSE <- 60
+.reference_state <- new.env(parent = emptyenv())
+
+UCSC_API <- "https://api.genome.ucsc.edu"
+
+vr_reference_sequence <- function(chrom, start, end) {
+  for (source in c("UCSC", "Ensembl")) {
+    if (as.numeric(Sys.time()) < (.reference_state[[source]] %||% -Inf)) {
+      next
+    }
+    res <- if (source == "UCSC") {
+      # UCSC counts from 0 and leaves out the end; it names chromosomes chr7
+      # and the mitochondrion chrM.
+      vr_api_get(
+        UCSC_API,
+        path = "getData/sequence",
+        query = list(
+          genome = "hg38",
+          chrom = paste0("chr", if (chrom == "MT") "M" else chrom),
+          start = start - 1L,
+          end = end
+        ),
+        source = "UCSC",
+        timeout = 8,
+        max_tries = 1
+      )
+    } else {
+      vr_api_get(
+        ENSEMBL_BASE,
+        path = paste0(
+          "sequence/region/human/",
+          chrom,
+          ":",
+          start,
+          "..",
+          end,
+          ":1"
+        ),
+        query = list(`content-type` = "application/json"),
+        source = "Ensembl",
+        timeout = 8,
+        max_tries = 1
+      )
+    }
+    seq <- if (isTRUE(res$ok)) {
+      pluck_at(res$data, if (source == "UCSC") "dna" else "seq")
+    }
+    if (!is_blank(seq) && nchar(seq) == end - start + 1L) {
+      return(toupper(as.character(seq)))
+    }
+    status <- res$status %||% NA_integer_
+    if (is.na(status) || status >= 500 || status == 429) {
+      .reference_state[[source]] <- as.numeric(Sys.time()) + REFERENCE_PAUSE
+    }
+  }
+  NULL
+}
+
+# An indel's chrom-pos-ref-alt id moved to its leftmost position in a repeat,
+# the form gnomAD stores: 13-32339427-AA-A (BRCA2 c.5073del) becomes
+# 13-32339421-CA-C. Substitutions are returned unchanged. NULL when the
+# reference cannot be fetched, or when the repeat runs past the `window`
+# bases fetched to the left.
+ensembl_left_align <- function(vcf_id, window = 200L) {
+  v <- .mv_parse_vcf_id(vcf_id)
+  if (is.null(v)) {
+    return(NULL)
+  }
+  if (nchar(v$ref) == nchar(v$alt)) {
+    return(vcf_id)
+  }
+  left <- if (v$pos > 1) {
+    vr_reference_sequence(v$chrom, max(1L, v$pos - window), v$pos - 1L)
+  } else {
+    ""
+  }
+  if (is.null(left)) {
+    return(NULL)
+  }
+  moved <- vr_left_align(v$pos, v$ref, v$alt, left)
+  if (is.null(moved)) {
+    return(NULL)
+  }
+  paste(v$chrom, moved$pos, moved$ref, moved$alt, sep = "-")
+}
+
+# Pure helper for ensembl_left_align(), the usual normalization: drop a last
+# base ref and alt share; when either runs out, take the next reference base
+# from the left; repeat; then drop shared first bases down to one. `left` is
+# the reference just before `pos`. NULL when the shift runs past it.
+vr_left_align <- function(pos, ref, alt, left) {
+  repeat {
+    nr <- nchar(ref)
+    na <- nchar(alt)
+    if (nr > 0 && na > 0 && substr(ref, nr, nr) == substr(alt, na, na)) {
+      ref <- substr(ref, 1, nr - 1)
+      alt <- substr(alt, 1, na - 1)
+    } else if (nr == 0 || na == 0) {
+      nl <- nchar(left)
+      if (nl == 0) {
+        return(NULL)
+      }
+      base <- substr(left, nl, nl)
+      left <- substr(left, 1, nl - 1)
+      ref <- paste0(base, ref)
+      alt <- paste0(base, alt)
+      pos <- pos - 1L
+    } else {
+      break
+    }
+  }
+  while (
+    nchar(ref) > 1 && nchar(alt) > 1 && substr(ref, 1, 1) == substr(alt, 1, 1)
+  ) {
+    ref <- substring(ref, 2)
+    alt <- substring(alt, 2)
+    pos <- pos + 1L
+  }
+  list(pos = pos, ref = ref, alt = alt)
 }
 
 # Pure parser: a VEP record -> normalized result.

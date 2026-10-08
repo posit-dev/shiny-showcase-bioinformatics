@@ -4,7 +4,7 @@
 # description, this proposes a cleaned input: per-token keep / correct / flag /
 # drop decisions (fix typos and aliases, flag ambiguity, drop non-genes) and a
 # proposed disease SEARCH TERM derived from the description. It is the front-of-
-# pipeline mirror of R/curate.R and obeys the same contract:
+# pipeline mirror of R/curate.R and follows the same rules:
 #
 #   * Grounding (a GeneScout non-negotiable): the agent may NEVER introduce a gene
 #     the user did not provide. validate_input_curation() gates on the ORIGINAL
@@ -189,7 +189,7 @@ input_tokens_to_df <- function(sel) {
 
 # Validate/clean the model's token decisions against the PROVIDED tokens. The
 # gate keys on the ORIGINAL token, not the symbol, so a typo correction (whose
-# symbol is legitimately off-list) survives while a fabricated token is dropped -
+# symbol is rightly off-list) survives while a fabricated token is dropped -
 # the agent can never introduce a gene. Actions are coerced to the allowed set;
 # a drop clears its symbol; a keep/correct with a blank symbol is downgraded to
 # flag; and any provided token the model omitted is RECONCILED back in as a
@@ -315,7 +315,7 @@ apply_input_validator <- function(decisions, validator) {
   for (k in idx) {
     cur <- toupper(decisions$symbol[k])
     # match(), not [[: a validator that FILTERED this symbol out has no entry, and
-    # [[ on a missing name errors rather than returning NA.
+    # [[ on a missing name errors instead of returning NA.
     hit <- match(cur, names(canon_of))
     if (is.na(hit)) {
       next

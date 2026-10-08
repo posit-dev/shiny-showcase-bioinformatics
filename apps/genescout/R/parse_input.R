@@ -93,7 +93,7 @@ example_text <- function(name, dir = file.path("data", "examples")) {
 read_gene_list_file <- function(path) {
   lines <- readLines(path, warn = FALSE)
   # First field of each line (so an extra column is ignored), unquoted and trimmed,
-  # so a quoted CSV (write.csv default) yields clean symbols rather than `"NF1"`.
+  # so a quoted CSV (write.csv default) yields clean symbols instead of `"NF1"`.
   first <- trimws(sub("[\t,;].*$", "", lines))
   first <- sub('^"(.*)"$', "\\1", first)
   first <- trimws(sub("^'(.*)'$", "\\1", first))
@@ -123,7 +123,7 @@ read_gene_list_file <- function(path) {
 # single-column gene list. Returns a character vector of candidate tokens, so both
 # a proper table and a bare one-per-line list "just work". A file that parses but
 # yields no symbols (e.g. header row only) errors, so collect_candidate_set records
-# it rather than silently dropping the source.
+# it instead of silently dropping the source.
 read_candidate_file <- function(path) {
   tbl <- tryCatch(read_candidate_table(path), error = function(e) NULL)
   if (!is.null(tbl)) {

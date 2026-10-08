@@ -5,8 +5,31 @@ function(input, output, session) {
   # than writing the query (or any card) itself.
   assistant_search <- reactiveVal(NULL)
 
+  # The alleles of a searched rsID that covers several, as Variant choices
+  # (value = HGVS id, name = protein change and id), so the list the cards
+  # point to is there to pick from. It reads annotation_raw, defined below;
+  # a reactive only looks it up when it runs.
+  allele_choices <- reactive({
+    alleles <- annotation_raw()$alleles
+    if (is.null(alleles) || nrow(alleles) == 0) {
+      return(NULL)
+    }
+    stats::setNames(
+      alleles$id,
+      ifelse(
+        is.na(alleles$hgvsp),
+        alleles$id,
+        paste0(alleles$hgvsp, " (", alleles$id, ")")
+      )
+    )
+  })
+
   # Submitted search query: reactive(list(gene, variant)) or NULL.
-  search <- gene_search_server("search", requested = assistant_search)
+  search <- gene_search_server(
+    "search",
+    requested = assistant_search,
+    allele_choices = allele_choices
+  )
 
   # Raw MyVariant annotation for the entered variant. Shared so the fetch runs
   # once; the card-facing variant_annotation below gates it on the gene and
@@ -45,7 +68,11 @@ function(input, output, session) {
     has_gene <- !is_blank(query$gene)
     has_variant <- !is_blank(query$variant)
     ann <- if (has_variant) annotation_raw() else NULL
-    variant_gene <- if (isTRUE(ann$ok)) ann$gene else NULL
+    # An rsID that covers several alleles is not annotated until one is
+    # picked, but MyVariant still names its gene.
+    variant_gene <- if (isTRUE(ann$ok) || isTRUE(ann$ambiguous)) {
+      ann$gene
+    }
     mismatch <- has_gene &&
       has_variant &&
       !is_blank(variant_gene) &&
@@ -94,8 +121,14 @@ function(input, output, session) {
     if (is.null(ok_context())) NULL else annotation_raw()
   })
 
-  # The dbSNP rsID drives the gnomAD and ClinVar lookups: use the input directly
-  # when it is an rsID, otherwise the one MyVariant resolved.
+  # The one allele the ClinVar, gnomAD and VEP cards describe. An rsID can
+  # cover several alleles, and those sources would otherwise each pick their
+  # own (see vr_variant_allele()).
+  variant_allele <- reactive(vr_variant_allele(variant_annotation()))
+
+  # The dbSNP rsID: the input itself when it is an rsID, otherwise the one
+  # MyVariant resolved. Cards that work per rsID or per position use it, and
+  # ClinVar, gnomAD and VEP fall back to it when no single allele is known.
   variant_rsid <- reactive({
     ctx <- ok_context()
     if (is.null(ctx) || !ctx$has_variant) {
@@ -162,14 +195,14 @@ function(input, output, session) {
     search_effective,
     variant_annotation
   )
-  clinvar_data <- clinvar_server("clinvar", variant_rsid)
+  clinvar_data <- clinvar_server("clinvar", variant_rsid, variant_allele)
   # gnomad_server() also returns its retry-bump function, so the ancestry card
-  # below -- which renders this same result rather than fetching its own --
+  # below -- which renders this same result instead of fetching its own --
   # can wire its own refresh button to retry it too.
-  gnomad_result <- gnomad_server("gnomad", variant_rsid)
+  gnomad_result <- gnomad_server("gnomad", variant_rsid, variant_allele)
   gnomad_data <- gnomad_result$data
   constraint_data <- gene_constraint_server("constraint", resolved)
-  ensembl_data <- ensembl_server("ensembl", variant_rsid)
+  ensembl_data <- ensembl_server("ensembl", variant_rsid, variant_allele)
   gtex_data <- gtex_expression_server("gtex", resolved)
   string_data <- string_ppi_server("string_ppi", resolved)
   opentargets_data <- opentargets_server("opentargets", resolved)
@@ -532,7 +565,7 @@ function(input, output, session) {
     updateSelectizeInput(
       session,
       "search-variant",
-      choices = stats::setNames(ex$variant, ex$variant),
+      choices = stats::setNames(ex$variant, ex$variant_label),
       selected = ex$variant,
       server = FALSE
     )
@@ -597,7 +630,12 @@ function(input, output, session) {
             required = FALSE
           ),
           variant = ellmer::type_string(
-            "An rsID (rs...) or HGVS string. Omit for a gene-only search.",
+            paste(
+              "An rsID (rs...) or HGVS string. Omit for a gene-only search.",
+              "One rsID can cover several alleles; the variant card then lists",
+              "them with their HGVS, and you search again with the HGVS of the",
+              "one you mean."
+            ),
             required = FALSE
           )
         ),

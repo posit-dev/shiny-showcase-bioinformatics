@@ -15,7 +15,7 @@
 #     /rank split is impossible. /review runs enrich + rank server-side in one go.
 #   * List-column provenance (input_lists, input_source_ids) serializes to nested
 #     JSON arrays - a client must expect arrays-of-arrays, not scalars.
-#   * The propose -> confirm -> run flow is a pure DATA contract (curate_input /
+#   * The propose -> confirm -> run flow is a pure DATA interface (curate_input /
 #     confirm_input / run_review_request), identical to the CLI and the Shiny UI.
 
 # plumber evaluates this file with the working directory set to its own folder

@@ -10,7 +10,7 @@ CLINVAR_WEB_BASE <- "https://www.ncbi.nlm.nih.gov/clinvar"
 
 # The optional NCBI API key (raises the rate limit from 3 to 10 requests/second),
 # as a cache-excluded query parameter. E-utilities takes its key in the query string
-# rather than a header, so it travels via `secret_query` (see R/http.R): appended to
+# instead of a header, so it travels via `secret_query` (see R/http.R): appended to
 # the request, never hashed into the cache key. NULL when no key is configured.
 clinvar_secret_query <- function() {
   key <- Sys.getenv("NCBI_API_KEY")
@@ -74,7 +74,7 @@ clinvar_gene_disease_term <- function(symbol, disease) {
 }
 
 # Count of pathogenic / likely-pathogenic variants ClinVar records for a gene in
-# a disease context. Same contract as clinvar_gene_pathogenic_count().
+# a disease context. Same return shape as clinvar_gene_pathogenic_count().
 clinvar_gene_disease_pathogenic_count <- function(symbol, disease) {
   if (is_blank(symbol)) {
     return(list(ok = FALSE, error = "No gene symbol for ClinVar lookup."))

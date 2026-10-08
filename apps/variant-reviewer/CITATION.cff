@@ -1,12 +1,30 @@
-cff-version: 1.1.0
+cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "Variant Reviewer"
-version: "2.3.3" # keep in sync with app_version() in R/utils.R
-doi: 10.5281/zenodo.22685108 # version DOI for 2.3.2; concept DOI is 10.5281/zenodo.21934011
+version: "2.3.4" # keep in sync with app_version() in R/utils.R
+date-released: "2026-10-08"
+doi: 10.5281/zenodo.21934011 # concept DOI; resolves to the latest version
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21934011"
+    description: "Concept DOI (resolves to all versions)."
+  - type: doi
+    value: "10.5281/zenodo.22693580"
+    description: "DOI for version 2.3.3."
+  - type: doi
+    value: "10.5281/zenodo.22685108"
+    description: "DOI for version 2.3.2."
+  - type: doi
+    value: "10.5281/zenodo.21950635"
+    description: "DOI for version 2.3.1."
+  - type: doi
+    value: "10.5281/zenodo.21934012"
+    description: "DOI for version 2.3.0."
 repository-code: "https://github.com/samuelbharti/variant-reviewer"
 authors:
   - family-names: Bharti
     given-names: Samuel
+    orcid: "https://orcid.org/0000-0003-4190-7058"
 keywords:
   - r
   - shiny

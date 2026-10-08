@@ -145,6 +145,13 @@ review_server <- function(
     enriched <- reactiveVal(NULL)
     # The input agent's proposal awaiting user confirmation (input/both modes).
     pending_proposal <- reactiveVal(NULL)
+    # The input agent runs in the background (R/llm_offload.R): this session waits
+    # for the proposal, and other visitors are not held up.
+    agent_job <- genescout_llm_task(session)
+    # The config the agent ran with, so a failure message is redacted with the
+    # key it used.
+    agent_cfg <- NULL
+    agent_progress <- NULL
 
     # "Clear all": drop the ranked result (which cascades to clear the AI curation
     # and specialist panels, via their observeEvent(result()) resets) and any
@@ -152,6 +159,7 @@ review_server <- function(
     observeEvent(
       inputs$reset(),
       {
+        agent_job$cancel()
         enriched(NULL)
         pending_proposal(NULL)
       },
@@ -300,39 +308,56 @@ review_server <- function(
       if (
         mode %in% c("input", "both") && genescout_llm_available(eff_config())
       ) {
-        proposal <- tryCatch(
-          withProgress(
-            message = "Reviewing your input with the agent...",
-            # Background process so Stop/refresh mid-call can't crash the session.
-            genescout_llm_run(
-              curate_input,
-              cs,
-              inputs$description(),
-              eff_config()
-            )
-          ),
-          error = function(e) {
-            showNotification(
-              paste(
-                "Input agent failed:",
-                genescout_redact_secret(
-                  conditionMessage(e),
-                  eff_config()$api_key %||% ""
-                )
-              ),
-              type = "error"
-            )
-            NULL
-          }
-        )
-        if (is.null(proposal)) {
+        if (identical(agent_job$task$status(), "running")) {
           return()
         }
-        pending_proposal(proposal)
-        show_confirm_modal(ns, proposal)
+        agent_cfg <<- eff_config()
+        agent_job$task$invoke(
+          curate_input,
+          cs,
+          inputs$description(),
+          agent_cfg
+        )
       } else {
         enrich_confirmed(cs, disease)
       }
+    })
+
+    # While the input agent runs, Rank genes is disabled and a progress note
+    # shows. The button stays an actionButton: its look, the setup panel and the
+    # guided tour depend on it. When the agent finishes, the proposal opens in
+    # the confirm panel.
+    observeEvent(agent_job$task$status(), {
+      running <- identical(agent_job$task$status(), "running")
+      updateActionButton(session, "input-run", disabled = running)
+      if (running) {
+        agent_progress <<- shiny::Progress$new(session)
+        agent_progress$set(message = "Reviewing your input with the agent...")
+        return()
+      }
+      if (!is.null(agent_progress)) {
+        agent_progress$close()
+        agent_progress <<- NULL
+      }
+      out <- agent_job$outcome()
+      req(out)
+      if (!out$ok) {
+        if (!is.null(out$message)) {
+          showNotification(
+            paste(
+              "Input agent failed:",
+              genescout_redact_secret(
+                out$message,
+                agent_cfg$api_key %||% ""
+              )
+            ),
+            type = "error"
+          )
+        }
+        return()
+      }
+      pending_proposal(out$value)
+      show_confirm_modal(ns, out$value)
     })
 
     # "Confirm & rank": build the confirmed candidate_set from the (edited) confirm

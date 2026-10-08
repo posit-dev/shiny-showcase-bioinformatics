@@ -10,7 +10,13 @@ MYGENE_BASE <- "https://mygene.info/v3"
 # two paths never drift. `SCOPES` are the fields the batch POST matches each query
 # against - covering symbols, aliases, and Ensembl/Entrez ids in one request (the
 # single path builds an explicit `ensembl.gene:`/`entrezgene:` term instead).
-MYGENE_FIELDS <- "name,symbol,entrezgene,ensembl.gene,uniprot,type_of_gene,summary"
+# `genomic_pos.chr` tells which Ensembl id sits on the primary assembly when a gene
+# has more than one (see mygene_ensembl_gene()).
+MYGENE_FIELDS <- paste0(
+  "name,symbol,entrezgene,ensembl.gene,",
+  "genomic_pos.chr,genomic_pos.ensemblgene,",
+  "uniprot,type_of_gene,summary"
+)
 MYGENE_BATCH_SCOPES <- "symbol,alias,ensembl.gene,entrezgene,retired"
 
 # Strip anything that isn't a plausible gene-identifier character.
@@ -174,10 +180,57 @@ mygene_parse_hit <- function(hit, fallback_symbol = NA_character_) {
     name = pluck_at(hit, "name", default = NA_character_),
     summary = pluck_at(hit, "summary", default = NA_character_),
     entrez = as.character(pluck_at(hit, "entrezgene", default = NA)),
-    ensembl_gene = mygene_first(pluck_at(hit, "ensembl", "gene")),
+    ensembl_gene = mygene_ensembl_gene(hit),
     uniprot = mygene_first(pluck_at(hit, "uniprot", "Swiss-Prot")),
     type_of_gene = pluck_at(hit, "type_of_gene", default = NA_character_)
   )
+}
+
+# Chromosomes of the primary human assembly. An Ensembl gene id placed anywhere
+# else (HG2334_PATCH, a CHR_HSCHR alt haplotype) is a patch or alternate copy.
+MYGENE_PRIMARY_CHR <- c(as.character(1:22), "X", "Y", "MT")
+
+# The Ensembl gene id of a hit. MyGene gives `ensembl` as one object for most
+# genes, but as a list of objects when the gene also has an id on an assembly
+# patch: PTEN and MUC16 do. `pluck_at(hit, "ensembl", "gene")` returns NULL on
+# that list, which left such genes unresolved. Take the id that `genomic_pos`
+# places on a primary chromosome; without position data, the first id.
+mygene_ensembl_gene <- function(hit) {
+  ids <- vapply(
+    mygene_records(pluck_at(hit, "ensembl")),
+    function(rec) mygene_first(rec$gene),
+    character(1)
+  )
+  ids <- ids[!is.na(ids) & nzchar(ids)]
+  if (length(ids) == 0) {
+    return(NA_character_)
+  }
+  on_primary <- vapply(
+    mygene_records(pluck_at(hit, "genomic_pos")),
+    function(pos) {
+      chr <- as.character(pos$chr %||% "")
+      if (chr %in% MYGENE_PRIMARY_CHR) {
+        mygene_first(pos$ensemblgene)
+      } else {
+        NA_character_
+      }
+    },
+    character(1)
+  )
+  primary <- intersect(ids, on_primary)
+  if (length(primary) > 0) primary[[1]] else ids[[1]]
+}
+
+# A MyGene field that is one object or a list of objects, as a list of objects.
+# Anything else (a bare string, NULL) gives an empty list.
+mygene_records <- function(x) {
+  if (!is.list(x) || length(x) == 0) {
+    return(list())
+  }
+  if (!is.null(names(x))) {
+    return(list(x))
+  }
+  Filter(is.list, x)
 }
 
 # MyGene fields can be a scalar or a list (multiple mappings); take the first.

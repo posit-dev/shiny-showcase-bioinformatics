@@ -1,24 +1,32 @@
-# gnomAD client: population allele frequencies for a variant, looked up by
-# rsID (avoids hg19/hg38 coordinate mismatches). GraphQL API:
+# gnomAD client: population allele frequencies for a variant, looked up by its
+# GRCh38 gnomAD variant id when the allele is known, else by rsID. GraphQL API:
 # https://gnomad.broadinstitute.org/api
 
 GNOMAD_URL <- "https://gnomad.broadinstitute.org/api"
 GNOMAD_DATASET <- "gnomad_r4"
 
-# Allele frequencies for an rsID.
+# Allele frequencies for a variant. `variant_id` is gnomAD's id for one allele
+# ("7-140753336-A-T"); when it is known it is used in place of the rsID, which
+# gnomAD refuses to resolve when it covers several alleles.
 # Returns:
 #   list(ok = TRUE, variant_id, dataset, exome = list(af, ac, an)|NULL,
 #        genome = list(af, ac, an)|NULL)
 #   list(ok = FALSE, error = "...")
-gnomad_frequency <- function(rsid, dataset = GNOMAD_DATASET) {
-  if (is_blank(rsid)) {
+gnomad_frequency <- function(
+  rsid,
+  dataset = GNOMAD_DATASET,
+  variant_id = NULL
+) {
+  by_id <- !is_blank(variant_id)
+  if (!by_id && is_blank(rsid)) {
     return(list(ok = FALSE, error = "No rsID available for gnomAD lookup."))
   }
+  label <- if (by_id) variant_id else rsid
 
   query <- sprintf(
     paste(
-      "query($rsid: String!) {",
-      "  variant(rsid: $rsid, dataset: %s) {",
+      "query($id: String!) {",
+      "  variant(%s: $id, dataset: %s) {",
       "    variant_id",
       "    exome { af ac an populations { id ac an } }",
       "    genome { af ac an populations { id ac an } }",
@@ -26,27 +34,45 @@ gnomad_frequency <- function(rsid, dataset = GNOMAD_DATASET) {
       "}",
       sep = "\n"
     ),
+    if (by_id) "variantId" else "rsid",
     dataset
   )
 
   res <- vr_api_post_json(
     GNOMAD_URL,
-    body = list(query = query, variables = list(rsid = rsid)),
+    body = list(query = query, variables = list(id = label)),
     source = "gnomAD"
   )
   if (!res$ok) {
     return(list(ok = FALSE, error = res$error))
   }
+  no_record <- list(
+    ok = FALSE,
+    missing = TRUE,
+    error = paste0("gnomAD has no record for ", label, ".")
+  )
   if (!is.null(res$data$errors)) {
-    return(list(ok = FALSE, error = "gnomAD returned a query error."))
+    kind <- gnomad_error_kind(res$data$errors)
+    if (identical(kind, "missing")) {
+      return(no_record)
+    }
+    return(list(
+      ok = FALSE,
+      error = if (identical(kind, "multiple")) {
+        paste0(
+          "gnomAD has more than one variant for ",
+          label,
+          ". Pick one allele in the Variant box to see its frequency."
+        )
+      } else {
+        "gnomAD returned a query error."
+      }
+    ))
   }
 
   variant <- pluck_at(res$data, "data", "variant")
   if (is.null(variant)) {
-    return(list(
-      ok = FALSE,
-      error = paste0("gnomAD has no record for ", rsid, ".")
-    ))
+    return(no_record)
   }
 
   list(
@@ -58,6 +84,96 @@ gnomad_frequency <- function(rsid, dataset = GNOMAD_DATASET) {
     populations = gnomad_parse_populations(
       pluck_at(variant, "exome", "populations"),
       pluck_at(variant, "genome", "populations")
+    )
+  )
+}
+
+# What a gnomAD GraphQL error means: "missing" (no such variant), "multiple"
+# (an rsID that covers more than one variant) or "other". gnomAD reports the
+# first two as errors, not as empty data.
+gnomad_error_kind <- function(errors) {
+  messages <- unlist(
+    lapply(errors, function(e) pluck_at(e, "message")),
+    use.names = FALSE
+  )
+  text <- tolower(paste(messages, collapse = " "))
+  if (grepl("not found", text, fixed = TRUE)) {
+    return("missing")
+  }
+  if (grepl("multiple variants", text, fixed = TRUE)) {
+    return("multiple")
+  }
+  "other"
+}
+
+# Allele frequencies for one picked allele, by its chrom-pos-ref-alt id.
+#
+# gnomAD stores an indel at its leftmost position in a repeat, and MyVariant
+# can hold the same indel further right (BRCA2 c.5073del is 13-32339421-CA-C
+# in gnomAD and 13-32339427-AA-A in MyVariant). So an indel gnomAD does not
+# know is moved left against the reference and tried again. When the
+# reference cannot be fetched, the rsID is tried and its answer kept only
+# when it is the same change; failing that, the card says the absence was not
+# checked, since "no record" would read as evidence the variant is rare.
+# Without an id there is no safe lookup: the rsID alone can return another
+# allele.
+gnomad_allele_frequency <- function(rsid, vcf_id, dataset = GNOMAD_DATASET) {
+  if (is_blank(vcf_id)) {
+    return(vr_allele_unplaced("gnomAD"))
+  }
+  v <- .mv_parse_vcf_id(vcf_id)
+  # Two kinds of change gnomAD does keep, but not where this lookup asks, so
+  # "no record" would be false: mitochondrial variants sit in a separate
+  # dataset, and a multi-base substitution is listed one base at a time.
+  if (!is.null(v) && v$chrom %in% c("MT", "M")) {
+    return(list(
+      ok = FALSE,
+      error = paste(
+        "gnomAD keeps mitochondrial variants in a separate dataset,",
+        "which this card does not read yet."
+      )
+    ))
+  }
+  if (!is.null(v) && nchar(v$ref) == nchar(v$alt) && nchar(v$ref) > 1) {
+    return(list(
+      ok = FALSE,
+      error = paste(
+        "gnomAD lists each base of a multi-base change on its own, so",
+        vcf_id,
+        "has no single gnomAD record to show."
+      )
+    ))
+  }
+  res <- gnomad_frequency(rsid, dataset, variant_id = vcf_id)
+  is_indel <- !is.null(v) && nchar(v$ref) != nchar(v$alt)
+  if (isTRUE(res$ok) || !isTRUE(res$missing) || !is_indel) {
+    return(res)
+  }
+
+  aligned <- ensembl_left_align(vcf_id)
+  if (identical(aligned, vcf_id)) {
+    return(res)
+  }
+  if (!is.null(aligned)) {
+    return(gnomad_frequency(rsid, dataset, variant_id = aligned))
+  }
+
+  if (!is_blank(rsid)) {
+    by_rsid <- gnomad_frequency(rsid, dataset)
+    if (
+      isTRUE(by_rsid$ok) && myvariant_same_vcf_id(by_rsid$variant_id, vcf_id)
+    ) {
+      return(by_rsid)
+    }
+  }
+  list(
+    ok = FALSE,
+    error = paste0(
+      "gnomAD has no record for ",
+      vcf_id,
+      " as written. gnomAD lists an insertion or deletion at its leftmost",
+      " position in a repeat, and that position could not be checked, so",
+      " this does not show the variant is missing from gnomAD."
     )
   )
 }

@@ -126,7 +126,7 @@ study_context_ui <- function(id) {
         class = "form-label small text-muted mb-1",
         "Discovery (optional): seed genes from a disease"
       ),
-      # A flex row rather than a Bootstrap `.input-group`: Shiny wraps each input
+      # A flex row instead of a Bootstrap `.input-group`: Shiny wraps each input
       # in a `.shiny-input-container`, which breaks input-group's flush styling
       # (the Find button ends up detached). Flex + a matching button avoids that.
       div(
@@ -291,7 +291,7 @@ context_choices <- function() {
 }
 
 # The weight sliders, grouped by the evidence domain of each signal so related
-# sources sit together, and laid out in a full-width responsive grid rather than a
+# sources sit together, and laid out in a full-width responsive grid instead of a
 # single stacked column. Group headings reuse the report's domain labels.
 weight_sliders_ui <- function(ns, registry) {
   domains <- vapply(registry, function(s) s$domain %||% "other", character(1))
@@ -637,7 +637,7 @@ input_server <- function(
     })
 
     # Pre-fill the paste box with the bundled NF1 gene list, wrapped so a
-    # missing/renamed example surfaces a notice rather than crashing.
+    # missing/renamed example surfaces a notice instead of crashing.
     observeEvent(input$load_example, {
       loaded <- tryCatch(
         example_text("nf1_candidates"),

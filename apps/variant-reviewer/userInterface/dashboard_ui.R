@@ -89,7 +89,8 @@
   class = "text-muted small mb-2",
   icon("circle-info"),
   paste(
-    " Annotating human (Homo sapiens), genome assembly GRCh38 (hg38);",
+    " Annotating human (Homo sapiens), genome assembly GRCh38 (hg38).",
+    "Genomic positions you type are read as GRCh38;",
     "variant consequences are reported per Ensembl transcript (VEP)."
   )
 )

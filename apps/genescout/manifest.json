@@ -1736,37 +1736,37 @@
         "Type": "Package",
         "Package": "mirai",
         "Title": "Minimalist Async Evaluation Framework for R",
-        "Version": "2.7.1",
+        "Version": "2.7.2",
         "Authors@R": "c(\n    person(\"Charlie\", \"Gao\", , \"charlie.gao@posit.co\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0000-0002-0750-061X\")),\n    person(\"Joe\", \"Cheng\", , \"joe@posit.co\", role = \"ctb\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"),\n           comment = c(ROR = \"03wc8by49\")),\n    person(\"Hibiki AI Limited\", role = \"cph\")\n  )",
         "Description": "Evaluates R expressions asynchronously and in parallel,\n    locally or distributed across networks. An official parallel cluster\n    type for R. Built on 'nanonext' and 'NNG', its non-polling,\n    event-driven architecture scales from a laptop to thousands of\n    processes across high-performance computing clusters and cloud\n    platforms. Features FIFO scheduling with task cancellation and bounded\n    queues, promises for reactive programming, 'OpenTelemetry' distributed\n    tracing, and custom serialization for cross-language data types.",
         "License": "MIT + file LICENSE",
         "URL": "https://mirai.r-lib.org, https://github.com/r-lib/mirai",
         "BugReports": "https://github.com/r-lib/mirai/issues",
         "Depends": "R (>= 3.6)",
-        "Imports": "nanonext (>= 1.9.0)",
-        "Suggests": "cli, later, litedown, mori, otel, otelsdk, secretbase",
+        "Imports": "nanonext (>= 1.10.1)",
+        "Suggests": "cli, litedown, mori, otel, otelsdk, secretbase",
         "Enhances": "parallel, promises",
         "VignetteBuilder": "litedown",
         "Config/Needs/coverage": "rlang",
         "Config/Needs/website": "tidyverse/tidytemplate",
         "Config/roxygen2/markdown": "TRUE",
-        "Config/roxygen2/version": "8.0.0",
-        "Config/usethis/last-upkeep": "2025-04-23",
+        "Config/roxygen2/version": "8.0.0.9000",
+        "Config/usethis/last-upkeep": "2026-07-11",
         "Encoding": "UTF-8",
         "NeedsCompilation": "no",
-        "Packaged": "2026-06-01 11:11:45 UTC; shikokuchuo",
+        "Packaged": "2026-07-20 07:28:30 UTC; cg334",
         "Author": "Charlie Gao [aut, cre] (ORCID: <https://orcid.org/0000-0002-0750-061X>),\n  Joe Cheng [ctb],\n  Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>),\n  Hibiki AI Limited [cph]",
         "Maintainer": "Charlie Gao <charlie.gao@posit.co>",
         "Repository": "CRAN",
-        "Date/Publication": "2026-06-01 12:00:02 UTC",
-        "Built": "R 4.6.0; ; 2026-07-29 17:56:36 UTC; unix",
+        "Date/Publication": "2026-07-20 08:10:02 UTC",
+        "Built": "R 4.6.1; ; 2026-07-30 01:49:31 UTC; windows",
         "RemoteType": "standard",
         "RemoteRef": "mirai",
         "RemotePkgRef": "mirai",
         "RemoteRepos": "https://cloud.r-project.org",
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "source",
-        "RemoteSha": "2.7.1"
+        "RemoteSha": "2.7.2"
       }
     },
     "nanonext": {
@@ -3158,10 +3158,10 @@
       "checksum": "38f9cdafcc7601758bb62014c942d533"
     },
     ".Rprofile": {
-      "checksum": "d389313a7554545409c8533d1b047f95"
+      "checksum": "57f9047cb06fdbef821b61f49e21406e"
     },
     "api/plumber.R": {
-      "checksum": "764c423de9b8f096f8e9258d7edc639b"
+      "checksum": "fb1c43b8b0abdf66474f9ca6891a465a"
     },
     "app.R": {
       "checksum": "aba7d63db96b39b5f6a66593064ce8a0"
@@ -3182,10 +3182,10 @@
       "checksum": "3b4f2a224d186b347eb6a6c96a0f1bb7"
     },
     "DESCRIPTION": {
-      "checksum": "d1e42b9e91470213a184b8abf658981b"
+      "checksum": "3f7de6bec37a7ed07c68ae8afc774c2c"
     },
     "global.R": {
-      "checksum": "dc52b29714b1953e11249a7d19e81a06"
+      "checksum": "59bb51faf6c4d36dbf0624394fd13a66"
     },
     "LICENSE": {
       "checksum": "630a05bed5ddd5e88f80aed4b7688456"
@@ -3194,16 +3194,16 @@
       "checksum": "023cfb48d4889af4d6281154a3cebc5f"
     },
     "modules/mod_input.R": {
-      "checksum": "74aff7c25294fcd72230f564e31866ff"
+      "checksum": "b1d7bc0d0be74d459534ddfa07a19e20"
     },
     "modules/mod_keys.R": {
       "checksum": "8ae5b83fafc29bf746171ff200be8fbb"
     },
     "modules/mod_results.R": {
-      "checksum": "55d9e6694de557e4bcefc87c1d49c9ca"
+      "checksum": "71badc51085a77cf6bdd6c98e4019d78"
     },
     "modules/mod_review.R": {
-      "checksum": "7984270cffd205f337895d71782f1244"
+      "checksum": "e6467db3da6ad4d808239bc7a8627dbd"
     },
     "prompts/chat.md": {
       "checksum": "331592ab8e3dfd7179aff26961c14f99"
@@ -3227,7 +3227,7 @@
       "checksum": "8852d2c69e794eabd092017d13202ca3"
     },
     "R/agents.R": {
-      "checksum": "f8e476273d342ae3fdceb67651c3b823"
+      "checksum": "d976411602605ac08570098003e3c88c"
     },
     "R/byok.R": {
       "checksum": "291bee2c5c0e332b06bee279f75e76eb"
@@ -3236,10 +3236,10 @@
       "checksum": "faccbbc4aec30c57b7b4c4247974be93"
     },
     "R/citation_gate.R": {
-      "checksum": "0b893ec827469f9f749ce4c50b83cd9a"
+      "checksum": "ad78b5a49ce6a28589fde4b90adb990f"
     },
     "R/config.R": {
-      "checksum": "f5a582deae6bd928ca19011435932f2b"
+      "checksum": "3c3cfcff7f8aa85eb2d9851f1d39ed46"
     },
     "R/connectors.R": {
       "checksum": "23162c8758d344d6cd9fb63b26c7460e"
@@ -3248,10 +3248,10 @@
       "checksum": "54a86df1a73e73ec4d0f8e54d09652e2"
     },
     "R/curate.R": {
-      "checksum": "918f75614791bd0ff619b48be5f32cc3"
+      "checksum": "2acdc0d66ed1915d3993b1bed7962a45"
     },
     "R/enrich.R": {
-      "checksum": "48ae70a970e387bb2722317b84ce95ad"
+      "checksum": "1419dfd7c9486b60da8db286807aa125"
     },
     "R/eval_checks.R": {
       "checksum": "4dce6252db6cc77e3c1d96283d2b0bcd"
@@ -3260,40 +3260,40 @@
       "checksum": "f82c088736ddce5c69dad9fc3862a036"
     },
     "R/http.R": {
-      "checksum": "7209ade0c9be4b2ac428f23da121a1e7"
+      "checksum": "995d5214148310098eefff344605713d"
     },
     "R/input_agent.R": {
-      "checksum": "cd805a0d4caf0653557e1f8ecdf2dfc7"
+      "checksum": "042ae403650ed0065d49b505c1c0f402"
     },
     "R/llm_offload.R": {
-      "checksum": "33a7c7c5b5cd753cf277a08912fc6b00"
+      "checksum": "5e39d7bb76ab5334495c02e90440a43a"
     },
     "R/load_components.R": {
       "checksum": "0d1fc26c826f8b7282bdca8d3cd79461"
     },
     "R/orchestrate.R": {
-      "checksum": "575f0fd3977ee4a475deedb24f9c38c5"
+      "checksum": "0ea5222fd0f743c93aa1faf96bd03292"
     },
     "R/parallel.R": {
-      "checksum": "2aad6757207b4a22752c158e02fe64ac"
+      "checksum": "8f2b40ec26bb89328c831444f451ae8f"
     },
     "R/parse_input.R": {
-      "checksum": "f8bee8387067dea266d3c56fb9deef12"
+      "checksum": "64242bc6f3f8b0380a4bcce54abeea23"
     },
     "R/report.R": {
-      "checksum": "90ef8ceee797299ddf2358b53ab5ff99"
+      "checksum": "7b0f5ad97e5899d9dc2b28727626fef3"
     },
     "R/review_render.R": {
       "checksum": "de6455d2ede5a3c7170ead02b8757a22"
     },
     "R/scoring.R": {
-      "checksum": "ef05686cb2949f1853fc85d80872d24c"
+      "checksum": "8d8ff36f060c8cbd3db000b662ddc187"
     },
     "R/specialists.R": {
-      "checksum": "ca5da7c1d8a67aeb92cfc6bb523477e7"
+      "checksum": "565479002df19d39947f5d1c119b9589"
     },
     "R/tools/cbioportal.R": {
-      "checksum": "999e896494bdee5648bcd3ae99df3dcd"
+      "checksum": "0a303b70d2115ee977fff22aae23d667"
     },
     "R/tools/civic.R": {
       "checksum": "32dd5eee32e5f69a56b5e60643cc7df2"
@@ -3302,13 +3302,13 @@
       "checksum": "7e3dd60087eca398706411ffb7d8db27"
     },
     "R/tools/clinvar.R": {
-      "checksum": "a99747d700c76cf13ead56b1af33943a"
+      "checksum": "8bb57abae16b40516386660dbbea2b9b"
     },
     "R/tools/dgidb.R": {
       "checksum": "72533b12d6ce1e3630dd9d0514282afc"
     },
     "R/tools/disease_resolver.R": {
-      "checksum": "7058a807d286707d3b1ccf7d5c2988a4"
+      "checksum": "35f30ab5fd410563502ce82e9d9b92f0"
     },
     "R/tools/diseases.R": {
       "checksum": "08a78c72df175a058da87e22f561fb78"
@@ -3332,7 +3332,7 @@
       "checksum": "739be8b82484318f08efa77b223baa11"
     },
     "R/tools/mygene.R": {
-      "checksum": "562df55970b36ed210f38240725687e1"
+      "checksum": "d2a327bdef21bd5591449893b2a8c6be"
     },
     "R/tools/opentargets.R": {
       "checksum": "1c75517d098d3a9e60874c07bebfab1c"
@@ -3368,10 +3368,10 @@
       "checksum": "e93a54924371b12b1ba993e1c4f0b069"
     },
     "R/utils.R": {
-      "checksum": "ae93d9c03ea91749fba63eb4109648ed"
+      "checksum": "a6245aeae0f94d91651fd7c819a346b1"
     },
     "renv.lock": {
-      "checksum": "89ca000413943548a7eeb2f5d7503c77"
+      "checksum": "d1de30f86433a2635072525a31fbfcb1"
     },
     "report/template.qmd": {
       "checksum": "faa931757c00a9aa8d3968743c459bd7"

@@ -14,7 +14,8 @@ clinvar_ui <- function(id) {
 }
 
 # rsid: reactive() -> dbSNP rsID string (or NULL when none is available).
-clinvar_server <- function(id, rsid) {
+# allele: reactive() -> the allele being reviewed (see vr_variant_allele()).
+clinvar_server <- function(id, rsid, allele = reactive(NULL)) {
   moduleServer(id, function(input, output, session) {
     retry <- vr_retry_counter()
     vr_card_refresh_observer(input, retry$bump)
@@ -22,10 +23,14 @@ clinvar_server <- function(id, rsid) {
     classification <- reactive({
       retry$dep()
       id_value <- rsid()
-      if (is_blank(id_value)) {
+      picked <- allele()
+      if (isTRUE(picked$ambiguous)) {
+        return(vr_allele_needed("ClinVar classification"))
+      }
+      if (is_blank(id_value) && is_blank(picked$clinvar_id)) {
         return(NULL)
       }
-      clinvar_classification(id_value)
+      clinvar_classification(id_value, picked)
     })
 
     output$source <- renderUI({

@@ -42,7 +42,7 @@ model_for <- function(role, config = load_config()) {
 }
 
 # The per-provider role -> model map for BYOK (config.yml `byok:` block). A sibling
-# of the profiles, so it is read from the whole file rather than a single profile.
+# of the profiles, so it is read from the whole file instead of a single profile.
 # Returns a named list with the pipeline roles plus a `chat` model. Model strings
 # stay in config; the BYOK layer (R/byok.R) reads them here, never hardcodes them.
 load_byok_models <- function(provider, path = "config.yml") {

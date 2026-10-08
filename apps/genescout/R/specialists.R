@@ -142,7 +142,7 @@ specialist_evidence_text <- function(
   )
 }
 
-# System prompt for a specialist (the synthesis contract - it interprets shown
+# System prompt for a specialist (the synthesis rules - it interprets shown
 # evidence, never fetches or recalls).
 specialist_system_prompt <- function(specialist) {
   paste(

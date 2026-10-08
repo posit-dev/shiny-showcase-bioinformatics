@@ -43,7 +43,7 @@ run_enrich <- function(
   cs <- as_candidate_set(gene_lists)
   # Optional disease-context priors (context/*.yaml: FLAGS genes, tissues, drivers)
   # for the caveats stage. Accept an already-loaded `priors` list or a `priors_id`
-  # to load; a bad id degrades to no priors rather than crashing the run.
+  # to load; a bad id degrades to no priors instead of crashing the run.
   # Use `[[` (exact), NOT `$`: `context$priors` PARTIAL-MATCHES `priors_id`, so a
   # request that carries only priors_id would look like it already had priors and
   # skip the load entirely.
@@ -76,7 +76,7 @@ run_enrich <- function(
       )
     }
     # Record when the seeded universe was capped, so the truncation is audited in
-    # the provenance rather than being a silent limit.
+    # the provenance instead of being a silent limit.
     n_seeded <- seeded$n_seeded %||% length(seeded$symbols)
     if (n_seeded > length(seeded$symbols)) {
       context$seed_capped <- list(
@@ -338,7 +338,7 @@ coerce_request_sources <- function(sources) {
 
 # One review from a single, serializable request envelope - the ONE call a
 # plumber route or the CLI wraps, so every frontend (Shiny, CLI, React/Python via
-# the API) shares one contract. `req` is
+# the API) shares one interface. `req` is
 #   list(sources = <candidate_set | JSON source list | named list | vector | df>,
 #        description = <chr>, disease = <resolved list(id, name) | NULL>,
 #        tissues = <chr>, priors_id = <context/<id>.yaml id | NULL>,
@@ -564,7 +564,7 @@ genescout_provenance <- function(context = list()) {
     )
   }
   # Reliability notes. Without these a source that was DOWN is indistinguishable in
-  # the audit trail from a source that legitimately had nothing for these genes,
+  # the audit trail from a source that truly had nothing for these genes,
   # and the ranking looks equally confident either way.
   hosts <- pluck_at(context, "unreachable_hosts")
   if (length(hosts) > 0) {

@@ -97,17 +97,22 @@ variant_landscape_server <- function(id, resolved, search, annotation) {
       }
 
       query <- search()
-      queried <- protein_resolve_position(query$variant, annotation())
+      ann <- annotation()
+      queried <- protein_resolve_position(query$variant, ann)
 
       list(
         ok = TRUE,
         variants = agg,
         domains = domains,
         queried = queried,
-        queried_label = if (!is.null(query) && !is_blank(query$variant)) {
-          query$variant
-        } else {
+        # The protein change when there is one: on a protein axis it says more
+        # than an rsID, and an HGVS id is too long for the marker.
+        queried_label = if (is.null(query) || is_blank(query$variant)) {
           NULL
+        } else if (isTRUE(ann$ok) && !is_blank(ann$hgvsp)) {
+          ann$hgvsp
+        } else {
+          query$variant
         },
         xmax = max(
           agg$residue,

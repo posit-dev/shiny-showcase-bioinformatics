@@ -92,18 +92,24 @@ results_server <- function(
             ),
             gs_info("The target size for the AI-curated shortlist.")
           ),
-          actionButton(
+          # Task buttons grey out while their step runs in the background,
+          # so a second click cannot start a second run.
+          bslib::input_task_button(
             ns("do_curate"),
             "✦ Curate with AI",
+            label_busy = "Curating...",
+            type = "default",
             class = "gs-btn gs-btn-soft"
           ),
           gs_info(
             "Filter the top ranked genes down to about your shortlist size with",
             "the model — it chooses only from them and cites the evidence shown."
           ),
-          actionButton(
+          bslib::input_task_button(
             ns("do_specialists"),
             "◎ Analyze with specialists",
+            label_busy = "Running specialists...",
+            type = "default",
             class = "gs-btn gs-btn-soft"
           ),
           gs_info(
@@ -230,10 +236,27 @@ results_server <- function(
     )
 
     # --- AI curation (the final compaction step) -----------------------------
+    # The AI steps run in the background (R/llm_offload.R): this session waits for
+    # its own result, and other visitors are not held up.
     curated <- reactiveVal(NULL)
+    curate_job <- genescout_llm_task(session)
+    bslib::bind_task_button(curate_job$task, "do_curate")
+    # The ranking and config a run was started with: a result that arrives after
+    # the ranking changed is dropped, and a failure message is redacted with the
+    # key the run used.
+    curate_for <- NULL
+    curate_cfg <- NULL
     # Reset any prior curation when the ranking changes (ignoreNULL = FALSE so a
-    # failed re-run that clears the result also clears a stale curated card/CSV).
-    observeEvent(result(), curated(NULL), ignoreNULL = FALSE)
+    # failed re-run that clears the result also clears a stale curated card/CSV),
+    # and stop a run that was started for the old ranking.
+    observeEvent(
+      result(),
+      {
+        curate_job$cancel()
+        curated(NULL)
+      },
+      ignoreNULL = FALSE
+    )
 
     observeEvent(input$do_curate, {
       req(result())
@@ -242,26 +265,31 @@ results_server <- function(
       if (is.null(ts) || is.na(ts) || ts < 1) {
         ts <- GENESCOUT_CURATE_TARGET_DEFAULT
       }
-      cfg <- config_r()
-      cur <- tryCatch(
-        withProgress(
-          message = "Curating with the configured model...",
-          # Background process so Stop/refresh mid-call can't crash the session.
-          genescout_llm_run(curate_gene_list, result(), cfg, top_n = ts)
-        ),
-        error = function(e) {
+      curate_for <<- result()
+      curate_cfg <<- config_r()
+      curate_job$task$invoke(curate_gene_list, result(), curate_cfg, top_n = ts)
+    })
+
+    observeEvent(curate_job$task$status(), {
+      out <- curate_job$outcome()
+      req(out, identical(curate_for, result()))
+      if (!out$ok) {
+        if (!is.null(out$message)) {
           showNotification(
             paste(
               "Curation failed:",
-              genescout_redact_secret(conditionMessage(e), cfg$api_key %||% "")
+              genescout_redact_secret(out$message, curate_cfg$api_key %||% "")
             ),
             type = "error"
           )
-          NULL
         }
-      )
+        return()
+      }
+      cur <- out$value
       curated(cur)
-      if (!is.null(cur)) {
+      # A model failure still returns the rank-based list, with the reason in an
+      # `error` attribute that the card shows; only a real curation is announced.
+      if (is.null(attr(cur, "error"))) {
         showNotification(
           "Curated shortlist ready - shown below the ranked table.",
           type = "message",
@@ -309,9 +337,21 @@ results_server <- function(
     )
 
     # --- Specialist analysis (optional LLM synthesis over the evidence) -------
+    spec_job <- genescout_llm_task(session)
+    bslib::bind_task_button(spec_job$task, "do_specialists")
+    spec_for <- NULL
+    spec_cfg <- NULL
     # Clear stale analysis when the ranking changes (ignoreNULL = FALSE so a
-    # failed re-run that clears the result also clears the specialist cards).
-    observeEvent(result(), specialists(NULL), ignoreNULL = FALSE)
+    # failed re-run that clears the result also clears the specialist cards), and
+    # stop a run that was started for the old ranking.
+    observeEvent(
+      result(),
+      {
+        spec_job$cancel()
+        specialists(NULL)
+      },
+      ignoreNULL = FALSE
+    )
 
     observeEvent(input$do_specialists, {
       req(result())
@@ -325,29 +365,32 @@ results_server <- function(
       } else {
         NULL
       }
-      cfg <- config_r()
-      sp <- tryCatch(
-        withProgress(
-          message = "Running specialists on the top candidates...",
-          # Background process: the specialists' libcurl calls stay out of the session.
-          genescout_llm_run(
-            run_specialists,
-            result(),
-            cfg,
-            restrict_to = restrict
-          )
-        ),
-        error = function(e) {
+      spec_for <<- result()
+      spec_cfg <<- config_r()
+      spec_job$task$invoke(
+        run_specialists,
+        result(),
+        spec_cfg,
+        restrict_to = restrict
+      )
+    })
+
+    observeEvent(spec_job$task$status(), {
+      out <- spec_job$outcome()
+      req(out, identical(spec_for, result()))
+      if (!out$ok) {
+        if (!is.null(out$message)) {
           showNotification(
             paste(
               "Specialist analysis failed:",
-              genescout_redact_secret(conditionMessage(e), cfg$api_key %||% "")
+              genescout_redact_secret(out$message, spec_cfg$api_key %||% "")
             ),
             type = "error"
           )
-          NULL
         }
-      )
+        return()
+      }
+      sp <- out$value
       # A graceful "no findings / no credentials" outcome is a notice, not an error.
       if (!is.null(sp) && !isTRUE(sp$ai_used) && !is.null(sp$message)) {
         showNotification(sp$message, type = "message")

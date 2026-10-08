@@ -151,7 +151,7 @@ genescout_host_rate <- function(host) {
 # and the secret must never enter the hashed key.
 #
 # `secret_query` is the same guarantee for the sources that take their key as a
-# QUERY PARAMETER rather than a header (NCBI E-utilities is the one that matters).
+# QUERY PARAMETER instead of a header (NCBI E-utilities is the one that matters).
 # Header auth is preferred because it keeps the secret out of the URL entirely, but
 # where the API gives no choice these values are appended to the request and
 # excluded from the cache key just like `headers`. Never put a secret in `query`.
@@ -214,7 +214,7 @@ http_post_json <- function(
   })
 }
 
-# Normalize a GraphQL response into the clients' error contract. A GraphQL server
+# Normalize a GraphQL response into the clients' error shape. A GraphQL server
 # reports query errors inside an HTTP 200 body (a top-level `errors` array), so a
 # 200 is not enough. Returns a standard `list(ok = FALSE, error = ...)` on a
 # transport failure OR a query error, else NULL - letting each GraphQL client
@@ -232,7 +232,7 @@ graphql_error <- function(res, source = "API") {
   NULL
 }
 
-# GET a text endpoint (some sources ship a bulk flat file - CSV/TSV - rather than a
+# GET a text endpoint (some sources ship a bulk flat file - CSV/TSV - instead of a
 # per-record JSON API; e.g. ClinGen's gene-validity download). Same timeout / retry /
 # cache / header-redaction as http_get_json, but the body is returned verbatim as a
 # string in `text` (list(ok, status, text, error)) instead of parsed JSON in `data`.
@@ -335,7 +335,7 @@ genescout_req_defaults <- function(req, timeout, max_tries, headers = NULL) {
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
   req <- httr2::req_user_agent(req, genescout_user_agent())
   # Pace requests per host. httr2 takes exactly one of `rate` or `capacity`; we set
-  # `capacity` to ~1 second's worth of budget and derive `fill_time_s` from it, which
+  # `capacity` to ~1 second of budget and derive `fill_time_s` from it, which
   # yields the same requests/second while keeping the burst small. Passing `rate`
   # alone would size the bucket at a full minute of budget and let a run spend it all
   # at once, breaching an instantaneous per-second limit.
